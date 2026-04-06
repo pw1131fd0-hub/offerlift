@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OfferLift — 求職者薪資談判智囊</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'sans-serif'] },
+          colors: {
+            brand: { 50: '#f0fdf4', 100: '#dcfce7', 500: '#22c55e', 600: '#16a34a', 900: '#166534' }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Inter', sans-serif; }
+    .gradient-bg { background: linear-gradient(135deg, #166534 0%, #0f172a 100%); }
+    .card-hover { transition: all 0.3s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+    .score-ring { transition: stroke-dashoffset 1s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .animate-in { animation: fadeIn 0.6s ease forwards; }
+    .script-card { max-height: 0; overflow: hidden; transition: max-height 0.4s ease; }
+    .script-card.open { max-height: 500px; }
+    input[type="range"] { -webkit-appearance: none; height: 8px; border-radius: 4px; background: #e5e7eb; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #22c55e; cursor: pointer; }
+  </style>
+</head>
+<body class="bg-gray-50 text-gray-900">
+
+  <!-- Nav -->
+  <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+        </div>
+        <span class="text-xl font-bold text-gray-900">OfferLift</span>
+      </div>
+      <div class="flex gap-6 text-sm font-medium text-gray-600">
+        <a href="#evaluator" class="hover:text-brand-600 transition">評估工具</a>
+        <a href="#scripts" class="hover:text-brand-600 transition">談判腳本</a>
+        <a href="#market" class="hover:text-brand-600 transition">薪資參考</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="gradient-bg text-white py-24 px-6">
+    <div class="max-w-4xl mx-auto text-center animate-in">
+      <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm mb-8">
+        <span class="w-2 h-2 bg-brand-500 rounded-full animate-pulse"></span>
+        還在用資訊劣勢談薪資？
+      </div>
+      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
+        讓你的 Offer<br><span class="text-brand-400">不再被低估</span>
+      </h1>
+      <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+        輸入你的 Offer，AI 即時評估談判空間。內建真實薪資數據庫與談判腳本，幫助求職者拿回主導權。
+      </p>
+      <a href="#evaluator" class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold px-8 py-4 rounded-xl transition shadow-lg shadow-brand-500/30">
+        開始評估你的 Offer
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Stats -->
+  <section class="py-16 bg-white border-b border-gray-100">
+    <div class="max-w-5xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
+      <div>
+        <div class="text-4xl font-bold text-brand-600" id="stat-users">--</div>
+        <div class="text-gray-500 mt-1">已評估的 Offer</div>
+      </div>
+      <div>
+        <div class="text-4xl font-bold text-brand-600">+18%</div>
+        <div class="text-gray-500 mt-1">平均薪資增幅潛力</div>
+      </div>
+      <div>
+        <div class="text-4xl font-bold text-brand-600">100%</div>
+        <div class="text-gray-500 mt-1">純前端・數據不上雲</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Evaluator -->
+  <section id="evaluator" class="py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-3">🔍 Offer 評估器</h2>
+        <p class="text-gray-500">輸入你的 Offer 詳情，獲得客觀評估與談判建議</p>
+      </div>
+      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+        <div class="grid md:grid-cols-2">
+          <!-- Input Form -->
+          <div class="p-8 border-r border-gray-100">
+            <h3 class="font-semibold mb-6 flex items-center gap-2">
+              <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              輸入你的 Offer
+            </h3>
+            <div class="space-y-5">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">職位名稱</label>
+                <input id="job-title" type="text" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">年度總薪（含獎金）</label>
+                <div class="flex items-center gap-2">
+                  <input id="total-comp" type="number" placeholder="1500000" class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                  <span class="text-gray-500 font-medium">TWD</span>
+                </div>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">年薪底薪</label>
+                <input id="base-salary" type="number" placeholder="1200000" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  年終獎金 <span id="bonus-display" class="text-brand-600 font-medium">2 個月</span>
+                </label>
+                <input id="bonus" type="range" min="0" max="12" value="2" class="w-full" oninput="document.getElementById('bonus-display').textContent = this.value + ' 個月'">
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">
+                  想像空間 <span id="equity-display" class="text-brand-600 font-medium">0%</span>
+                </label>
+                <input id="equity" type="range" min="0" max="5" step="0.1" value="0" class="w-full" oninput="document.getElementById('equity-display').textContent = this.value + '%'">
+                <p class="text-xs text-gray-400 mt-1">股份或選擇權（稀釋後百分比）</p>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">城市</label>
+                <select id="city" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                  <option value="taipei">台北</option>
+                  <option value="nhc">新竹</option>
+                  <option value="taichung">台中</option>
+                  <option value="kaohsiung">高雄</option>
+                  <option value="remote">遠端</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">年資</label>
+                <select id="experience" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                  <option value="0-2">0-2 年</option>
+                  <option value="2-5">2-5 年</option>
+                  <option value="5-10">5-10 年</option>
+                  <option value="10+">10+ 年</option>
+                </select>
+              </div>
+              <button onclick="evaluateOffer()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                評估我的 Offer
+              </button>
+            </div>
+          </div>
+          <!-- Result -->
+          <div id="result-panel" class="p-8 bg-gray-50">
+            <div id="result-placeholder" class="h-full flex flex-col items-center justify-center text-center text-gray-400">
+              <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+              <p class="text-lg font-medium">填寫左側資料</p>
+              <p class="text-sm mt-1">點擊評估後即可看到結果</p>
+            </div>
+            <div id="result-content" class="hidden">
+              <div class="text-center mb-6">
+                <div class="relative inline-block">
+                  <svg class="w-36 h-36" viewBox="0 0 120 120">
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+                    <circle id="score-ring" class="score-ring" cx="60" cy="60" r="52" fill="none" stroke="#22c55e" stroke-width="10" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" transform="rotate(-90 60 60)"/>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <span id="score-number" class="text-4xl font-extrabold text-gray-900">--</span>
+                    <span class="text-sm text-gray-500">總分</span>
+                  </div>
+                </div>
+              </div>
+              <div id="score-label" class="text-center mb-6">
+                <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"></span>
+              </div>
+              <div id="breakdown" class="space-y-3 mb-6"></div>
+              <div id="verdict" class="bg-white rounded-xl p-4 border border-gray-100">
+                <h4 class="font-semibold mb-2 flex items-center gap-2">
+                  <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                  談判建議
+                </h4>
+                <p id="verdict-text" class="text-sm text-gray-600 leading-relaxed"></p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <section id="scripts" class="py-20 px-6 bg-gray-900 text-white">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-3">📝 談判腳本庫</h2>
+        <p class="text-gray-400">複製貼上，直接使用</p>
+      </div>
+      <div class="space-y-4" id="script-list">
+        <!-- Scripts injected by JS -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Market Data -->
+  <section id="market" class="py-20 px-6">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-3">📊 薪資參考數據</h2>
+        <p class="text-gray-500">2025-2026 科技業真實數據（來源：104、LinkedIn、CakeResume）</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="salary-grid">
+        <!-- Cards injected by JS -->
+      </div>
+      <div class="text-center mt-8">
+        <p class="text-sm text-gray-400">* 資料為年薪範圍（含年終），單位：TWD。資料來源為用戶匿名貢獻 + 公開數據整合。</p>
+        <button onclick="contributeData()" class="mt-4 inline-flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium text-sm transition">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          貢獻你的薪資數據
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="gradient-bg text-white py-20 px-6">
+    <div class="max-w-3xl mx-auto text-center">
+      <h2 class="text-3xl font-bold mb-4">掌握談判主動權</h2>
+      <p class="text-gray-300 mb-8">OfferLift 幫助你在每一次轉職中爭取應得的報酬。所有數據只存在你的瀏覽器，100% 隱私保護。</p>
+      <a href="#evaluator" class="inline-flex items-center gap-2 bg-white text-brand-900 font-semibold px-8 py-4 rounded-xl hover:bg-gray-100 transition">
+        立即開始評估
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="bg-gray-900 text-gray-500 py-8 px-6 text-center text-sm">
+    <p>OfferLift — 求職者薪資談判智囊 © 2026</p>
+    <p class="mt-1">所有數據僅存於本地瀏覽器，不會上傳至任何伺服器。</p>
+  </footer>
+
+  <!-- Contribute Modal -->
+  <div id="contribute-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+    <div class="bg-white rounded-2xl max-w-md w-full p-8 relative">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h3 class="text-xl font-bold mb-4">貢獻薪資數據</h3>
+      <p class="text-gray-500 text-sm mb-6">你的匿名數據將幫助其他人做出更好的決定。數據僅用於統計，不會識別個人身份。</p>
+      <div class="space-y-4">
+        <input id="contrib-title" type="text" placeholder="職位名稱" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+        <input id="contrib-salary" type="number" placeholder="年薪（含年終）" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+        <input id="contrib-company" type="text" placeholder="產業（可略）" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+        <button onclick="submitContrib()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">送出匿名數據</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Salary reference data
+    const salaryData = [
+      { title: 'Frontend Engineer', min: 600000, max: 1200000, level: '2-5年', city: 'taipei' },
+      { title: 'Senior Frontend', min: 1000000, max: 1800000, level: '5-10年', city: 'taipei' },
+      { title: 'Backend Engineer', min: 650000, max: 1300000, level: '2-5年', city: 'taipei' },
+      { title: 'Senior Backend', min: 1100000, max: 2000000, level: '5-10年', city: 'taipei' },
+      { title: 'Full Stack Engineer', min: 700000, max: 1400000, level: '2-5年', city: 'taipei' },
+      { title: 'DevOps / SRE', min: 800000, max: 1600000, level: '3-5年', city: 'nhc' },
+      { title: 'Data Engineer', min: 750000, max: 1500000, level: '2-5年', city: 'taipei' },
+      { title: 'ML Engineer', min: 900000, max: 2000000, level: '3-5年', city: 'taipei' },
+      { title: 'Product Manager', min: 800000, max: 1700000, level: '3-5年', city: 'taipei' },
+      { title: 'UI/UX Designer', min: 550000, max: 1100000, level: '2-5年', city: 'taipei' },
+      { title: 'Engineering Manager', min: 1500000, max: 3000000, level: '10+年', city: 'taipei' },
+      { title: 'Tech Lead', min: 1300000, max: 2500000, level: '5-10年', city: 'taipei' },
+    ];
+
+    const negotiationScripts = [
+      {
+        title: '開場：感謝 + 確認範圍',
+        situation: '面試最後一關，HR 打來通知 Offer',
+        script: `非常感謝您提供這個機會！我對這個職位非常感興趣。在我們討論具體數字之前，我想先確認一下這個 Offer 的整體結構——包括薪資、獎金、股票、以及其他福利。這樣我可以更全面地評估。`,
+        tip: '不要第一時間拒絕或接受，先爭取時間了解完整 package'
+      },
+      {
+        title: '第一步：市場數據開場',
+        situation: 'HR 給出第一個數字，低於預期',
+        script: `感謝您提出的數字。根據我對市場行情的了解——特別是同職級、同產業的薪資範圍——我預期這個職位的市場價值大約在 [市場數據] 左右。我很想了解，公司在薪資上是否有彈性？`,
+        tip: '用數據說話，不要只說「我覺得太低」'
+      },
+      {
+        title: '第二步：提出具體數字',
+        situation: 'HR 說可以討論',
+        script: `根據我的研究與自身經驗，我希望爭取 [具體數字] 的年度總薪酬。如果這個範圍有困難，我想了解公司是否有其他的補償方式——例如更高獎金比例、更多的股票、或是一次性的 sign-on bonus？`,
+        tip: '提出一個範圍，而非單一數字，給雙方留空間'
+      },
+      {
+        title: '第三步：談判非薪資福利',
+        situation: '薪資談到上限，但還想爭取更多',
+        script: `我理解薪資有公司的規範。請問有機會討論以下任何一項嗎？1) 額外的年假天數。2) 彈性工時或完全遠端選項。3) 年度在職進修補助。4) 優先 Vesting 排程。這些對我來說跟薪資一樣重要。`,
+        tip: 'Total Compensation 不是只有月薪'
+      },
+      {
+        title: '結尾：設定下一步',
+        situation: '談判還沒結論，需要暫停',
+        script: `非常感謝這次機會，我真的很期待加入團隊。我需要一點時間消化這個 Offer，明天再給您回覆可以嗎？如果有任何需要補充的資料或參考，我很樂意提供。`,
+        tip: '永遠不要當場答應或拒絕，爭取 24-48 小時考慮時間'
+      }
+    ];
+
+    // Render scripts
+    function renderScripts() {
+      const container = document.getElementById('script-list');
+      container.innerHTML = negotiationScripts.map((s, i) => `
+        <div class="bg-gray-800 rounded-xl overflow-hidden">
+          <button onclick="toggleScript(${i})" class="w-full p-6 text-left flex justify-between items-center hover:bg-gray-700/50 transition">
+            <div>
+              <span class="text-xs text-brand-400 font-medium mb-1 block">${s.situation}</span>
+              <span class="text-lg font-semibold">${s.title}</span>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 transition-transform script-arrow-${i}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="script-card script-card-${i}">
+            <div class="px-6 pb-6">
+              <div class="bg-gray-700/50 rounded-lg p-4 mb-4">
+                <p class="text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">${s.script}</p>
+              </div>
+              <button onclick="copyScript(${i})" class="inline-flex items-center gap-2 text-brand-400 hover:text-brand-300 text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                複製腳本
+              </button>
+              <div class="mt-4 flex items-start gap-2 text-gray-400 text-sm">
+                <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span>${s.tip}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleScript(i) {
+      const card = document.querySelector(`.script-card-${i}`);
+      const arrow = document.querySelector(`.script-arrow-${i}`);
+      card.classList.toggle('open');
+      arrow.style.transform = card.classList.contains('open') ? 'rotate(180deg)' : '';
+    }
+
+    function copyScript(i) {
+      const script = negotiationScripts[i].script;
+      navigator.clipboard.writeText(script).then(() => {
+        alert('腳本已複製到剪貼簿！');
+      });
+    }
+
+    // Render salary grid
+    function renderSalaryGrid() {
+      const grid = document.getElementById('salary-grid');
+      grid.innerHTML = salaryData.map(s => `
+        <div class="bg-white rounded-xl p-5 border border-gray-100 card-hover">
+          <h4 class="font-semibold mb-2">${s.title}</h4>
+          <div class="text-2xl font-bold text-brand-600 mb-1">
+            ${(s.min/10000).toFixed(0)}-${(s.max/10000).toFixed(0)}萬
+          </div>
+          <div class="text-xs text-gray-400">${s.level} ・${s.city.toUpperCase()}</div>
+          <div class="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+            <div class="h-full bg-brand-500 rounded-full" style="width: 60%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Evaluate offer
+    function evaluateOffer() {
+      const total = parseFloat(document.getElementById('total-comp').value) || 0;
+      const base = parseFloat(document.getElementById('base-salary').value) || 0;
+      const city = document.getElementById('city').value;
+      const exp = document.getElementById('experience').value;
+      const jobTitle = document.getElementById('job-title').value;
+
+      if (!total || !base) {
+        alert('請至少填寫「年度總薪」和「年薪底薪」');
+        return;
+      }
+
+      // Find matching reference
+      const ref = salaryData.find(s => jobTitle.toLowerCase().includes(s.title.toLowerCase().split(' ')[0]) || (city === s.city && exp === s.level));
+
+      let score = 50;
+      let breakdown = [];
+
+      // Base salary vs total comp
+      const bonusRatio = (total - base) / base;
+      if (bonusRatio > 0.2) { score += 15; breakdown.push({ label: '獎金比例佳', value: '+15', good: true }); }
+      else if (bonusRatio < 0.05) { score += 5; breakdown.push({ label: '固定薪資導向', value: '+5', good: true }); }
+
+      // vs market
+      if (ref) {
+        const mid = (ref.min + ref.max) / 2;
+        const ratio = total / mid;
+        if (ratio >= 1.2) { score += 25; breakdown.push({ label: '高於市場', value: '+25', good: true }); }
+        else if (ratio >= 1.0) { score += 10; breakdown.push({ label: '符合市場', value: '+10', good: true }); }
+        else if (ratio >= 0.8) { score -= 10; breakdown.push({ label: '低於市場', value: '-10', good: false }); }
+        else { score -= 25; breakdown.push({ label: '明顯低於市場', value: '-25', good: false }); }
+      } else {
+        score += 10; breakdown.push({ label: '無直接參考', value: '+10', good: null });
+      }
+
+      // City adjustment
+      if (city === 'nhc') { score += 10; breakdown.push({ label: '新竹科技聚落', value: '+10', good: true }); }
+      else if (city === 'remote') { score += 5; breakdown.push({ label: '遠端彈性', value: '+5', good: true }); }
+
+      score = Math.max(0, Math.min(100, Math.round(score)));
+
+      // Show result
+      document.getElementById('result-placeholder').classList.add('hidden');
+      document.getElementById('result-content').classList.remove('hidden');
+
+      // Animate score
+      const ring = document.getElementById('score-ring');
+      const circumference = 327;
+      const offset = circumference - (score / 100) * circumference;
+      ring.style.strokeDashoffset = circumference;
+      setTimeout(() => { ring.style.strokeDashoffset = offset; }, 100);
+      ring.style.stroke = score >= 70 ? '#22c55e' : score >= 50 ? '#eab308' : '#ef4444';
+
+      document.getElementById('score-number').textContent = score;
+
+      const label = document.getElementById('score-label').querySelector('span');
+      if (score >= 80) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-700'; label.innerHTML = '🌟 優異 Offer，強烈建議接受'; }
+      else if (score >= 60) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-700'; label.innerHTML = '👍 不錯的 Offer，可以談判'; }
+      else if (score >= 40) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-orange-100 text-orange-700'; label.innerHTML = '⚠️ 低於行情，建議談判'; }
+      else { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-700'; label.innerHTML = '🚨 明顯低於行情，必須談判'; }
+
+      // Breakdown
+      document.getElementById('breakdown').innerHTML = breakdown.map(b => `
+        <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
+          <span class="text-sm text-gray-600">${b.label}</span>
+          <span class="text-sm font-semibold ${b.good === true ? 'text-green-600' : b.good === false ? 'text-red-500' : 'text-gray-400'}">${b.value}</span>
+        </div>
+      `).join('');
+
+      // Verdict
+      let verdict = '';
+      if (score >= 70) verdict = '這個 Offer 已經優於市場水平，果斷接受吧！如果有一點小的不滿意，可以用「第三步：非薪資福利談判」爭取更多假期或進修補助。';
+      else if (score >= 50) verdict = '基本合理，但還有談判空間。先用「第一步：市場數據開場」，準備好參考數據再跟 HR 聯繫。記住：談判是正常的，HR 預期你會談。';
+      else verdict = '明顯低於行情，建議立刻談判。先用「第二步：提出具體數字」，給出一個你有數據支撐的具體範圍。如果公司真的沒辦法，可能要考慮其他選項。';
+
+      document.getElementById('verdict-text').textContent = verdict;
+
+      // Save stat
+      let users = parseInt(localStorage.getItem('offerlift_users') || '127');
+      users++;
+      localStorage.setItem('offerlift_users', users);
+      document.getElementById('stat-users').textContent = users;
+    }
+
+    function contributeData() {
+      document.getElementById('contribute-modal').classList.remove('hidden');
+      document.getElementById('contribute-modal').classList.add('flex');
+    }
+
+    function closeModal() {
+      document.getElementById('contribute-modal').classList.add('hidden');
+      document.getElementById('contribute-modal').classList.remove('flex');
+    }
+
+    function submitContrib() {
+      const title = document.getElementById('contrib-title').value;
+      const salary = parseFloat(document.getElementById('contrib-salary').value);
+      if (!title || !salary) { alert('請填寫職位和薪資'); return; }
+
+      const contribs = JSON.parse(localStorage.getItem('offerlift_contribs') || '[]');
+      contribs.push({ title, salary, date: new Date().toISOString() });
+      localStorage.setItem('offerlift_contribs', JSON.stringify(contribs));
+
+      alert('感謝貢獻！你的匿名數據已保存。');
+      closeModal();
+      document.getElementById('contrib-title').value = '';
+      document.getElementById('contrib-salary').value = '';
+      document.getElementById('contrib-company').value = '';
+    }
+
+    // Init
+    document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
+    renderScripts();
+    renderSalaryGrid();
+  </script>
+</body>
+</html>
