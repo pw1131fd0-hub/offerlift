@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>OfferLift — 求職者薪資談判智囊</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#22c55e">
+  <meta name="description" content="輸入 Offer 詳情，獲得客觀的市場評估分數、具體的談判腳本、以及參考薪資區間">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322c55e' width='100' height='100' rx='20'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='50' font-weight='bold' fill='white'>OL</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -47,9 +51,9 @@
         <span class="text-xl font-bold text-gray-900 dark:text-white">OfferLift</span>
       </div>
       <div class="flex gap-6 text-sm font-medium text-gray-600 dark:text-gray-300">
-        <a href="#evaluator" class="hover:text-brand-600 dark:hover:text-brand-400 transition">評估工具</a>
-        <a href="#scripts" class="hover:text-brand-600 dark:hover:text-brand-400 transition">談判腳本</a>
-        <a href="#market" class="hover:text-brand-600 dark:hover:text-brand-400 transition">薪資參考</a>
+        <a href="#evaluator" data-i18n="navEvaluator" class="hover:text-brand-600 dark:hover:text-brand-400 transition">評估工具</a>
+        <a href="#scripts" data-i18n="navScripts" class="hover:text-brand-600 dark:hover:text-brand-400 transition">談判腳本</a>
+        <a href="#market" data-i18n="navMarket" class="hover:text-brand-600 dark:hover:text-brand-400 transition">薪資參考</a>
       </div>
       <button id="dark-toggle" class="ml-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="切換深色模式">
         <svg id="icon-moon" class="w-5 h-5 text-gray-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -63,16 +67,16 @@
     <div class="max-w-4xl mx-auto text-center animate-in">
       <div class="inline-flex items-center gap-2 bg-white/10 backdrop-blur px-4 py-2 rounded-full text-sm mb-8">
         <span class="w-2 h-2 bg-brand-500 rounded-full animate-pulse"></span>
-        還在用資訊劣勢談薪資？
+        <span data-i18n="heroTagline">還在用資訊劣勢談薪資？</span>
       </div>
       <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
-        讓你的 Offer<br><span class="text-brand-400">不再被低估</span>
+        <span data-i18n="heroTitle">讓你的 Offer</span><br><span class="text-brand-400" data-i18n="heroTitleAccent">不再被低估</span>
       </h1>
-      <p class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
+      <p data-i18n="heroDesc" class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
         輸入你的 Offer，AI 即時評估談判空間。內建真實薪資數據庫與談判腳本，幫助求職者拿回主導權。
       </p>
       <a href="#evaluator" class="inline-flex items-center gap-2 bg-brand-500 hover:bg-brand-600 text-white font-semibold px-8 py-4 rounded-xl transition shadow-lg shadow-brand-500/30">
-        開始評估你的 Offer
+        <span data-i18n="heroCTA">開始評估你的 Offer</span>
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
       </a>
     </div>
@@ -83,15 +87,15 @@
     <div class="max-w-5xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
       <div>
         <div class="text-4xl font-bold text-brand-600 dark:text-brand-400" id="stat-users">--</div>
-        <div class="text-gray-500 dark:text-gray-400 mt-1">已評估的 Offer</div>
+        <div data-i18n="statUsers" class="text-gray-500 dark:text-gray-400 mt-1">已評估的 Offer</div>
       </div>
       <div>
         <div class="text-4xl font-bold text-brand-600 dark:text-brand-400">+18%</div>
-        <div class="text-gray-500 dark:text-gray-400 mt-1">平均薪資增幅潛力</div>
+        <div data-i18n="statGain" class="text-gray-500 dark:text-gray-400 mt-1">平均薪資增幅潛力</div>
       </div>
       <div>
         <div class="text-4xl font-bold text-brand-600 dark:text-brand-400">100%</div>
-        <div class="text-gray-500 dark:text-gray-400 mt-1">純前端・數據不上雲</div>
+        <div data-i18n="statPrivacy" class="text-gray-500 dark:text-gray-400 mt-1">純前端・數據不上雲</div>
       </div>
     </div>
   </section>
@@ -100,8 +104,8 @@
   <section id="evaluator" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-3 dark:text-white">🔍 Offer 評估器</h2>
-        <p class="text-gray-500 dark:text-gray-400">輸入你的 Offer 詳情，獲得客觀評估與談判建議</p>
+        <h2 data-i18n="evaluatorTitle" class="text-3xl font-bold mb-3 dark:text-white">🔍 Offer 評估器</h2>
+        <p data-i18n="evaluatorDesc" class="text-gray-500 dark:text-gray-400">輸入你的 Offer 詳情，獲得客觀評估與談判建議</p>
       </div>
       <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
         <div class="grid md:grid-cols-2">
@@ -109,39 +113,39 @@
           <div class="p-8 border-r border-gray-100 dark:border-gray-700">
             <h3 class="font-semibold mb-6 flex items-center gap-2 dark:text-white">
               <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-              輸入你的 Offer
+              <span data-i18n="inputTitle">輸入你的 Offer</span>
             </h3>
             <div class="space-y-5">
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">職位名稱</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="jobTitleLabel">職位名稱</label>
                 <input id="job-title" type="text" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年度總薪（含獎金）</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="totalCompLabel">年度總薪（含獎金）</label>
                 <div class="flex items-center gap-2">
                   <input id="total-comp" type="number" placeholder="1500000" class="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
                   <span class="text-gray-500 dark:text-gray-400 font-medium">TWD</span>
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年薪底薪</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="baseSalaryLabel">年薪底薪</label>
                 <input id="base-salary" type="number" placeholder="1200000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  年終獎金 <span id="bonus-display" class="text-brand-600 dark:text-brand-400 font-medium">2 個月</span>
+                  <span data-i18n="bonusLabel">年終獎金</span> <span id="bonus-display" class="text-brand-600 dark:text-brand-400 font-medium">2 個月</span>
                 </label>
                 <input id="bonus" type="range" min="0" max="12" value="2" class="w-full" oninput="document.getElementById('bonus-display').textContent = this.value + ' 個月'">
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  想像空間 <span id="equity-display" class="text-brand-600 dark:text-brand-400 font-medium">0%</span>
+                  <span data-i18n="equityLabel">想像空間</span> <span id="equity-display" class="text-brand-600 dark:text-brand-400 font-medium">0%</span>
                 </label>
                 <input id="equity" type="range" min="0" max="5" step="0.1" value="0" class="w-full" oninput="document.getElementById('equity-display').textContent = this.value + '%'">
-                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">股份或選擇權（稀釋後百分比）</p>
+                <p data-i18n="equityHint" class="text-xs text-gray-400 dark:text-gray-500 mt-1">股份或選擇權（稀釋後百分比）</p>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">城市</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="cityLabel">城市</label>
                 <select id="city" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
                   <option value="taipei">台北</option>
                   <option value="nhc">新竹</option>
@@ -151,7 +155,7 @@
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年資</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="expLabel">年資</label>
                 <select id="experience" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
                   <option value="0-2">0-2 年</option>
                   <option value="2-5">2-5 年</option>
@@ -161,7 +165,7 @@
               </div>
               <button onclick="evaluateOffer()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-                評估我的 Offer
+                <span data-i18n="evaluateBtn">評估我的 Offer</span>
               </button>
             </div>
           </div>
@@ -169,8 +173,8 @@
           <div id="result-panel" class="p-8 bg-gray-50 dark:bg-gray-700">
             <div id="result-placeholder" class="h-full flex flex-col items-center justify-center text-center text-gray-400 dark:text-gray-500">
               <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
-              <p class="text-lg font-medium">填寫左側資料</p>
-              <p class="text-sm mt-1">點擊評估後即可看到結果</p>
+              <p data-i18n="resultPlaceholder" class="text-lg font-medium">填寫左側資料</p>
+              <p data-i18n="resultPlaceholderHint" class="text-sm mt-1">點擊評估後即可看到結果</p>
             </div>
             <div id="result-content" class="hidden">
               <div class="text-center mb-6">
@@ -181,7 +185,7 @@
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
                     <span id="score-number" class="text-4xl font-extrabold text-gray-900 dark:text-white">--</span>
-                    <span class="text-sm text-gray-500 dark:text-gray-400">總分</span>
+                    <span data-i18n="totalScore" class="text-sm text-gray-500 dark:text-gray-400">總分</span>
                   </div>
                 </div>
               </div>
@@ -192,7 +196,7 @@
               <div id="verdict" class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-600">
                 <h4 class="font-semibold mb-2 flex items-center gap-2 dark:text-white">
                   <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
-                  談判建議
+                  <span data-i18n="negotiationAdvice">談判建議</span>
                 </h4>
                 <p id="verdict-text" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></p>
               </div>
@@ -207,9 +211,9 @@
   <section id="scripts" class="py-20 px-6 bg-gray-900 dark:bg-gray-800 text-white">
     <div class="max-w-4xl mx-auto">
       <div class="text-center mb-8">
-        <h2 class="text-3xl font-bold mb-3">📝 談判腳本庫</h2>
-        <p class="text-gray-400 dark:text-gray-500 mb-6">複製貼上，直接使用</p>
-        <input id="script-search" type="text" placeholder="搜尋腳本情境..." oninput="filterScripts(this.value)" class="w-full max-w-md mx-auto px-4 py-2 rounded-lg bg-gray-800 dark:bg-gray-700 text-white placeholder-gray-400 border border-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+        <h2 data-i18n="scriptsTitle" class="text-3xl font-bold mb-3">📝 談判腳本庫</h2>
+        <p data-i18n="scriptsDesc" class="text-gray-400 dark:text-gray-500 mb-6">複製貼上，直接使用</p>
+        <input id="script-search" type="text" data-i18n="scriptSearchPlaceholder" placeholder="搜尋腳本情境..." oninput="filterScripts(this.value)" class="w-full max-w-md mx-auto px-4 py-2 rounded-lg bg-gray-800 dark:bg-gray-700 text-white placeholder-gray-400 border border-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
       </div>
       <div class="space-y-4" id="script-list">
         <!-- Scripts injected by JS -->
@@ -221,8 +225,8 @@
   <section id="market" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-3 dark:text-white">📊 薪資參考數據</h2>
-        <p class="text-gray-500 dark:text-gray-400">2025-2026 科技業真實數據（來源：104、LinkedIn、CakeResume）</p>
+        <h2 data-i18n="marketTitle" class="text-3xl font-bold mb-3 dark:text-white">📊 薪資參考數據</h2>
+        <p data-i18n="marketDesc" class="text-gray-500 dark:text-gray-400">2025-2026 科技業真實數據（來源：104、LinkedIn、CakeResume）</p>
       </div>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="salary-grid">
         <!-- Cards injected by JS -->
@@ -231,7 +235,7 @@
         <p class="text-sm text-gray-400 dark:text-gray-500">* 資料為年薪範圍（含年終），單位：TWD。資料來源為用戶匿名貢獻 + 公開數據整合。</p>
         <button onclick="contributeData()" class="mt-4 inline-flex items-center gap-2 text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-medium text-sm transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          貢獻你的薪資數據
+          <span data-i18n="contributeBtn">貢獻你的薪資數據</span>
         </button>
       </div>
     </div>
@@ -240,19 +244,42 @@
   <!-- CTA -->
   <section class="gradient-bg text-white py-20 px-6">
     <div class="max-w-3xl mx-auto text-center">
-      <h2 class="text-3xl font-bold mb-4">掌握談判主動權</h2>
-      <p class="text-gray-300 mb-8">OfferLift 幫助你在每一次轉職中爭取應得的報酬。所有數據只存在你的瀏覽器，100% 隱私保護。</p>
+      <h2 data-i18n="ctaTitle" class="text-3xl font-bold mb-4">掌握談判主動權</h2>
+      <p data-i18n="ctaDesc" class="text-gray-300 mb-8">OfferLift 幫助你在每一次轉職中爭取應得的報酬。所有數據只存在你的瀏覽器，100% 隱私保護。</p>
       <a href="#evaluator" class="inline-flex items-center gap-2 bg-white text-brand-900 font-semibold px-8 py-4 rounded-xl hover:bg-gray-100 transition">
-        立即開始評估
+        <span data-i18n="ctaBtn">立即開始評估</span>
         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
       </a>
     </div>
   </section>
 
+  <!-- Language Selector -->
+  <div id="lang-selector" class="fixed bottom-6 right-6 z-40">
+    <div class="relative">
+      <button onclick="toggleLangMenu()" class="flex items-center gap-2 bg-white dark:bg-gray-800 shadow-lg rounded-full px-4 py-2 text-sm font-medium hover:shadow-xl transition">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129"/></svg>
+        <span id="current-lang">ZH</span>
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+      </button>
+      <div id="lang-menu" class="hidden absolute bottom-full right-0 mb-2 bg-white dark:bg-gray-800 shadow-lg rounded-xl overflow-hidden min-w-[120px]">
+        <button onclick="setLanguage('zh')" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition">繁體中文</button>
+        <button onclick="setLanguage('en')" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition">English</button>
+        <button onclick="setLanguage('ja')" class="w-full px-4 py-2 text-left text-sm hover:bg-gray-100 dark:hover:bg-gray-700 transition">日本語</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Export PDF Button -->
+  <button id="export-pdf-btn" onclick="exportToPDF()" class="hidden fixed bottom-6 left-6 z-40 bg-brand-600 hover:bg-brand-700 text-white shadow-lg rounded-full px-4 py-2 text-sm font-medium hover:shadow-xl transition flex items-center gap-2">
+    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+    <span data-i18n="exportPdf">匯出 PDF</span>
+  </button>
+
   <!-- Footer -->
   <footer class="bg-gray-900 dark:bg-gray-800 text-gray-500 dark:text-gray-400 py-8 px-6 text-center text-sm">
     <p>OfferLift — 求職者薪資談判智囊 © 2026</p>
     <p class="mt-1">所有數據僅存於本地瀏覽器，不會上傳至任何伺服器。</p>
+    <p class="mt-1 text-xs text-gray-600 dark:text-gray-500" data-i18n="offlineReady">已支援離線使用</p>
   </footer>
 
   <!-- Contribute Modal -->
@@ -261,13 +288,13 @@
       <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
-      <h3 class="text-xl font-bold mb-4 dark:text-white">貢獻薪資數據</h3>
-      <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">你的匿名數據將幫助其他人做出更好的決定。數據僅用於統計，不會識別個人身份。</p>
+      <h3 data-i18n="contributeTitle" class="text-xl font-bold mb-4 dark:text-white">貢獻薪資數據</h3>
+      <p data-i18n="contributeDesc" class="text-gray-500 dark:text-gray-400 text-sm mb-6">你的匿名數據將幫助其他人做出更好的決定。數據僅用於統計，不會識別個人身份。</p>
       <div class="space-y-4">
         <input id="contrib-title" type="text" placeholder="職位名稱" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
         <input id="contrib-salary" type="number" placeholder="年薪（含年終）" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
         <input id="contrib-company" type="text" placeholder="產業（可略）" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
-        <button onclick="submitContrib()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">送出匿名數據</button>
+        <button onclick="submitContrib()" data-i18n="contributeSubmit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">送出匿名數據</button>
       </div>
     </div>
   </div>
@@ -574,11 +601,347 @@
       localStorage.setItem('offerlift_history', JSON.stringify(history));
     }
 
+    // i18n - Translations
+    const translations = {
+      zh: {
+        exportPdf: '匯出 PDF',
+        offlineReady: '已支援離線使用',
+        navEvaluator: '評估工具',
+        navScripts: '談判腳本',
+        navMarket: '薪資參考',
+        heroTagline: '還在用資訊劣勢談薪資？',
+        heroTitle: '讓你的 Offer',
+        heroTitleAccent: '不再被低估',
+        heroDesc: '輸入你的 Offer，AI 即時評估談判空間。內建真實薪資數據庫與談判腳本，幫助求職者拿回主導權。',
+        heroCTA: '開始評估你的 Offer',
+        statUsers: '已評估的 Offer',
+        statGain: '平均薪資增幅潛力',
+        statPrivacy: '純前端・數據不上雲',
+        evaluatorTitle: '🔍 Offer 評估器',
+        evaluatorDesc: '輸入你的 Offer 詳情，獲得客觀評估與談判建議',
+        inputTitle: '輸入你的 Offer',
+        jobTitleLabel: '職位名稱',
+        jobTitlePlaceholder: '例如：Senior Frontend Engineer',
+        totalCompLabel: '年度總薪（含獎金）',
+        baseSalaryLabel: '年薪底薪',
+        bonusLabel: '年終獎金',
+        equityLabel: '想像空間',
+        equityHint: '股份或選擇權（稀釋後百分比）',
+        cityLabel: '城市',
+        expLabel: '年資',
+        evaluateBtn: '評估我的 Offer',
+        resultPlaceholder: '填寫左側資料',
+        resultPlaceholderHint: '點擊評估後即可看到結果',
+        totalScore: '總分',
+        negotiationAdvice: '談判建議',
+        scriptsTitle: '📝 談判腳本庫',
+        scriptsDesc: '複製貼上，直接使用',
+        scriptSearchPlaceholder: '搜尋腳本情境...',
+        copyScript: '複製腳本',
+        marketTitle: '📊 薪資參考數據',
+        marketDesc: '2025-2026 科技業真實數據（來源：104、LinkedIn、CakeResume）',
+        contributeBtn: '貢獻你的薪資數據',
+        contributeTitle: '貢獻薪資數據',
+        contributeDesc: '你的匿名數據將幫助其他人做出更好的決定。數據僅用於統計，不會識別個人身份。',
+        contributeTitlePlaceholder: '職位名稱',
+        contributeSalaryPlaceholder: '年薪（含年終）',
+        contributeCompanyPlaceholder: '產業（可略）',
+        contributeSubmit: '送出匿名數據',
+        ctaTitle: '掌握談判主動權',
+        ctaDesc: 'OfferLift 幫助你在每一次轉職中爭取應得的報酬。所有數據只存在你的瀏覽器，100% 隱私保護。',
+        ctaBtn: '立即開始評估',
+        footerDesc: '所有數據僅存於本地瀏覽器，不會上傳至任何伺服器。',
+        verdictExcellent: '🌟 優異 Offer，強烈建議接受',
+        verdictGood: '👍 不錯的 Offer，可以談判',
+        verdictFair: '⚠️ 低於行情，建議談判',
+        verdictPoor: '🚨 明顯低於行情，必須談判'
+      },
+      en: {
+        exportPdf: 'Export PDF',
+        offlineReady: 'Offline Ready',
+        navEvaluator: 'Evaluator',
+        navScripts: 'Scripts',
+        navMarket: 'Salary Data',
+        heroTagline: 'Stop negotiating with information disadvantage?',
+        heroTitle: 'Make Your Offer',
+        heroTitleAccent: 'Never Undervalued',
+        heroDesc: 'Input your offer details, get instant market evaluation with negotiation scripts and salary data to take control of your job search.',
+        heroCTA: 'Start Evaluating Your Offer',
+        statUsers: 'Offers Evaluated',
+        statGain: 'Avg. Salary Increase',
+        statPrivacy: '100% Client-Side・Data Stays Local',
+        evaluatorTitle: '🔍 Offer Evaluator',
+        evaluatorDesc: 'Input your offer details to get an objective evaluation and negotiation advice',
+        inputTitle: 'Enter Your Offer',
+        jobTitleLabel: 'Job Title',
+        jobTitlePlaceholder: 'e.g.: Senior Frontend Engineer',
+        totalCompLabel: 'Annual Total Comp (incl. bonus)',
+        baseSalaryLabel: 'Annual Base Salary',
+        bonusLabel: 'Year-End Bonus',
+        equityLabel: 'Equity Range',
+        equityHint: 'Stock or options (post-dilution %)',
+        cityLabel: 'City',
+        expLabel: 'Experience',
+        evaluateBtn: 'Evaluate My Offer',
+        resultPlaceholder: 'Fill in the form on the left',
+        resultPlaceholderHint: 'Results appear after evaluation',
+        totalScore: 'Total Score',
+        negotiationAdvice: 'Negotiation Advice',
+        scriptsTitle: '📝 Negotiation Scripts',
+        scriptsDesc: 'Copy and paste, ready to use',
+        scriptSearchPlaceholder: 'Search script situations...',
+        copyScript: 'Copy Script',
+        marketTitle: '📊 Salary Reference Data',
+        marketDesc: '2025-2026 Tech Industry Real Data (Source: 104, LinkedIn, CakeResume)',
+        contributeBtn: 'Contribute Your Salary Data',
+        contributeTitle: 'Contribute Salary Data',
+        contributeDesc: 'Your anonymous data helps others make better decisions. Data is used for statistics only.',
+        contributeTitlePlaceholder: 'Job Title',
+        contributeSalaryPlaceholder: 'Annual Salary (incl. bonus)',
+        contributeCompanyPlaceholder: 'Industry (optional)',
+        contributeSubmit: 'Submit Anonymous Data',
+        ctaTitle: 'Take Control of Negotiation',
+        ctaDesc: 'OfferLift helps you get what you deserve in every job transition. All data stays in your browser, 100% privacy.',
+        ctaBtn: 'Start Evaluating Now',
+        footerDesc: 'All data is stored locally in your browser and never uploaded to any server.',
+        verdictExcellent: '🌟 Outstanding Offer, Strongly Recommend Accepting',
+        verdictGood: '👍 Good Offer, Negotiable',
+        verdictFair: '⚠️ Below Market, Recommend Negotiating',
+        verdictPoor: '🚨 Significantly Below Market, Must Negotiate'
+      },
+      ja: {
+        exportPdf: 'PDF出力',
+        offlineReady: 'オフライン対応',
+        navEvaluator: '評価ツール',
+        navScripts: '交渉スクリプト',
+        navMarket: '給与データ',
+        heroTagline: '情報劣下で交渉しないでください？',
+        heroTitle: 'あなたのオファーを',
+        heroTitleAccent: '低估されないように',
+        heroDesc: 'オファーを入力すると、リアルタイムで市場評価、交渉スクリプト、給与データをお届けします。求職者のあなたをサポートします。',
+        heroCTA: 'オファーを評価する',
+        statUsers: '評価済みオファー',
+        statGain: '平均給与增幅ポテンシャル',
+        statPrivacy: '100%クライアントサイド・データはローカル保存',
+        evaluatorTitle: '🔍 オファー評価ツール',
+        evaluatorDesc: 'オファーの詳細を入力して、客観的な評価と交渉アドバイスを受け取りましょう',
+        inputTitle: 'オファーを入力',
+        jobTitleLabel: '職種名',
+        jobTitlePlaceholder: '例：Senior Frontend Engineer',
+        totalCompLabel: '年間総報酬（ボーナス込み）',
+        baseSalaryLabel: '年間基本給',
+        bonusLabel: '年末ボーナス',
+        equityLabel: '株式範囲',
+        equityHint: '株式またはオプション（希薄化後%）',
+        cityLabel: '都市',
+        expLabel: '経験年数',
+        evaluateBtn: 'オファーを評価する',
+        resultPlaceholder: '左側のフォームに記入',
+        resultPlaceholderHint: '評価後に結果が表示されます',
+        totalScore: '総合点',
+        negotiationAdvice: '交渉アドバイス',
+        scriptsTitle: '📝 交渉スクリプトライブラリ',
+        scriptsDesc: 'コピー＆ペーストでそのまま使用可能',
+        scriptSearchPlaceholder: 'スクリプトの状況を検索...',
+        copyScript: 'スクリプトをコピー',
+        marketTitle: '📊 給与参考データ',
+        marketDesc: '2025-2026 テック業界 реальные данные（ソース：104、LinkedIn、CakeResume）',
+        contributeBtn: '給与データを寄贈する',
+        contributeTitle: '給与データを寄贈',
+        contributeDesc: 'あなたの匿名データが他の人の意思決定を支援します。データは統計目的のみに使用されます。',
+        contributeTitlePlaceholder: '職種名',
+        contributeSalaryPlaceholder: '年薪（含ボーナス）',
+        contributeCompanyPlaceholder: '業界（任意）',
+        contributeSubmit: '匿名データを送信',
+        ctaTitle: '交渉の主導権を握る',
+        ctaDesc: 'OfferLiftは、すべての転職活動であなたが正当な報酬を得られるのを支援します。データはブラウザ内にのみ保存され、100%プライバシー保護。',
+        ctaBtn: '今すぐ評価を開始',
+        footerDesc: 'すべてのデータはブラウザ内のローカルに保存され、サーバーにアップロードされることはありません。',
+        verdictExcellent: '🌟 優れたオファー、受諾を強く推奨',
+        verdictGood: '👍 良いオファー、交渉可能',
+        verdictFair: '⚠️ 市場平均以下、交渉を推奨',
+        verdictPoor: '🚨 市場平均を大きく下回る、交渉必須'
+      }
+    };
+
+    let currentLang = localStorage.getItem('offerlift_lang') || 'zh';
+
+    function toggleLangMenu() {
+      document.getElementById('lang-menu').classList.toggle('hidden');
+    }
+
+    function setLanguage(lang) {
+      currentLang = lang;
+      localStorage.setItem('offerlift_lang', lang);
+      document.getElementById('current-lang').textContent = lang.toUpperCase();
+      document.getElementById('lang-menu').classList.add('hidden');
+      applyTranslations();
+    }
+
+    function applyTranslations() {
+      const t = translations[currentLang];
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (t[key]) {
+          el.textContent = t[key];
+        }
+      });
+      // Apply to placeholders
+      const placeholders = {
+        'job-title': t.jobTitlePlaceholder,
+        'total-comp': '1500000',
+        'base-salary': '1200000',
+        'script-search': t.scriptSearchPlaceholder,
+        'contrib-title': t.contributeTitlePlaceholder,
+        'contrib-salary': t.contributeSalaryPlaceholder,
+        'contrib-company': t.contributeCompanyPlaceholder
+      };
+      Object.entries(placeholders).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.placeholder = value;
+      });
+    }
+
+    // PDF Export using jsPDF (inline implementation)
+    function exportToPDF() {
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      const score = document.getElementById('score-number').textContent;
+      const verdictText = document.getElementById('verdict-text').textContent;
+      const jobTitle = document.getElementById('job-title').value;
+      const totalComp = document.getElementById('total-comp').value;
+      const baseSalary = document.getElementById('base-salary').value;
+      const city = document.getElementById('city').options[document.getElementById('city').selectedIndex].text;
+      const exp = document.getElementById('experience').options[document.getElementById('experience').selectedIndex].text;
+
+      // Header
+      doc.setFillColor(34, 197, 94);
+      doc.rect(0, 0, 210, 40, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.text('OfferLift 評估報告', 20, 25);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(new Date().toLocaleDateString('zh-TW'), 170, 25);
+
+      // Reset text color
+      doc.setTextColor(0, 0, 0);
+
+      // Job Info Section
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('職位資訊', 20, 55);
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const jobInfo = [
+        `職位：${jobTitle || '未填寫'}`,
+        `年度總薪：${totalComp ? Number(totalComp).toLocaleString() + ' TWD' : '未填寫'}`,
+        `年薪底薪：${baseSalary ? Number(baseSalary).toLocaleString() + ' TWD' : '未填寫'}`,
+        `城市：${city}`,
+        `年資：${exp}`
+      ];
+      jobInfo.forEach((line, i) => {
+        doc.text(line, 20, 65 + i * 7);
+      });
+
+      // Score Section
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('評估分數', 20, 110);
+
+      // Score circle
+      doc.setFillColor(22, 163, 74);
+      doc.circle(40, 135, 20, 'F');
+      doc.setTextColor(255, 255, 255);
+      doc.setFontSize(20);
+      doc.setFont('helvetica', 'bold');
+      doc.text(score, 40, 139, { align: 'center' });
+
+      doc.setTextColor(0, 0, 0);
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text('總分', 40, 160, { align: 'center' });
+
+      // Breakdown
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('評估 breakdown', 80, 120);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const breakdownItems = document.querySelectorAll('#breakdown > div');
+      breakdownItems.forEach((item, i) => {
+        const label = item.querySelector('span:first-child').textContent;
+        const value = item.querySelector('span:last-child').textContent;
+        doc.text(`${label}: ${value}`, 80, 130 + i * 6);
+      });
+
+      // Verdict Section
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('談判建議', 20, 175);
+
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      const splitVerdict = doc.splitTextToSize(verdictText, 170);
+      doc.text(splitVerdict, 20, 183);
+
+      // Footer
+      doc.setFontSize(8);
+      doc.setTextColor(128, 128, 128);
+      doc.text('此報告由 OfferLift 自動生成。數據僅存在於您的瀏覽器，不會上傳至任何伺服器。', 20, 280);
+
+      doc.save(`offerlift-report-${Date.now()}.pdf`);
+    }
+
+    // Load jsPDF from CDN
+    function loadJsPDF() {
+      return new Promise((resolve, reject) => {
+        if (window.jspdf) {
+          resolve();
+          return;
+        }
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+
+    // Register Service Worker
+    function registerServiceWorker() {
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/offerlift/sw.js')
+          .then(reg => console.log('Service Worker registered:', reg.scope))
+          .catch(err => console.log('Service Worker registration failed:', err));
+      }
+    }
+
     // Init
     initDarkMode();
     document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
     renderScripts();
     renderSalaryGrid();
+    applyTranslations();
+    registerServiceWorker();
+    loadJsPDF().then(() => {
+      // Show export button after jsPDF loads
+      document.getElementById('export-pdf-btn').classList.remove('hidden');
+    }).catch(() => {
+      console.log('jsPDF failed to load, PDF export disabled');
+    });
+
+    // Close lang menu when clicking outside
+    document.addEventListener('click', (e) => {
+      const langSelector = document.getElementById('lang-selector');
+      if (!langSelector.contains(e.target)) {
+        document.getElementById('lang-menu').classList.add('hidden');
+      }
+    });
   </script>
 </body>
 </html>
