@@ -161,3 +161,95 @@ export const StorageService = {
     localStorage.setItem('offerlift_history', JSON.stringify(history));
   }
 };
+
+/**
+ * Equity/Vesting calculation result
+ * @typedef {Object} VestingBreakdown
+ * @property {number} totalValue - Total equity value at current price
+ * @property {number} vestedValue - Vested portion value
+ * @property {number} unvestedValue - Unvested portion value
+ * @property {number} cliffMonths - Cliff period in months (typically 12)
+ * @property {number} totalMonths - Total vesting period in months (typically 48)
+ */
+
+/**
+ * Calculate equity/vesting value based on standard 4-year vesting with 1-year cliff
+ * @param {number} shares - Number of shares/options granted
+ * @param {number} pricePerShare - Current price per share in TWD
+ * @param {number} yearsAtCompany - Years already at the company (affects cliff)
+ * @returns {VestingBreakdown}
+ */
+export function calculateEquityValue(shares, pricePerShare, yearsAtCompany = 0) {
+  const CLIFF_MONTHS = 12;
+  const TOTAL_MONTHS = 48; // 4 years
+  const MONTHS_PER_YEAR = 12;
+
+  const totalValue = shares * pricePerShare;
+
+  // Calculate vested portion based on cliff + linear vesting after cliff
+  // Standard vesting: 0% before cliff, then 1/48 per month after cliff
+  let vestedShares = 0;
+  const monthsEmployed = yearsAtCompany * MONTHS_PER_YEAR;
+
+  if (monthsEmployed >= CLIFF_MONTHS) {
+    // After cliff: monthly vesting = shares / 48
+    const monthsAfterCliff = monthsEmployed - CLIFF_MONTHS;
+    const monthlyVest = shares / TOTAL_MONTHS;
+    // Cliff vesting (25% at cliff)
+    vestedShares = (shares * CLIFF_MONTHS / TOTAL_MONTHS) + (monthlyVest * monthsAfterCliff);
+  }
+
+  vestedShares = Math.min(vestedShares, shares); // Cap at total shares
+  const unvestedShares = shares - vestedShares;
+
+  return {
+    totalValue,
+    vestedValue: vestedShares * pricePerShare,
+    unvestedValue: unvestedShares * pricePerShare,
+    cliffMonths: CLIFF_MONTHS,
+    totalMonths: TOTAL_MONTHS,
+    vestedPercentage: shares > 0 ? (vestedShares / shares) * 100 : 0
+  };
+}
+
+/**
+ * Evaluate equity portion and add to score
+ * @param {number} equityValue - Equity value in TWD
+ * @param {number} baseSalary - Base salary for percentage calculation
+ * @param {VestingBreakdown} vesting - Vesting breakdown
+ * @returns {Array} Breakdown items for equity
+ */
+export function evaluateEquity(equityValue, baseSalary, vesting) {
+  const breakdown = [];
+
+  if (equityValue <= 0) {
+    return breakdown;
+  }
+
+  // Equity as percentage of base salary (annualized)
+  const equityToSalaryRatio = equityValue / baseSalary;
+
+  // Score based on equity value relative to salary
+  if (equityToSalaryRatio >= 1.0) {
+    breakdown.push({ label: '優渥股票/選擇權', value: '+20', good: true });
+  } else if (equityToSalaryRatio >= 0.5) {
+    breakdown.push({ label: '豐厚股票/選擇權', value: '+15', good: true });
+  } else if (equityToSalaryRatio >= 0.2) {
+    breakdown.push({ label: '合理股票/選擇權', value: '+10', good: true });
+  } else if (equityToSalaryRatio > 0) {
+    breakdown.push({ label: '少量股票/選擇權', value: '+5', good: true });
+  }
+
+  // Vesting schedule quality
+  if (vesting.vestedPercentage >= 75) {
+    breakdown.push({ label: '已大量 Vesting', value: `已落袋 ${vesting.vestedPercentage.toFixed(0)}%`, good: true });
+  } else if (vesting.vestedPercentage >= 50) {
+    breakdown.push({ label: '部分已 Vesting', value: `已落袋 ${vesting.vestedPercentage.toFixed(0)}%`, good: true });
+  } else if (vesting.vestedPercentage > 0) {
+    breakdown.push({ label: '早期 Vesting 階段', value: `已落袋 ${vesting.vestedPercentage.toFixed(0)}%`, good: null });
+  } else {
+    breakdown.push({ label: '等待 Cliff', value: '尚未開始 Vesting', good: false });
+  }
+
+  return breakdown;
+}
