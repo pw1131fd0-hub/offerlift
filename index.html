@@ -428,6 +428,88 @@
     </div>
   </section>
 
+  <!-- Salary Progression Simulator -->
+  <section id="salary-simulator" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="salarySimTitle" class="text-3xl font-bold mb-3 dark:text-white">📈 薪資成長模擬器</h2>
+        <p data-i18n="salarySimDesc" class="text-gray-500 dark:text-gray-400">根據你的職位與年資，模擬未來薪資成長趨勢</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="simJobTitleLabel">目標職位</label>
+            <select id="sim-job-title" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="frontend">Frontend Engineer</option>
+              <option value="senior-frontend">Senior Frontend Engineer</option>
+              <option value="backend">Backend Engineer</option>
+              <option value="senior-backend">Senior Backend Engineer</option>
+              <option value="fullstack">Full Stack Engineer</option>
+              <option value="devops">DevOps / SRE</option>
+              <option value="data">Data Engineer</option>
+              <option value="ml">ML Engineer</option>
+              <option value="pm">Product Manager</option>
+              <option value="em">Engineering Manager</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="simCurrentSalaryLabel">目前年薪 (TWD)</label>
+            <input id="sim-current-salary" type="number" placeholder="1200000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="simYearsLabel">目前年資</label>
+            <select id="sim-years" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="0">0-2 年</option>
+              <option value="2">2-5 年</option>
+              <option value="5">5-10 年</option>
+              <option value="10">10+ 年</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="simGrowthRateLabel">預期年成長率</label>
+            <select id="sim-growth-rate" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="3">保守 (3%/年)</option>
+              <option value="5" selected>一般 (5%/年)</option>
+              <option value="8">積極 (8%/年)</option>
+              <option value="10">大幅晉升 (10%/年)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="simulateSalary()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
+          <span data-i18n="simulateBtn">模擬未來薪資</span>
+        </button>
+        <div id="sim-result" class="hidden mt-6">
+          <div class="bg-brand-50 dark:bg-brand-900/20 rounded-xl p-6 border border-brand-200 dark:border-brand-700">
+            <h4 class="font-semibold text-lg mb-4 text-brand-700 dark:text-brand-300" data-i18n="simResultTitle">薪資成長預測</h4>
+            <div id="sim-chart" class="h-64 mb-6"></div>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                <div class="text-2xl font-bold text-brand-600 dark:text-brand-400" id="sim-year-1">--</div>
+                <div class="text-sm text-gray-500" data-i18n="simYear1">1年後</div>
+              </div>
+              <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                <div class="text-2xl font-bold text-brand-600 dark:text-brand-400" id="sim-year-2">--</div>
+                <div class="text-sm text-gray-500" data-i18n="simYear2">2年後</div>
+              </div>
+              <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                <div class="text-2xl font-bold text-brand-600 dark:text-brand-400" id="sim-year-3">--</div>
+                <div class="text-sm text-gray-500" data-i18n="simYear3">3年後</div>
+              </div>
+              <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+                <div class="text-2xl font-bold text-brand-600 dark:text-brand-400" id="sim-year-5">--</div>
+                <div class="text-sm text-gray-500" data-i18n="simYear5">5年後</div>
+              </div>
+            </div>
+            <div class="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <p class="text-sm text-gray-500 dark:text-gray-400" data-i18n="simNote">* 此模擬僅供參考，實際薪資成長取決於產業、個人表現及市場變化。</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- Language Selector -->
   <div id="lang-selector" class="fixed bottom-6 right-6 z-40">
     <div class="relative">
@@ -849,6 +931,268 @@
       localStorage.setItem('offerlift_history', JSON.stringify(history));
     }
 
+    // Salary Progression Simulator
+    function simulateSalary() {
+      const currentSalary = parseFloat(document.getElementById('sim-current-salary').value) || 0;
+      const growthRate = parseFloat(document.getElementById('sim-growth-rate').value) / 100;
+      const currentYears = parseInt(document.getElementById('sim-years').value);
+
+      if (!currentSalary) {
+        alert('請輸入目前年薪');
+        return;
+      }
+
+      const projections = [];
+      for (let year = 1; year <= 5; year++) {
+        const futureSalary = currentSalary * Math.pow(1 + growthRate, year);
+        projections.push(Math.round(futureSalary));
+      }
+
+      // Update result display
+      document.getElementById('sim-year-1').textContent = (projections[0] / 10000).toFixed(0) + '萬';
+      document.getElementById('sim-year-2').textContent = (projections[1] / 10000).toFixed(0) + '萬';
+      document.getElementById('sim-year-3').textContent = (projections[2] / 10000).toFixed(0) + '萬';
+      document.getElementById('sim-year-5').textContent = (projections[4] / 10000).toFixed(0) + '萬';
+
+      // Simple bar chart using divs
+      const maxVal = projections[4];
+      const chartHtml = `
+        <div class="flex items-end justify-between h-48 gap-2">
+          ${projections.map((val, i) => `
+            <div class="flex-1 flex flex-col items-center">
+              <div class="w-full bg-brand-500 rounded-t-sm" style="height: ${(val / maxVal) * 160}px; min-height: 20px;"></div>
+              <div class="text-xs mt-2 text-gray-600 dark:text-gray-400">${i === 4 ? '5年' : i === 3 ? '3年' : i + 1 + '年'}</div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+      document.getElementById('sim-chart').innerHTML = chartHtml;
+
+      document.getElementById('sim-result').classList.remove('hidden');
+    }
+
+    // Benefits Calculator
+    function calculateBenefits() {
+      const baseSalary = parseFloat(document.getElementById('base-salary').value) || 0;
+      const annualLeave = parseInt(document.getElementById('annual-leave').value) || 0;
+      const mealAllowance = parseInt(document.getElementById('meal-allowance').value) || 0;
+      const transportAllowance = parseInt(document.getElementById('transport-allowance').value) || 0;
+      const phoneSubsidy = parseInt(document.getElementById('phone-subsidy').value) || 0;
+      const carAllowance = parseInt(document.getElementById('car-allowance').value) || 0;
+      const educationAllowance = parseInt(document.getElementById('education-allowance').value) || 0;
+      const insuranceSubsidy = parseInt(document.getElementById('insurance-subsidy').value) || 0;
+      const bonusMonths = parseFloat(document.getElementById('bonus-months').value) || 0;
+      const isRemote = document.getElementById('remote-work').checked;
+
+      if (!baseSalary) {
+        alert('請先在 Offer 評估器中輸入年薪底薪');
+        return;
+      }
+
+      const monthlyBase = baseSalary / 12;
+      const yearlyBenefits = (annualLeave * monthlyBase * 0.5) + (mealAllowance * 12) + (transportAllowance * 12) + (phoneSubsidy * 12) + (carAllowance * 12) + (educationAllowance) + (insuranceSubsidy) + (bonusMonths * monthlyBase);
+      const remoteValue = isRemote ? 120000 : 0; // Estimate remote work value at 10k/month
+
+      const totalBenefits = yearlyBenefits + remoteValue;
+      const monthlyBenefits = totalBenefits / 12;
+
+      document.getElementById('benefits-annual').textContent = (totalBenefits / 10000).toFixed(0) + '萬';
+      document.getElementById('benefits-monthly').textContent = (monthlyBenefits / 10000).toFixed(1) + '萬';
+      document.getElementById('benefits-base').textContent = (baseSalary / 10000).toFixed(0) + '萬';
+      document.getElementById('benefits-total').textContent = ((baseSalary + totalBenefits) / 10000).toFixed(0) + '萬';
+
+      const breakdown = [
+        { label: '年假置換價值', value: (annualLeave * monthlyBase * 0.5) },
+        { label: '餐補', value: mealAllowance * 12 },
+        { label: '交通補助', value: transportAllowance * 12 },
+        { label: '手機補助', value: phoneSubsidy * 12 },
+        { label: '汽/機車補助', value: carAllowance * 12 },
+        { label: '進修補助', value: educationAllowance },
+        { label: '保險補助', value: insuranceSubsidy },
+        { label: '年終獎金', value: bonusMonths * monthlyBase },
+        { label: '遠端工作價值', value: remoteValue }
+      ].filter(b => b.value > 0);
+
+      document.getElementById('benefits-breakdown').innerHTML = breakdown.map(b =>
+        `<div class="flex justify-between py-1 border-b border-gray-100 dark:border-gray-700 last:border-0">
+          <span class="text-gray-600 dark:text-gray-400">${b.label}</span>
+          <span class="font-medium">${(b.value / 10000).toFixed(1)}萬 TWD</span>
+        </div>`
+      ).join('');
+
+      document.getElementById('benefits-result').classList.remove('hidden');
+    }
+
+    // Email Generator
+    function generateEmail() {
+      const emailType = document.getElementById('email-type').value;
+      const targetSalary = parseFloat(document.getElementById('email-target-salary').value) || 0;
+      const companyName = sanitize(document.getElementById('email-company').value) || '本公司';
+      const hrName = sanitize(document.getElementById('email-hr-name').value);
+
+      const hrGreeting = hrName ? `Dear ${hrName},` : 'Dear HR,';
+      const companySalutation = hrName ? `${hrName} 您好` : '您好';
+
+      let emailContent = '';
+
+      if (emailType === 'counter') {
+        emailContent = `${companySalutation}
+
+感謝您提供這次機會。我對這個職位非常有興趣，也仔細評估了 Offer 的內容。
+
+根據我對市場行情的了解，以及自身的專業能力與經驗，我希望能夠討論一下薪酬方案。我的預期年薪總薪酬在 ${targetSalary ? Number(targetSalary).toLocaleString() : '[目標薪資]'} 左右。
+
+如果這個範圍有調整空間，我非常願意進一步討論。如果現階段有困難，也希望了解是否有其他補償方式——例如更高的獎金比例、更多的股票、或是一次性的 sign-on bonus。
+
+我期待能夠加入團隊，也希望能夠達到雙方都滿意的共識。
+
+謝謝您的時間與安排`;
+
+      } else if (emailType === 'decline') {
+        emailContent = `${companySalutation}
+
+非常感謝您提供這個機會，也感謝您在整個面試過程中的耐心說明。
+
+經過仔細考慮，我決定暫時不接受這個 Offer。主要原因是 [說明原因，例如：薪酬不符合預期 / 需要更多時間考慮 / 選擇了其他機會]。
+
+我對貴公司的產品與文化印象深刻，也非常尊重這個團隊。如果未來有機會，我希望能夠再次討論合作的可能性。
+
+再次感謝您的时间和耐心，祝您一切順利`;
+
+      } else if (emailType === 'accept') {
+        emailContent = `${companySalutation}
+
+非常感謝您提供這個 Offer，我很高興地宣布接受這個職位！
+
+感謝您在整个面試過程中提供的詳細說明，讓我能夠全面了解這個職位與團隊。我對加入貴公司充滿期待。
+
+請問我需要準備哪些入職資料？以及預計的入職日期是什麼時候？
+
+期待盡快加入團隊！
+
+謝謝`;
+
+      } else if (emailType === 'question') {
+        emailContent = `${companySalutation}
+
+感謝您提供這個 Offer！
+
+在正式回覆之前，我想請教幾個關於薪酬結構的問題：
+
+1. 年終獎金的計算方式是什麼？是否固定為 X 個月？
+2. 股票的 Vesting 排程是四年還是五年？是否有 Cliff？
+3. 是否有 sign-on bonus 或其他一次性補償？
+4. 團隊的年度調薪機制是什麼時候？一般調幅大约多少？
+5. 福利部分（年假、保險、進修補助等）的具體內容是什麼？
+
+這些資訊對我做出最終決定非常重要。期待您的回覆！
+
+謝謝您的時間`;
+      }
+
+      document.getElementById('email-content').textContent = emailContent;
+      document.getElementById('email-result').classList.remove('hidden');
+    }
+
+    function copyEmail() {
+      const content = document.getElementById('email-content').textContent;
+      navigator.clipboard.writeText(content).then(() => {
+        alert('郵件已複製到剪貼簿！');
+      });
+    }
+
+    // Offer Comparison Tool
+    let compareOffers = [];
+
+    function openCompareModal() {
+      const title = prompt('請輸入 Offer 名稱（例如：公司A）:');
+      if (!title) return;
+
+      const total = prompt('年度總薪（含獎金，TWD）:');
+      if (!total) return;
+
+      const base = prompt('年薪底薪（TWD）:');
+      if (!base) return;
+
+      const score = prompt('評估分數（0-100，可留空）:');
+
+      compareOffers.push({
+        title,
+        total: parseFloat(total) || 0,
+        base: parseFloat(base) || 0,
+        score: score ? parseInt(score) : null
+      });
+
+      renderCompareCards();
+    }
+
+    function renderCompareCards() {
+      const container = document.getElementById('compare-container');
+
+      if (compareOffers.length < 2) {
+        container.innerHTML = `
+          <div class="text-center text-gray-400 dark:text-gray-500 col-span-3 py-12">
+            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            <p>新增至少 2 個 Offer 來開始比較</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = compareOffers.map((offer, i) => `
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg relative">
+          <button onclick="removeCompareOffer(${i})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500">✕</button>
+          <h4 class="font-semibold text-lg mb-2 dark:text-white">${offer.title}</h4>
+          <div class="text-2xl font-bold text-brand-600 dark:text-brand-400 mb-1">${(offer.total / 10000).toFixed(0)}萬</div>
+          <div class="text-sm text-gray-500">年薪底薪: ${(offer.base / 10000).toFixed(0)}萬</div>
+          ${offer.score !== null ? `<div class="mt-2 text-sm font-medium text-brand-600 dark:text-brand-400">評分: ${offer.score}</div>` : ''}
+        </div>
+      `).join('');
+
+      // Render comparison chart
+      if (compareOffers.length >= 2) {
+        renderCompareChart();
+      }
+    }
+
+    function renderCompareChart() {
+      const chartDiv = document.getElementById('compare-chart');
+      chartDiv.classList.remove('hidden');
+
+      // Simple comparison table instead of radar chart
+      const maxTotal = Math.max(...compareOffers.map(o => o.total));
+      const chartHtml = `
+        <div class="mt-4 space-y-3">
+          <h5 class="font-semibold text-sm dark:text-white">Offer 比較</h5>
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-gray-200 dark:border-gray-700">
+                  <th class="text-left py-2 dark:text-gray-300">Offer</th>
+                  <th class="text-right py-2 dark:text-gray-300">年薪</th>
+                  <th class="text-right py-2 dark:text-gray-300">佔最高%</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${compareOffers.map(offer => `
+                  <tr class="border-b border-gray-100 dark:border-gray-700">
+                    <td class="py-2 dark:text-gray-200">${offer.title}</td>
+                    <td class="text-right py-2 font-medium dark:text-gray-200">${offer.total.toLocaleString()}</td>
+                    <td class="text-right py-2 dark:text-gray-400">${Math.round((offer.total / maxTotal) * 100)}%</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+      chartDiv.innerHTML = chartHtml;
+    }
+
+    function removeCompareOffer(index) {
+      compareOffers.splice(index, 1);
+      renderCompareCards();
+    }
+
     // i18n - Translations
     const translations = {
       zh: {
@@ -902,7 +1246,54 @@
         verdictExcellent: '🌟 優異 Offer，強烈建議接受',
         verdictGood: '👍 不錯的 Offer，可以談判',
         verdictFair: '⚠️ 低於行情，建議談判',
-        verdictPoor: '🚨 明顯低於行情，必須談判'
+        verdictPoor: '🚨 明顯低於行情，必須談判',
+        salarySimTitle: '📈 薪資成長模擬器',
+        salarySimDesc: '根據你的職位與年資，模擬未來薪資成長趨勢',
+        simJobTitleLabel: '目標職位',
+        simCurrentSalaryLabel: '目前年薪 (TWD)',
+        simYearsLabel: '目前年資',
+        simGrowthRateLabel: '預期年成長率',
+        simulateBtn: '模擬未來薪資',
+        simResultTitle: '薪資成長預測',
+        simYear1: '1年後',
+        simYear2: '2年後',
+        simYear3: '3年後',
+        simYear5: '5年後',
+        simNote: '* 此模擬僅供參考，實際薪資成長取決於產業、個人表現及市場變化。',
+        benefitsTitle: '🎁 福利計算機',
+        benefitsDesc: '計算完整薪酬福利的總價值',
+        annualLeaveLabel: '特休天數',
+        mealAllowanceLabel: '每月餐補 (TWD)',
+        transportLabel: '每月交通補貼 (TWD)',
+        phoneSubsidyLabel: '每月手機補助 (TWD)',
+        carAllowanceLabel: '每月汽/機車補助 (TWD)',
+        educationLabel: '年度進修補助 (TWD)',
+        insuranceLabel: '額外保險補助 (TWD/年)',
+        bonusMonthsLabel: '年終獎金月數',
+        remoteWorkLabel: '遠端工作選項（隱性價值）',
+        calculateBenefitsBtn: '計算福利總價值',
+        benefitsResultTitle: '福利總價值',
+        benefitsAnnual: '年度福利價值',
+        benefitsMonthly: '每月福利價值',
+        benefitsBase: '基本年薪',
+        benefitsTotal: '完整薪酬包',
+        benefitsBreakdownLabel: '福利 breakdown',
+        emailGenTitle: '📧 談判郵件產生器',
+        emailGenDesc: '生成專業的談判郵件，直接複製使用',
+        emailTypeLabel: '郵件類型',
+        emailCounter: 'Counter Offer - 還價郵件',
+        emailDecline: '延後決定 - 請求更多時間',
+        emailAccept: '接受 Offer',
+        emailQuestion: '詢問明細 - 要求更多資訊',
+        emailTargetSalaryLabel: '你的目標薪資 (TWD)',
+        emailCompanyLabel: '公司名稱',
+        emailHrNameLabel: 'HR 姓名（可留空）',
+        generateEmailBtn: '產生郵件',
+        generatedEmail: '生成的郵件',
+        copyEmail: '複製郵件',
+        compareTitle: '⚖️ Offer 比較器',
+        compareDesc: '比較多個 Offer，找出最佳選擇',
+        addOfferBtn: '新增 Offer 比較的 Offer'
       },
       en: {
         exportPdf: 'Export PDF',
@@ -955,7 +1346,54 @@
         verdictExcellent: '🌟 Outstanding Offer, Strongly Recommend Accepting',
         verdictGood: '👍 Good Offer, Negotiable',
         verdictFair: '⚠️ Below Market, Recommend Negotiating',
-        verdictPoor: '🚨 Significantly Below Market, Must Negotiate'
+        verdictPoor: '🚨 Significantly Below Market, Must Negotiate',
+        salarySimTitle: '📈 Salary Growth Simulator',
+        salarySimDesc: 'Simulate future salary growth based on your position and experience',
+        simJobTitleLabel: 'Target Position',
+        simCurrentSalaryLabel: 'Current Annual Salary (TWD)',
+        simYearsLabel: 'Years of Experience',
+        simGrowthRateLabel: 'Expected Annual Growth Rate',
+        simulateBtn: 'Simulate Future Salary',
+        simResultTitle: 'Salary Growth Projection',
+        simYear1: '1 Year',
+        simYear2: '2 Years',
+        simYear3: '3 Years',
+        simYear5: '5 Years',
+        simNote: '* This simulation is for reference only. Actual salary growth depends on industry, personal performance, and market changes.',
+        benefitsTitle: '🎁 Benefits Calculator',
+        benefitsDesc: 'Calculate total value of your compensation package',
+        annualLeaveLabel: 'Annual Leave Days',
+        mealAllowanceLabel: 'Monthly Meal Allowance (TWD)',
+        transportLabel: 'Monthly Transport Subsidy (TWD)',
+        phoneSubsidyLabel: 'Monthly Phone Subsidy (TWD)',
+        carAllowanceLabel: 'Monthly Car/Motorcycle Subsidy (TWD)',
+        educationLabel: 'Annual Education Allowance (TWD)',
+        insuranceLabel: 'Extra Insurance Subsidy (TWD/year)',
+        bonusMonthsLabel: 'Year-End Bonus Months',
+        remoteWorkLabel: 'Remote Work Option (Hidden Value)',
+        calculateBenefitsBtn: 'Calculate Total Benefits',
+        benefitsResultTitle: 'Total Benefits Value',
+        benefitsAnnual: 'Annual Benefits',
+        benefitsMonthly: 'Monthly Benefits',
+        benefitsBase: 'Base Salary',
+        benefitsTotal: 'Total Package',
+        benefitsBreakdownLabel: 'Benefits Breakdown',
+        emailGenTitle: '📧 Negotiation Email Generator',
+        emailGenDesc: 'Generate professional negotiation emails, ready to copy and use',
+        emailTypeLabel: 'Email Type',
+        emailCounter: 'Counter Offer - Negotiate Salary',
+        emailDecline: 'Request More Time - Delay Decision',
+        emailAccept: 'Accept Offer',
+        emailQuestion: 'Request Details - Ask for More Info',
+        emailTargetSalaryLabel: 'Your Target Salary (TWD)',
+        emailCompanyLabel: 'Company Name',
+        emailHrNameLabel: 'HR Name (optional)',
+        generateEmailBtn: 'Generate Email',
+        generatedEmail: 'Generated Email',
+        copyEmail: 'Copy Email',
+        compareTitle: '⚖️ Offer Comparator',
+        compareDesc: 'Compare multiple offers to find the best choice',
+        addOfferBtn: 'Add Offer to Compare'
       },
       ja: {
         exportPdf: 'PDF出力',
@@ -1008,7 +1446,54 @@
         verdictExcellent: '🌟 優れたオファー、受諾を強く推奨',
         verdictGood: '👍 良いオファー、交渉可能',
         verdictFair: '⚠️ 市場平均以下、交渉を推奨',
-        verdictPoor: '🚨 市場平均を大きく下回る、交渉必須'
+        verdictPoor: '🚨 市場平均を大きく下回る、交渉必須',
+        salarySimTitle: '📈 給与成長シミュレーター',
+        salarySimDesc: '職位と経験年数に基づいて将来の給与成長をシミュレート',
+        simJobTitleLabel: '目標職位',
+        simCurrentSalaryLabel: '現在の年収 (TWD)',
+        simYearsLabel: '経験年数',
+        simGrowthRateLabel: '予想年間成長率',
+        simulateBtn: '将来給与をシミュレート',
+        simResultTitle: '給与成長予測',
+        simYear1: '1年後',
+        simYear2: '2年後',
+        simYear3: '3年後',
+        simYear5: '5年後',
+        simNote: '* このシミュレーターは参考用です。実際の給与成長は業界、個人の実績、市場状況により異なります。',
+        benefitsTitle: '🎁 福利計算機',
+        benefitsDesc: '報酬パッケージの合計価値を計算',
+        annualLeaveLabel: '有休日数',
+        mealAllowanceLabel: '月額食事補助 (TWD)',
+        transportLabel: '月額交通費補助 (TWD)',
+        phoneSubsidyLabel: '月額携帯補助 (TWD)',
+        carAllowanceLabel: '月額車/バイク補助 (TWD)',
+        educationLabel: '年間研修補助 (TWD)',
+        insuranceLabel: '追加保険補助 (TWD/年)',
+        bonusMonthsLabel: '年末ボーナス月数',
+        remoteWorkLabel: 'リモートワークオプション（隠れた価値）',
+        calculateBenefitsBtn: '福利合計を計算',
+        benefitsResultTitle: '福利合計価値',
+        benefitsAnnual: '年間福利価値',
+        benefitsMonthly: '月額福利価値',
+        benefitsBase: '基本給',
+        benefitsTotal: '合計パッケージ',
+        benefitsBreakdownLabel: '福利内訳',
+        emailGenTitle: '📧 交渉メールジェネレーター',
+        emailGenDesc: 'プロフェッショナルな交渉メールを生成、そのままでコピー可能',
+        emailTypeLabel: 'メールタイプ',
+        emailCounter: 'カウンターオファー - 給与交渉',
+        emailDecline: '延期をリクエスト - 決定を待つ',
+        emailAccept: 'オファーを接受',
+        emailQuestion: '詳細をリクエスト - 更多信息を求める',
+        emailTargetSalaryLabel: '目標給与 (TWD)',
+        emailCompanyLabel: '会社名',
+        emailHrNameLabel: 'HR名（任意）',
+        generateEmailBtn: 'メールを生成',
+        generatedEmail: '生成されたメール',
+        copyEmail: 'メールをコピー',
+        compareTitle: '⚖️ オファー比較器',
+        compareDesc: '複数のオファーを比較して最佳の選択を見つける',
+        addOfferBtn: 'オファーを追加して比較'
       }
     };
 
