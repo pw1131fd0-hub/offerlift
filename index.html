@@ -24,6 +24,7 @@
     .gradient-bg { background: linear-gradient(135deg, #166534 0%, #0f172a 100%); }
     .card-hover { transition: all 0.3s ease; }
     .card-hover:hover { transform: translateY(-4px); box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
+    .dark .card-hover:hover { box-shadow: 0 20px 40px rgba(0,0,0,0.4); }
     .score-ring { transition: stroke-dashoffset 1s ease; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     .animate-in { animation: fadeIn 0.6s ease forwards; }
@@ -31,24 +32,29 @@
     .script-card.open { max-height: 500px; }
     input[type="range"] { -webkit-appearance: none; height: 8px; border-radius: 4px; background: #e5e7eb; }
     input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%; background: #22c55e; cursor: pointer; }
+    .dark input[type="range"] { background: #374151; }
   </style>
 </head>
-<body class="bg-gray-50 text-gray-900">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 transition-colors duration-300">
 
   <!-- Nav -->
-  <nav class="bg-white/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100">
+  <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 dark:border-gray-800">
     <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
         </div>
-        <span class="text-xl font-bold text-gray-900">OfferLift</span>
+        <span class="text-xl font-bold text-gray-900 dark:text-white">OfferLift</span>
       </div>
-      <div class="flex gap-6 text-sm font-medium text-gray-600">
-        <a href="#evaluator" class="hover:text-brand-600 transition">評估工具</a>
-        <a href="#scripts" class="hover:text-brand-600 transition">談判腳本</a>
-        <a href="#market" class="hover:text-brand-600 transition">薪資參考</a>
+      <div class="flex gap-6 text-sm font-medium text-gray-600 dark:text-gray-300">
+        <a href="#evaluator" class="hover:text-brand-600 dark:hover:text-brand-400 transition">評估工具</a>
+        <a href="#scripts" class="hover:text-brand-600 dark:hover:text-brand-400 transition">談判腳本</a>
+        <a href="#market" class="hover:text-brand-600 dark:hover:text-brand-400 transition">薪資參考</a>
       </div>
+      <button id="dark-toggle" class="ml-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="切換深色模式">
+        <svg id="icon-moon" class="w-5 h-5 text-gray-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
+        <svg id="icon-sun" class="w-5 h-5 text-yellow-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+      </button>
     </div>
   </nav>
 
@@ -73,70 +79,70 @@
   </section>
 
   <!-- Stats -->
-  <section class="py-16 bg-white border-b border-gray-100">
+  <section class="py-16 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
     <div class="max-w-5xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
       <div>
-        <div class="text-4xl font-bold text-brand-600" id="stat-users">--</div>
-        <div class="text-gray-500 mt-1">已評估的 Offer</div>
+        <div class="text-4xl font-bold text-brand-600 dark:text-brand-400" id="stat-users">--</div>
+        <div class="text-gray-500 dark:text-gray-400 mt-1">已評估的 Offer</div>
       </div>
       <div>
-        <div class="text-4xl font-bold text-brand-600">+18%</div>
-        <div class="text-gray-500 mt-1">平均薪資增幅潛力</div>
+        <div class="text-4xl font-bold text-brand-600 dark:text-brand-400">+18%</div>
+        <div class="text-gray-500 dark:text-gray-400 mt-1">平均薪資增幅潛力</div>
       </div>
       <div>
-        <div class="text-4xl font-bold text-brand-600">100%</div>
-        <div class="text-gray-500 mt-1">純前端・數據不上雲</div>
+        <div class="text-4xl font-bold text-brand-600 dark:text-brand-400">100%</div>
+        <div class="text-gray-500 dark:text-gray-400 mt-1">純前端・數據不上雲</div>
       </div>
     </div>
   </section>
 
   <!-- Evaluator -->
-  <section id="evaluator" class="py-20 px-6">
+  <section id="evaluator" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-3">🔍 Offer 評估器</h2>
-        <p class="text-gray-500">輸入你的 Offer 詳情，獲得客觀評估與談判建議</p>
+        <h2 class="text-3xl font-bold mb-3 dark:text-white">🔍 Offer 評估器</h2>
+        <p class="text-gray-500 dark:text-gray-400">輸入你的 Offer 詳情，獲得客觀評估與談判建議</p>
       </div>
-      <div class="bg-white rounded-2xl shadow-xl overflow-hidden">
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl overflow-hidden">
         <div class="grid md:grid-cols-2">
           <!-- Input Form -->
-          <div class="p-8 border-r border-gray-100">
-            <h3 class="font-semibold mb-6 flex items-center gap-2">
+          <div class="p-8 border-r border-gray-100 dark:border-gray-700">
+            <h3 class="font-semibold mb-6 flex items-center gap-2 dark:text-white">
               <svg class="w-5 h-5 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
               輸入你的 Offer
             </h3>
             <div class="space-y-5">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">職位名稱</label>
-                <input id="job-title" type="text" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">職位名稱</label>
+                <input id="job-title" type="text" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">年度總薪（含獎金）</label>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年度總薪（含獎金）</label>
                 <div class="flex items-center gap-2">
-                  <input id="total-comp" type="number" placeholder="1500000" class="flex-1 px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
-                  <span class="text-gray-500 font-medium">TWD</span>
+                  <input id="total-comp" type="number" placeholder="1500000" class="flex-1 px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                  <span class="text-gray-500 dark:text-gray-400 font-medium">TWD</span>
                 </div>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">年薪底薪</label>
-                <input id="base-salary" type="number" placeholder="1200000" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年薪底薪</label>
+                <input id="base-salary" type="number" placeholder="1200000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  年終獎金 <span id="bonus-display" class="text-brand-600 font-medium">2 個月</span>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  年終獎金 <span id="bonus-display" class="text-brand-600 dark:text-brand-400 font-medium">2 個月</span>
                 </label>
                 <input id="bonus" type="range" min="0" max="12" value="2" class="w-full" oninput="document.getElementById('bonus-display').textContent = this.value + ' 個月'">
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">
-                  想像空間 <span id="equity-display" class="text-brand-600 font-medium">0%</span>
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  想像空間 <span id="equity-display" class="text-brand-600 dark:text-brand-400 font-medium">0%</span>
                 </label>
                 <input id="equity" type="range" min="0" max="5" step="0.1" value="0" class="w-full" oninput="document.getElementById('equity-display').textContent = this.value + '%'">
-                <p class="text-xs text-gray-400 mt-1">股份或選擇權（稀釋後百分比）</p>
+                <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">股份或選擇權（稀釋後百分比）</p>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">城市</label>
-                <select id="city" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">城市</label>
+                <select id="city" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
                   <option value="taipei">台北</option>
                   <option value="nhc">新竹</option>
                   <option value="taichung">台中</option>
@@ -145,8 +151,8 @@
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-2">年資</label>
-                <select id="experience" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
+                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">年資</label>
+                <select id="experience" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
                   <option value="0-2">0-2 年</option>
                   <option value="2-5">2-5 年</option>
                   <option value="5-10">5-10 年</option>
@@ -160,8 +166,8 @@
             </div>
           </div>
           <!-- Result -->
-          <div id="result-panel" class="p-8 bg-gray-50">
-            <div id="result-placeholder" class="h-full flex flex-col items-center justify-center text-center text-gray-400">
+          <div id="result-panel" class="p-8 bg-gray-50 dark:bg-gray-700">
+            <div id="result-placeholder" class="h-full flex flex-col items-center justify-center text-center text-gray-400 dark:text-gray-500">
               <svg class="w-16 h-16 mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
               <p class="text-lg font-medium">填寫左側資料</p>
               <p class="text-sm mt-1">點擊評估後即可看到結果</p>
@@ -170,12 +176,12 @@
               <div class="text-center mb-6">
                 <div class="relative inline-block">
                   <svg class="w-36 h-36" viewBox="0 0 120 120">
-                    <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" stroke-width="10"/>
+                    <circle cx="60" cy="60" r="52" fill="none" stroke="#e5e7eb" dark:stroke="#4b5563" stroke-width="10"/>
                     <circle id="score-ring" class="score-ring" cx="60" cy="60" r="52" fill="none" stroke="#22c55e" stroke-width="10" stroke-linecap="round" stroke-dasharray="327" stroke-dashoffset="327" transform="rotate(-90 60 60)"/>
                   </svg>
                   <div class="absolute inset-0 flex flex-col items-center justify-center">
-                    <span id="score-number" class="text-4xl font-extrabold text-gray-900">--</span>
-                    <span class="text-sm text-gray-500">總分</span>
+                    <span id="score-number" class="text-4xl font-extrabold text-gray-900 dark:text-white">--</span>
+                    <span class="text-sm text-gray-500 dark:text-gray-400">總分</span>
                   </div>
                 </div>
               </div>
@@ -183,12 +189,12 @@
                 <span class="inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold"></span>
               </div>
               <div id="breakdown" class="space-y-3 mb-6"></div>
-              <div id="verdict" class="bg-white rounded-xl p-4 border border-gray-100">
-                <h4 class="font-semibold mb-2 flex items-center gap-2">
+              <div id="verdict" class="bg-white dark:bg-gray-800 rounded-xl p-4 border border-gray-100 dark:border-gray-600">
+                <h4 class="font-semibold mb-2 flex items-center gap-2 dark:text-white">
                   <svg class="w-4 h-4 text-brand-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
                   談判建議
                 </h4>
-                <p id="verdict-text" class="text-sm text-gray-600 leading-relaxed"></p>
+                <p id="verdict-text" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></p>
               </div>
             </div>
           </div>
@@ -198,11 +204,12 @@
   </section>
 
   <!-- Scripts -->
-  <section id="scripts" class="py-20 px-6 bg-gray-900 text-white">
+  <section id="scripts" class="py-20 px-6 bg-gray-900 dark:bg-gray-800 text-white">
     <div class="max-w-4xl mx-auto">
-      <div class="text-center mb-12">
+      <div class="text-center mb-8">
         <h2 class="text-3xl font-bold mb-3">📝 談判腳本庫</h2>
-        <p class="text-gray-400">複製貼上，直接使用</p>
+        <p class="text-gray-400 dark:text-gray-500 mb-6">複製貼上，直接使用</p>
+        <input id="script-search" type="text" placeholder="搜尋腳本情境..." oninput="filterScripts(this.value)" class="w-full max-w-md mx-auto px-4 py-2 rounded-lg bg-gray-800 dark:bg-gray-700 text-white placeholder-gray-400 border border-gray-700 dark:border-gray-600 focus:ring-2 focus:ring-brand-500 focus:border-brand-500 outline-none transition">
       </div>
       <div class="space-y-4" id="script-list">
         <!-- Scripts injected by JS -->
@@ -211,18 +218,18 @@
   </section>
 
   <!-- Market Data -->
-  <section id="market" class="py-20 px-6">
+  <section id="market" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
     <div class="max-w-5xl mx-auto">
       <div class="text-center mb-12">
-        <h2 class="text-3xl font-bold mb-3">📊 薪資參考數據</h2>
-        <p class="text-gray-500">2025-2026 科技業真實數據（來源：104、LinkedIn、CakeResume）</p>
+        <h2 class="text-3xl font-bold mb-3 dark:text-white">📊 薪資參考數據</h2>
+        <p class="text-gray-500 dark:text-gray-400">2025-2026 科技業真實數據（來源：104、LinkedIn、CakeResume）</p>
       </div>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6" id="salary-grid">
         <!-- Cards injected by JS -->
       </div>
       <div class="text-center mt-8">
-        <p class="text-sm text-gray-400">* 資料為年薪範圍（含年終），單位：TWD。資料來源為用戶匿名貢獻 + 公開數據整合。</p>
-        <button onclick="contributeData()" class="mt-4 inline-flex items-center gap-2 text-brand-600 hover:text-brand-700 font-medium text-sm transition">
+        <p class="text-sm text-gray-400 dark:text-gray-500">* 資料為年薪範圍（含年終），單位：TWD。資料來源為用戶匿名貢獻 + 公開數據整合。</p>
+        <button onclick="contributeData()" class="mt-4 inline-flex items-center gap-2 text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 font-medium text-sm transition">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           貢獻你的薪資數據
         </button>
@@ -243,23 +250,23 @@
   </section>
 
   <!-- Footer -->
-  <footer class="bg-gray-900 text-gray-500 py-8 px-6 text-center text-sm">
+  <footer class="bg-gray-900 dark:bg-gray-800 text-gray-500 dark:text-gray-400 py-8 px-6 text-center text-sm">
     <p>OfferLift — 求職者薪資談判智囊 © 2026</p>
     <p class="mt-1">所有數據僅存於本地瀏覽器，不會上傳至任何伺服器。</p>
   </footer>
 
   <!-- Contribute Modal -->
-  <div id="contribute-modal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
-    <div class="bg-white rounded-2xl max-w-md w-full p-8 relative">
-      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+  <div id="contribute-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8 relative border border-gray-200 dark:border-gray-700">
+      <button onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
-      <h3 class="text-xl font-bold mb-4">貢獻薪資數據</h3>
-      <p class="text-gray-500 text-sm mb-6">你的匿名數據將幫助其他人做出更好的決定。數據僅用於統計，不會識別個人身份。</p>
+      <h3 class="text-xl font-bold mb-4 dark:text-white">貢獻薪資數據</h3>
+      <p class="text-gray-500 dark:text-gray-400 text-sm mb-6">你的匿名數據將幫助其他人做出更好的決定。數據僅用於統計，不會識別個人身份。</p>
       <div class="space-y-4">
-        <input id="contrib-title" type="text" placeholder="職位名稱" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
-        <input id="contrib-salary" type="number" placeholder="年薪（含年終）" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
-        <input id="contrib-company" type="text" placeholder="產業（可略）" class="w-full px-4 py-3 border border-gray-200 rounded-lg focus:ring-2 focus:ring-brand-500 outline-none">
+        <input id="contrib-title" type="text" placeholder="職位名稱" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
+        <input id="contrib-salary" type="number" placeholder="年薪（含年終）" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
+        <input id="contrib-company" type="text" placeholder="產業（可略）" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
         <button onclick="submitContrib()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">送出匿名數據</button>
       </div>
     </div>
@@ -364,13 +371,13 @@
     function renderSalaryGrid() {
       const grid = document.getElementById('salary-grid');
       grid.innerHTML = salaryData.map(s => `
-        <div class="bg-white rounded-xl p-5 border border-gray-100 card-hover">
-          <h4 class="font-semibold mb-2">${s.title}</h4>
-          <div class="text-2xl font-bold text-brand-600 mb-1">
+        <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 card-hover">
+          <h4 class="font-semibold mb-2 dark:text-white">${s.title}</h4>
+          <div class="text-2xl font-bold text-brand-600 dark:text-brand-400 mb-1">
             ${(s.min/10000).toFixed(0)}-${(s.max/10000).toFixed(0)}萬
           </div>
-          <div class="text-xs text-gray-400">${s.level} ・${s.city.toUpperCase()}</div>
-          <div class="mt-3 h-1.5 bg-gray-100 rounded-full overflow-hidden">
+          <div class="text-xs text-gray-400 dark:text-gray-500">${s.level} ・${s.city.toUpperCase()}</div>
+          <div class="mt-3 h-1.5 bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden">
             <div class="h-full bg-brand-500 rounded-full" style="width: 60%"></div>
           </div>
         </div>
@@ -434,16 +441,17 @@
       document.getElementById('score-number').textContent = score;
 
       const label = document.getElementById('score-label').querySelector('span');
-      if (score >= 80) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-green-100 text-green-700'; label.innerHTML = '🌟 優異 Offer，強烈建議接受'; }
-      else if (score >= 60) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-700'; label.innerHTML = '👍 不錯的 Offer，可以談判'; }
-      else if (score >= 40) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-orange-100 text-orange-700'; label.innerHTML = '⚠️ 低於行情，建議談判'; }
-      else { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold bg-red-100 text-red-700'; label.innerHTML = '🚨 明顯低於行情，必須談判'; }
+      const isDark = document.documentElement.classList.contains('dark');
+      if (score >= 80) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'); label.innerHTML = '🌟 優異 Offer，強烈建議接受'; }
+      else if (score >= 60) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700'); label.innerHTML = '👍 不錯的 Offer，可以談判'; }
+      else if (score >= 40) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-orange-900 text-orange-300' : 'bg-orange-100 text-orange-700'); label.innerHTML = '⚠️ 低於行情，建議談判'; }
+      else { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700'); label.innerHTML = '🚨 明顯低於行情，必須談判'; }
 
       // Breakdown
       document.getElementById('breakdown').innerHTML = breakdown.map(b => `
-        <div class="flex justify-between items-center py-2 border-b border-gray-100 last:border-0">
-          <span class="text-sm text-gray-600">${b.label}</span>
-          <span class="text-sm font-semibold ${b.good === true ? 'text-green-600' : b.good === false ? 'text-red-500' : 'text-gray-400'}">${b.value}</span>
+        <div class="flex justify-between items-center py-2 border-b border-gray-100 dark:border-gray-700 last:border-0">
+          <span class="text-sm text-gray-600 dark:text-gray-300">${b.label}</span>
+          <span class="text-sm font-semibold ${b.good === true ? 'text-green-600 dark:text-green-400' : b.good === false ? 'text-red-500 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'}">${b.value}</span>
         </div>
       `).join('');
 
@@ -455,7 +463,8 @@
 
       document.getElementById('verdict-text').textContent = verdict;
 
-      // Save stat
+      // Add to history and update stats
+      addToHistory(jobTitle, score, total);
       let users = parseInt(localStorage.getItem('offerlift_users') || '127');
       users++;
       localStorage.setItem('offerlift_users', users);
@@ -488,7 +497,77 @@
       document.getElementById('contrib-company').value = '';
     }
 
+    // Dark mode
+    function initDarkMode() {
+      const stored = localStorage.getItem('offerlift_darkmode');
+      if (stored === 'true' || (stored === null && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.documentElement.classList.add('dark');
+      }
+    }
+
+    function toggleDarkMode() {
+      const isDark = document.documentElement.classList.toggle('dark');
+      localStorage.setItem('offerlift_darkmode', isDark);
+    }
+
+    document.getElementById('dark-toggle').addEventListener('click', toggleDarkMode);
+
+    // Script search
+    let filteredScripts = [...negotiationScripts];
+
+    function filterScripts(query) {
+      const q = query.toLowerCase();
+      filteredScripts = negotiationScripts.filter(s =>
+        s.title.toLowerCase().includes(q) ||
+        s.situation.toLowerCase().includes(q) ||
+        s.tip.toLowerCase().includes(q)
+      );
+      renderFilteredScripts();
+    }
+
+    function renderFilteredScripts() {
+      const container = document.getElementById('script-list');
+      container.innerHTML = filteredScripts.map((s, i) => {
+        const originalIndex = negotiationScripts.indexOf(s);
+        return `
+        <div class="bg-gray-800 dark:bg-gray-700 rounded-xl overflow-hidden">
+          <button onclick="toggleScript(${originalIndex})" class="w-full p-6 text-left flex justify-between items-center hover:bg-gray-700/50 dark:hover:bg-gray-600/50 transition">
+            <div>
+              <span class="text-xs text-brand-400 font-medium mb-1 block">${s.situation}</span>
+              <span class="text-lg font-semibold">${s.title}</span>
+            </div>
+            <svg class="w-5 h-5 text-gray-400 transition-transform script-arrow-${originalIndex}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div class="script-card script-card-${originalIndex}">
+            <div class="px-6 pb-6">
+              <div class="bg-gray-700/50 dark:bg-gray-600/50 rounded-lg p-4 mb-4">
+                <p class="text-gray-200 dark:text-gray-200 text-sm leading-relaxed whitespace-pre-wrap">${s.script}</p>
+              </div>
+              <button onclick="copyScript(${originalIndex})" class="inline-flex items-center gap-2 text-brand-400 hover:text-brand-300 text-sm font-medium">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                複製腳本
+              </button>
+              <div class="mt-4 flex items-start gap-2 text-gray-400 text-sm">
+                <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+                <span>${s.tip}</span>
+              </div>
+            </div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Evaluation history
+    function addToHistory(jobTitle, score, totalComp) {
+      const MAX_HISTORY = 5;
+      let history = JSON.parse(localStorage.getItem('offerlift_history') || '[]');
+      history.unshift({ jobTitle, score, totalComp, date: new Date().toISOString() });
+      if (history.length > MAX_HISTORY) history = history.slice(0, MAX_HISTORY);
+      localStorage.setItem('offerlift_history', JSON.stringify(history));
+    }
+
     // Init
+    initDarkMode();
     document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
     renderScripts();
     renderSalaryGrid();
