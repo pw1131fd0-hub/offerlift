@@ -10,7 +10,9 @@ import {
   getVerdict,
   filterScripts,
   sanitize,
-  StorageService
+  StorageService,
+  calculateEquityValue,
+  evaluateEquity
 } from '../assets/js/core/evaluator';
 
 // Mock localStorage
@@ -255,5 +257,130 @@ describe('StorageService', () => {
       expect(history).toHaveLength(5);
       expect(history[0].jobTitle).toBe('Job 6'); // Most recent first
     });
+  });
+});
+
+describe('calculateEquityValue', () => {
+  test('should return zero vested for new employee (0 years)', () => {
+    const result = calculateEquityValue(100000, 500, 0);
+    expect(result.totalValue).toBe(50000000);
+    expect(result.vestedValue).toBe(0);
+    expect(result.unvestedValue).toBe(50000000);
+    expect(result.vestedPercentage).toBe(0);
+    expect(result.cliffMonths).toBe(12);
+    expect(result.totalMonths).toBe(48);
+  });
+
+  test('should vest 25% at 1 year cliff', () => {
+    const result = calculateEquityValue(100000, 500, 1);
+    expect(result.vestedPercentage).toBe(25);
+    expect(result.vestedValue).toBe(12500000); // 25000 shares * 500
+    expect(result.unvestedValue).toBe(37500000);
+  });
+
+  test('should vest 50% at 2 years', () => {
+    const result = calculateEquityValue(100000, 500, 2);
+    expect(result.vestedPercentage).toBe(50);
+    expect(result.vestedValue).toBe(25000000);
+    expect(result.unvestedValue).toBe(25000000);
+  });
+
+  test('should vest 75% at 3 years', () => {
+    const result = calculateEquityValue(100000, 500, 3);
+    expect(result.vestedPercentage).toBe(75);
+    expect(result.vestedValue).toBe(37500000);
+    expect(result.unvestedValue).toBe(12500000);
+  });
+
+  test('should vest 100% at 4 years', () => {
+    const result = calculateEquityValue(100000, 500, 4);
+    expect(result.vestedPercentage).toBe(100);
+    expect(result.vestedValue).toBe(50000000);
+    expect(result.unvestedValue).toBe(0);
+  });
+
+  test('should cap vested at total shares', () => {
+    const result = calculateEquityValue(100000, 500, 10);
+    expect(result.vestedPercentage).toBe(100);
+    expect(result.vestedValue).toBe(50000000);
+    expect(result.unvestedValue).toBe(0);
+  });
+
+  test('should handle zero shares', () => {
+    const result = calculateEquityValue(0, 500, 2);
+    expect(result.totalValue).toBe(0);
+    expect(result.vestedPercentage).toBe(0);
+  });
+});
+
+describe('evaluateEquity', () => {
+  test('should return empty breakdown for zero equity', () => {
+    const vesting = { vestedPercentage: 0 };
+    const result = evaluateEquity(0, 1000000, vesting);
+    expect(result).toHaveLength(0);
+  });
+
+  test('should add +20 for equity >= 100% of salary', () => {
+    const vesting = { vestedPercentage: 50 };
+    const result = evaluateEquity(1500000, 1000000, vesting);
+    const item = result.find(b => b.label === '優渥股票/選擇權');
+    expect(item).toBeDefined();
+    expect(item.value).toBe('+20');
+  });
+
+  test('should add +15 for equity >= 50% of salary', () => {
+    const vesting = { vestedPercentage: 50 };
+    const result = evaluateEquity(600000, 1000000, vesting);
+    const item = result.find(b => b.label === '豐厚股票/選擇權');
+    expect(item).toBeDefined();
+    expect(item.value).toBe('+15');
+  });
+
+  test('should add +10 for equity >= 20% of salary', () => {
+    const vesting = { vestedPercentage: 50 };
+    const result = evaluateEquity(250000, 1000000, vesting);
+    const item = result.find(b => b.label === '合理股票/選擇權');
+    expect(item).toBeDefined();
+    expect(item.value).toBe('+10');
+  });
+
+  test('should add +5 for equity > 0 but < 20% of salary', () => {
+    const vesting = { vestedPercentage: 50 };
+    const result = evaluateEquity(100000, 1000000, vesting);
+    const item = result.find(b => b.label === '少量股票/選擇權');
+    expect(item).toBeDefined();
+    expect(item.value).toBe('+5');
+  });
+
+  test('should show "已大量 Vesting" for >= 75% vested', () => {
+    const vesting = { vestedPercentage: 80 };
+    const result = evaluateEquity(1000000, 1000000, vesting);
+    const item = result.find(b => b.label === '已大量 Vesting');
+    expect(item).toBeDefined();
+    expect(item.good).toBe(true);
+  });
+
+  test('should show "部分已 Vesting" for >= 50% vested', () => {
+    const vesting = { vestedPercentage: 60 };
+    const result = evaluateEquity(1000000, 1000000, vesting);
+    const item = result.find(b => b.label === '部分已 Vesting');
+    expect(item).toBeDefined();
+    expect(item.good).toBe(true);
+  });
+
+  test('should show "早期 Vesting 階段" for > 0 but < 50% vested', () => {
+    const vesting = { vestedPercentage: 30 };
+    const result = evaluateEquity(1000000, 1000000, vesting);
+    const item = result.find(b => b.label === '早期 Vesting 階段');
+    expect(item).toBeDefined();
+    expect(item.good).toBe(null);
+  });
+
+  test('should show "等待 Cliff" for 0% vested', () => {
+    const vesting = { vestedPercentage: 0 };
+    const result = evaluateEquity(1000000, 1000000, vesting);
+    const item = result.find(b => b.label === '等待 Cliff');
+    expect(item).toBeDefined();
+    expect(item.good).toBe(false);
   });
 });

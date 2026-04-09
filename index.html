@@ -434,6 +434,9 @@
       const city = document.getElementById('city').value;
       const exp = document.getElementById('experience').value;
       const jobTitle = document.getElementById('job-title').value;
+      const equityShares = parseFloat(document.getElementById('equity').value) || 0;
+      const pricePerShare = parseFloat(document.getElementById('price-per-share').value) || 0;
+      const yearsAtCompany = parseFloat(document.getElementById('years-at-company').value) || 0;
 
       if (!total || !base) {
         alert('請至少填寫「年度總薪」和「年薪底薪」');
@@ -466,6 +469,76 @@
       // City adjustment
       if (city === 'nhc') { score += 10; breakdown.push({ label: '新竹科技聚落', value: '+10', good: true }); }
       else if (city === 'remote') { score += 5; breakdown.push({ label: '遠端彈性', value: '+5', good: true }); }
+
+      // Equity/Vesting calculation (standard 4-year vesting with 1-year cliff)
+      if (equityShares > 0 && pricePerShare > 0) {
+        const CLIFF_MONTHS = 12;
+        const TOTAL_MONTHS = 48;
+        const totalValue = equityShares * pricePerShare;
+
+        // Calculate vested shares based on cliff + linear vesting after cliff
+        let vestedShares = 0;
+        const monthsEmployed = yearsAtCompany * 12;
+
+        if (monthsEmployed >= CLIFF_MONTHS) {
+          const monthsAfterCliff = monthsEmployed - CLIFF_MONTHS;
+          const monthlyVest = equityShares / TOTAL_MONTHS;
+          vestedShares = (equityShares * CLIFF_MONTHS / TOTAL_MONTHS) + (monthlyVest * monthsAfterCliff);
+        }
+        vestedShares = Math.min(vestedShares, equityShares);
+        const unvestedShares = equityShares - vestedShares;
+        const vestedValue = vestedShares * pricePerShare;
+        const unvestedValue = unvestedShares * pricePerShare;
+        const vestedPercentage = equityShares > 0 ? (vestedShares / equityShares) * 100 : 0;
+
+        // Equity value relative to base salary
+        const equityToSalaryRatio = totalValue / base;
+
+        // Score adjustment based on equity value
+        let equityScore = 0;
+        if (equityToSalaryRatio >= 1.0) {
+          equityScore = 20;
+          breakdown.push({ label: '優渥股票/選擇權', value: '+20', good: true });
+        } else if (equityToSalaryRatio >= 0.5) {
+          equityScore = 15;
+          breakdown.push({ label: '豐厚股票/選擇權', value: '+15', good: true });
+        } else if (equityToSalaryRatio >= 0.2) {
+          equityScore = 10;
+          breakdown.push({ label: '合理股票/選擇權', value: '+10', good: true });
+        } else if (equityToSalaryRatio > 0) {
+          equityScore = 5;
+          breakdown.push({ label: '少量股票/選擇權', value: '+5', good: true });
+        }
+        score += equityScore;
+
+        // Vesting status breakdown
+        if (vestedPercentage >= 75) {
+          breakdown.push({ label: '已大量 Vesting', value: `已落袋 ${vestedPercentage.toFixed(0)}%`, good: true });
+        } else if (vestedPercentage >= 50) {
+          breakdown.push({ label: '部分已 Vesting', value: `已落袋 ${vestedPercentage.toFixed(0)}%`, good: true });
+        } else if (vestedPercentage > 0) {
+          breakdown.push({ label: '早期 Vesting 階段', value: `已落袋 ${vestedPercentage.toFixed(0)}%`, good: null });
+        } else {
+          breakdown.push({ label: '等待 Cliff', value: '尚未開始 Vesting', good: false });
+        }
+
+        // Add vesting info to breakdown
+        breakdown.push({
+          label: '股票總價值',
+          value: `${(totalValue / 10000).toFixed(0)}萬 TWD`,
+          good: null
+        });
+        breakdown.push({
+          label: '已 Vesting 價值',
+          value: `${(vestedValue / 10000).toFixed(0)}萬 TWD`,
+          good: true
+        });
+        breakdown.push({
+          label: '未 Vesting 價值',
+          value: `${(unvestedValue / 10000).toFixed(0)}萬 TWD`,
+          good: null
+        });
+      }
 
       score = Math.max(0, Math.min(100, Math.round(score)));
 
@@ -641,8 +714,8 @@
         totalCompLabel: '年度總薪（含獎金）',
         baseSalaryLabel: '年薪底薪',
         bonusLabel: '年終獎金',
-        equityLabel: '想像空間',
-        equityHint: '股份或選擇權（稀釋後百分比）',
+        equityLabel: '股票/選擇權股數',
+        equityHint: '股數（稀釋後股數）',
         cityLabel: '城市',
         expLabel: '年資',
         evaluateBtn: '評估我的 Offer',
@@ -694,8 +767,8 @@
         totalCompLabel: 'Annual Total Comp (incl. bonus)',
         baseSalaryLabel: 'Annual Base Salary',
         bonusLabel: 'Year-End Bonus',
-        equityLabel: 'Equity Range',
-        equityHint: 'Stock or options (post-dilution %)',
+        equityLabel: 'Stock/Options Shares',
+        equityHint: 'Number of shares (post-dilution)',
         cityLabel: 'City',
         expLabel: 'Experience',
         evaluateBtn: 'Evaluate My Offer',
@@ -747,8 +820,8 @@
         totalCompLabel: '年間総報酬（ボーナス込み）',
         baseSalaryLabel: '年間基本給',
         bonusLabel: '年末ボーナス',
-        equityLabel: '株式範囲',
-        equityHint: '株式またはオプション（希薄化後%）',
+        equityLabel: '株式/オプション株数',
+        equityHint: '株数（希薄化後）',
         cityLabel: '都市',
         expLabel: '経験年数',
         evaluateBtn: 'オファーを評価する',

@@ -68,7 +68,7 @@ OfferLift 是一款專為台灣科技業求職者設計的薪資談判輔助工�
 
 | 功能 | 描述 | 技術考量 | 狀態 |
 |------|------|----------|------|
-| Equity/Vesting 分析 | 輸入股票或選擇權明細與 Vesting 排程 | 需解析四年 Vesting + 一年 cliff 結構 | 待實現 |
+| Equity/Vesting 分析 | 輸入股票或選擇權明細與 Vesting 排程 | 需解析四年 Vesting + 一年 cliff 結構 | ✅ 已實作 |
 | 離線可用 (PWA) | 支援 Service Worker 離線快取 | manifest.json + sw.js 快取策略 | ✅ 已實作 |
 | 多語言支援 | 英文/日文/繁體中文介面 | i18n 框架 inline 實作 | ✅ 已實作 |
 | 匯出評估報告 | 將 Offer 評估結果匯出為 PDF | jsPDF CDN 動態載入 | ✅ 已實作 |
@@ -205,11 +205,11 @@ OfferLift 是一款專為台灣科技業求職者設計的薪資談判輔助工�
 | PWA 離線支援 | ✅ 已實現（manifest + sw.js） | P2 滿足 |
 | 多語言支援 | ✅ 已實現（ZH/EN/JA） | P2 滿足 |
 | PDF 匯出報告 | ✅ 已實現（jsPDF） | P2 滿足 |
-| Equity/Vesting 分析 | ❌ 未實現 | P2 待做 |
+| Equity/Vesting 分析 | ✅ 已實作（四年 Vesting + 一年 cliff） | P2 滿足 |
 | 效能 LCP < 2.5s | 待實測 | 需GA/Web Vitals |
 
 ---
 
-*文件版本：v1.1*
-*最後更新：2026-04-10*
+*文件版本：v1.2*
+*最後更新：2026-04-09*
 *作者：OfferLift Dev Team*
