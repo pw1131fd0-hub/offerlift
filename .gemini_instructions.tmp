@@ -1,0 +1,1000 @@
+專案名稱：offerlift。
+
+【現有 PRD（作為核心參考）】
+# OfferLift PRD — 求職者薪資談判智囊
+
+## 1. 產品願景
+
+OfferLift 是一款專為台灣科技業求職者設計的薪資談判輔助工具。透過輸入 Offer 詳情，使用者可獲得客觀的市場評估分數、具體的談判腳本、以及參考薪資區間，從而掌握談判主動權，爭取應得報酬。不同於一般薪資情報站，OfferLift 強調「純前端、數據不上雲」的隱私保護理念，所有計算與數據皆在本地瀏覽器完成。
+
+---
+
+## 2. User Story
+
+### US-01：求職者評估 Offer 價值
+**身份**：正在面試科技公司最後一關的求職者
+**我希望**：輸入我的 Offer 詳細結構（底薪、獎金、股票、城市、年資）
+**以便**：獲得一個客觀的評估分數（0-100）和針對該分數的談判建議
+
+**接受標準**：
+- 輸入必要欄位後點擊評估，3 秒內顯示結果
+- 評估分數以視覺化環圈呈現，並附上各項加分/減分原因
+- 根據分數給出「果斷接受」「可以談判」「必須談判」三種行動建議
+
+---
+
+### US-02：求職者取得談判腳本
+**身份**：對談判話術沒有把握的初次轉職者
+**我希望**：瀏覽並複製針對不同情境的談判對話腳本
+**以便**：在與 HR 電話中能從容應對，不失專業形象
+
+**接受標準**：
+- 頁面載明 5 種常見情境（開場、報價低於預期、談判空間、非薪資福利、暫緩決策）
+- 每個腳本皆為可直接使用的對話範文，並附上談判要點提示
+- 支援一鍵複製到剪貼簿
+
+---
+
+### US-03：求職者查詢市場薪資區間
+**身份**：需要市場數據支撐談判立場的轉職者
+**我希望**：查詢特定職稱與地區的市場薪資區間
+**以便**：在談判時能引用具體數據而非主觀感受
+
+**接受標準**：
+- 顯示至少 10 個常見科技職位的年薪區間（min-max，單位：萬 TWD）
+- 資料來源註明（104、LinkedIn、CakeResume）
+- 用戶可貢獻自己的匿名薪資數據擴充資料庫
+
+---
+
+## 3. 功能分級
+
+### P0（核心必備，MVP 上線基準）
+
+| 功能 | 描述 | 驗收條件 |
+|------|------|----------|
+| Offer 評估器 | 輸入薪資結構，輸出 0-100 評估分數與談判建議 | 評估結果在 3 秒內生成；分數計算邏輯公開可查 |
+| 談判腳本庫 | 5 種情境的複製可用腳本 | 每個腳本可展開/收合；支援一鍵複製 |
+| 薪資參考數據 | 12 個科技職位的市場薪資區間 | 顯示職稱、年薪區間、等級、城市 |
+| 城市/年資篩選 | 依據求職者背景調整評估與推薦 | 評估時可選城市（新竹/台北/台中/高雄/遠端）和年資區間 |
+
+### P1（上線後第一個迭代）
+
+| 功能 | 描述 | 預期效益 |
+|------|------|----------|
+| 深色模式 | 支援系統級深色/淺色切換 | 提升夜間使用者體驗 |
+| 談判腳本搜尋 | 依情境關鍵字搜尋腳本 | 快速找到適用腳本 |
+| 用戶數據貢獻 | 匿名提交薪資數據至本地端 | 逐步豐富薪資資料庫 |
+| 評估歷史記錄 | localStorage 儲存最近 5 次評估 | 方便用戶來回比較 Offer |
+
+### P2（中期規劃，功能增強）✅ 已實作
+
+| 功能 | 描述 | 技術考量 | 狀態 |
+|------|------|----------|------|
+| Equity/Vesting 分析 | 輸入股票或選擇權明細與 Vesting 排程 | 需解析四年 Vesting + 一年 cliff 結構 | ✅ 已實作 |
+| 離線可用 (PWA) | 支援 Service Worker 離線快取 | manifest.json + sw.js 快取策略 | ✅ 已實作 |
+| 多語言支援 | 英文/日文/繁體中文介面 | i18n 框架 inline 實作 | ✅ 已實作 |
+| 匯出評估報告 | 將 Offer 評估結果匯出為 PDF | jsPDF CDN 動態載入 | ✅ 已實作 |
+
+---
+
+## 4. 非功能需求
+
+### 效能
+- 頁面首次載入時間（Largest Contentful Paint）需低於 2.5 秒（在 3G 網路環境下量測）
+- Offer 評估計算需在 100ms 內完成（純 JS 本地計算，無網路請求）
+- 薪資參考數據表渲染時間需低於 200ms
+
+### 可用性
+- 支援響應式設計，桌面與手機（320px 以上）皆可正常操作
+- 符合 WCAG 2.1 AA 等級的顏色對比度要求
+- 所有交互元素（按鈕、輸入框、下拉選單）皆需可鍵盤操作
+
+### 擴展性
+- 薪資數據結構支援未來擴充新職稱、新城市、新貨幣
+- 談判腳本以結構化 JSON 存放，方便內容團隊更新（不需改 code）
+- 評估演算法模組化，支援未來調整權重或新增維度
+
+### 安全性
+- 不向任何外部 API 傳送用戶輸入的薪資數據（純本地計算）
+- 用戶貢獻的數據僅存於 localStorage，不上傳至任何伺服器
+- 輸入框內容需做基本 XSS 過濾（避免存入惡意 script）
+- 禁止在程式碼中 hardcode 任何真實用戶識別資訊
+
+---
+
+## 5. 技術選型
+
+### 前端框架
+- **選擇**：純 HTML + Tailwind CSS（CDN）+ Vanilla JavaScript
+- **理由**：MVP 階段極速交付；無需建構流程；CDN 載入 Tailwind 足以應對 Styling 需求；Vanilla JS 避免框架學習曲力，程式碼可直接被未來接手工程師閱讀維護
+
+### 資料儲存
+- **選擇**：localStorage
+- **理由**：用戶隱私優先，數據不上雲；MVP 不需後端；localStorage 足以應付小量結構化資料（評估歷史、貢獻數據）
+
+### 外部依賴
+- **Tailwind CSS**：CDN 版（`cdn.tailwindcss.com`），用於快速建構 UI 元件
+- **Google Fonts**：Inter 字體，用於全站字體統一
+- **無需其他第三方函式庫**
+
+### 部署方式
+- **選擇**：靜態網頁部署至 GitHub Pages
+- **理由**：零成本；與 GitHub 原生整合；支援自訂網域；CI/CD 流程可直接用 GitHub Actions 推送後自動部署
+
+### 程式碼品質工具
+- **ESLint**：前端程式碼 linting（可選，生產環境非必須）
+- **Prettier**：代碼格式化（可選）
+
+---
+
+## 6. UI/UX 色彩計劃
+
+### 主色彩系統
+
+| 角色 | 色票名稱 | Hex 值 | 使用場景 |
+|------|----------|--------|----------|
+| Primary | brand-500 | `#22c55e` | 主要 CTA 按鈕、強調色、活躍狀態 |
+| Primary Dark | brand-600 | `#16a34a` | Hover 狀態、深色背景上的品牌元素 |
+| Primary Deep | brand-900 | `#166534` | 深色對比區塊（如 Hero gradient 終點） |
+| Success | green | `#22c55e` | 評估分數高（>= 80）、正面指標 |
+| Warning | yellow | `#eab308` | 評估分數中（60-79）、需要注意 |
+| Danger | red | `#ef4444` | 評估分數低（< 40）、明顯低於市場警示 |
+| Neutral Dark | gray-900 | `#111827` | 主要文字、深色區塊（Footer、談判腳本區） |
+| Neutral Mid | gray-100 | `#f3f4f6` | 卡片邊框、分割線、淺色背景 |
+| Surface | white | `#ffffff` | 卡片、輸入框、表單背景 |
+
+### 字體規範
+- **主要字體**：Inter（Google Fonts）
+  - Sans-serif fallback：`system-ui, -apple-system, sans-serif`
+- **字重使用**：
+  - 400（Regular）：正文、說明文字
+  - 500（Medium）：標籤、輔助文字
+  - 600（Semibold）：標題、分類標題
+  - 700-800（Bold/Extrabold）：Hero 大標、數字分數
+
+### 佈局原則
+- **最大內容寬度**：`max-w-5xl`（約 1024px），置中對齊
+- **響應式斷點**：
+  - Mobile：< 768px（預設）
+  - Desktop：>= 768px（`md:` 修飾符）
+- **區塊間距**：各 section 以 `py-20 px-6` 達成一致垂直間距
+- **卡片圓角**：`rounded-xl`（12px）作為標準卡片圓角
+- **陰影系統**：
+  - 卡片：`shadow-xl`
+  - Hover 浮起：`shadow-lg` + `translateY(-4px)` + `transition: all 0.3s ease`
+
+---
+
+## 7. 成功指標
+
+### KPI 1：用戶使用深度
+- **指標名稱**：單次工作階段平均評估次數
+- **目標值**：>= 2.5 次/工作階段
+- **量測方式**：Google Analytics 事件追蹤（`evaluate_offer` 事件，在每次點擊「評估我的 Offer」時觸發）
+- **意義**：反映用戶是否願意用 OfferLift 比較多個 Offer；次數越高代表工具黏著度越好
+
+### KPI 2：用戶參與度（薪資數據貢獻率）
+- **指標名稱**：貢獻按鈕點擊率（Click-through Rate）
+- **目標值**：>= 3% 的評估使用者會點擊「貢獻你的薪資數據」
+- **量測方式**：Analytics 事件追蹤（`contribute_click`）
+- **意義**：用戶願意回饋數據代表產品信任度建立，也是資料庫持續成長的關鍵
+
+### KPI 3：頁面效能
+- **指標名稱**：Largest Contentful Paint（LCP）
+- **目標值**：< 2.5 秒（Good，等同於 Core Web Vitals Pass）
+- **量測方式**：Web Vitals JS 函式庫回傳至 Analytics
+- **意義**：免費工具使用者耐心低，效能不佳會直接流失
+
+### KPI 4：用戶回流意願
+- **指標名稱**：回訪率（Return Visit Rate，30 天內）
+- **目標值**：>= 15%
+- **量測方式**：Google Analytics Client ID 跨工作階段追蹤
+- **意義**：純工具類產品容易用完即走，回訪率高代表產品有長期價值
+
+---
+
+## 附錄：現有 MVP+P1+P2 功能對照
+
+| PRD 功能需求 | 現況 | 是否滿足 |
+|--------------|------|----------|
+| Offer 評估器（US-01） | ✅ 已實現，含分數+建議 | 滿足 |
+| 談判腳本庫（US-02） | ✅ 5 種情境，可複製 | 滿足 |
+| 薪資參考數據（US-03） | ✅ 12 個職稱，來源註明 | 滿足 |
+| 深色模式 | ✅ 已實現（系統偏好偵測 + localStorage） | P1 滿足 |
+| 腳本搜尋 | ✅ 已實現（關鍵字過濾） | P1 滿足 |
+| 用戶數據貢獻 | ✅ 已實現（localStorage） | 滿足 |
+| 評估歷史記錄 | ✅ 已實現（localStorage，最多5筆） | P1 滿足 |
+| PWA 離線支援 | ✅ 已實現（manifest + sw.js） | P2 滿足 |
+| 多語言支援 | ✅ 已實現（ZH/EN/JA） | P2 滿足 |
+| PDF 匯出報告 | ✅ 已實現（jsPDF） | P2 滿足 |
+| Equity/Vesting 分析 | ✅ 已實作（四年 Vesting + 一年 cliff） | P2 滿足 |
+| 效能 LCP < 2.5s | 待實測 | 需GA/Web Vitals |
+
+---
+
+*文件版本：v1.2*
+*最後更新：2026-04-09*
+*作者：OfferLift Dev Team*
+
+
+【現有系統架構（SA）】
+# OfferLift SA — 系統架構文件
+
+## 1. 系統概述
+
+OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資料計算與資料持久化皆在用戶瀏覽器內完成，不涉及任何後端伺服器服務。系統核心功能包括：Offer 評估、談判腳本庫、薪資參考數據展示、以及用戶貢獻數據收集。
+
+---
+
+## 2. 架構圖
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        使用者瀏覽器 (Browser)                    │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
+│  │   UI Layer   │  │ Business     │  │   Data Layer         │  │
+│  │  (HTML/CSS)  │←→│ Logic Layer  │←→│  (localStorage)      │  │
+│  │              │  │ (Vanilla JS) │  │                      │  │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
+│         ↑                 ↑                     ↑             │
+│         └─────────────────┼─────────────────────┘             │
+│                           │                                   │
+│              ┌────────────┴────────────┐                     │
+│              │      Tailwind CSS       │                     │
+│              │     (CDN, Runtime)      │                     │
+│              └─────────────────────────┘                     │
+│                                                                  │
+│  ┌──────────────────────────────────────────────────────────┐  │
+│  │                  外部依賴 (CDN)                           │  │
+│  │  - Tailwind CSS (styling)                               │  │
+│  │  - Google Fonts (Inter)                                 │  │
+│  └──────────────────────────────────────────────────────────┘  │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ (Static Assets, No Backend)
+                              ▼
+                    ┌─────────────────┐
+                    │  GitHub Pages   │
+                    │  (CDN Hosting)   │
+                    └─────────────────┘
+```
+
+---
+
+## 3. 元件職責
+
+### 3.1 UI Layer（元器件 — HTML）
+
+| 元件名稱 | 職責 | 技術實作 |
+|----------|------|----------|
+| Navigation Bar | 全站導航、品牌識別 | `nav` + Tailwind `sticky` + `backdrop-blur` |
+| Hero Section | 價值主張傳達、CTA 導流 | Gradient background + Tailwind utilities |
+| Evaluator Section | Offer 輸入表單 + 結果展示 | Two-column grid layout |
+| Scripts Section | 談判腳本列表（可展開） | `details/summary` 模式或 JS toggle |
+| Market Section | 薪資參考卡片網格 | CSS Grid + Tailwind responsive |
+| Contribute Modal | 匿名數據貢獻表單 | Fixed overlay + Tailwind dialog |
+| Footer | 隱私聲明、版權資訊 | Dark background section |
+
+### 3.2 Business Logic Layer（JavaScript 模組）
+
+| 函式/模組 | 職責 | 公開 API |
+|-----------|------|----------|
+| `evaluateOffer()` | 計算 Offer 評估分數與 breakdown | 評估按鈕點擊觸發 |
+| `renderScripts()` | 渲染談判腳本列表 | 頁面初始化時呼叫 |
+| `renderSalaryGrid()` | 渲染薪資參考卡片 | 頁面初始化時呼叫 |
+| `contributeData()` / `submitContrib()` | 開啟/提交用戶貢獻 | Modal 按鈕觸發 |
+| `toggleScript(i)` | 腳本展開/收合 | 腳本標題點擊 |
+| `copyScript(i)` | 複製腳本至剪貼簿 | 複製按鈕點擊 |
+
+### 3.3 Data Layer（localStorage Schema）
+
+| Key | 資料結構 | 用途 |
+|-----|----------|------|
+| `offerlift_users` | `string`（數字） | 全域統計：已評估 Offer 總數 |
+| `offerlift_contribs` | `JSON string → Array<{title, salary, date}>` | 用戶匿名貢獻的薪資資料 |
+| `offerlift_history` | `JSON string → Array<Evaluation>` | 最近 5 次評估記錄（保留作為未來 P1 功能） |
+
+---
+
+## 4. 資料流
+
+### 4.1 Offer 評估流程
+
+```
+用戶輸入 → validateInput() → evaluateOffer()
+                                   │
+                    ┌──────────────┴──────────────┐
+                    ▼                              ▼
+            計算 score                  更新 localStorage
+                    │                              │
+                    │                     offerlift_users +1
+                    │
+                    ▼
+            渲染結果 UI
+            (環圈分數 + breakdown + verdict)
+```
+
+### 4.2 薪資數據貢獻流程
+
+```
+用戶點擊「貢獻」→ openModal()
+     │
+     ▼
+用戶填寫表單 → submitContrib()
+     │
+     ├─→ 讀取 localStorage.offerlift_contribs（現有 Array）
+     │
+     ├─→ push 新資料 {title, salary, date: ISO}
+     │
+     ├─→ 寫回 localStorage
+     │
+     └─→ 關閉 Modal + 清空表單
+```
+
+### 4.3 頁面初始化流程
+
+```
+DOMContentLoaded
+     │
+     ├─→ 讀取 localStorage.offerlift_users → 渲染 stat-users
+     │
+     ├─→ renderScripts() → 渲染談判腳本列表
+     │
+     └─→ renderSalaryGrid() → 渲染薪資參考卡片
+```
+
+---
+
+## 5. 部署方式
+
+### 5.1 當前部署架構
+
+```
+GitHub Repository (main branch)
+         │
+         │  (自動觸發 or 手動 push)
+         ▼
+   GitHub Pages
+   (https://pw1131fd0-hub.github.io/offerlift/)
+         │
+         │  (CDN 分發)
+         ▼
+   用戶瀏覽器
+```
+
+### 5.2 部署流程
+
+- **觸發方式**：程式碼 push 至 `main` 分支後，GitHub Actions 自動部署至 GitHub Pages
+- **發布內容**：`/` 根目錄下的所有靜態檔案（`index.html`、未來可能的 `manifest.json`、`sw.js` 等）
+- **無需建構步驟**：純 HTML + CDN Tailwind，無需 webpack/vite 等 bundler
+- **自訂網域**（未來可選）：可設定 `offerlift.example.com` 指向 GitHub Pages
+
+### 5.3 環境差異
+
+| 環境 | URL | 觸發條件 |
+|------|-----|----------|
+| 開發環境 | `file://` 或 `http://localhost:xxxx` | 本地直接開啟 HTML |
+| 正式環境 | `https://pw1131fd0-hub.github.io/offerlift/` | `main` branch push |
+
+---
+
+## 6. 擴展性考量
+
+### 6.1 未來後端整合可能性
+
+目前雖然是純前端架構，但資料層已預留未來擴展：
+
+- **API 介面卡模式**：若未來需新增後端，可將 `localStorage` 存取包裝為 `DataService` 介面，工廠模式切換 localStorage / REST API 實作
+- **薪資數據同步**：貢獻數據可改為 POST 到後端 API（需対応 CORS 與身份驗證）
+
+### 6.2 PWA 支援規劃
+
+- `manifest.json`：定義 PWA 基本資訊與圖示
+- `sw.js`（Service Worker）：快取靜態資源，支援離線瀏覽
+- 上述檔案可在 P2 階段加入，不影響現有功能
+
+---
+
+*文件版本：v1.0*
+*最後更新：2026-04-09*
+
+
+【現有詳細設計（SD）】
+# OfferLift SD — 系統設計文件
+
+## 1. 模組介面定義
+
+### 1.1 核心模組結構
+
+OfferLift 的業務邏輯以單一 `<script>` 區塊存在於 `index.html` 中。隨著功能增長，建議拆分成以下邏輯模組（current: 全部內聯，未來重構目標）。
+
+```javascript
+// === Data Layer ===
+const SalaryData = { /* salaryData Array */ };
+const NegotiationScripts = { /* negotiationScripts Array */ };
+
+// === Service Layer ===
+const OfferEvaluator = {
+  calculateScore(inputs: OfferInput): EvaluationResult
+};
+
+const StorageService = {
+  getUserCount(): number,
+  incrementUserCount(): void,
+  getContributions(): Contribution[],
+  addContribution(data: ContributionInput): void,
+  getHistory(): Evaluation[],
+  addHistory(evaluation: Evaluation): void
+};
+
+// === UI Layer ===
+const UIRenderer = {
+  renderScripts(): void,
+  renderSalaryGrid(): void,
+  showEvaluationResult(result: EvaluationResult): void,
+  showModal(): void,
+  hideModal(): void
+};
+```
+
+### 1.2 資料型別定義
+
+```typescript
+// 輸入型別
+interface OfferInput {
+  jobTitle: string;      // 職位名稱
+  totalComp: number;     // 年度總薪（含獎金），單位：TWD
+  baseSalary: number;    // 年薪底薪，單位：TWD
+  bonus: number;         // 年終獎金（月數），0-12
+  equity: number;        // 股份/選擇權稀釋後百分比，0-5
+  city: 'taipei' | 'nhc' | 'taichung' | 'kaohsiung' | 'remote';
+  experience: '0-2' | '2-5' | '5-10' | '10+';
+}
+
+// 輸出型別
+interface EvaluationResult {
+  score: number;         // 0-100 總分
+  breakdown: BreakdownItem[];
+  verdict: string;       // 談判建議文字
+  label: 'excellent' | 'good' | 'fair' | 'poor';
+}
+
+interface BreakdownItem {
+  label: string;
+  value: string;         // e.g., "+15", "-10"
+  good: boolean | null; // true=正面, false=負面, null=中性
+}
+
+// 薪資參考資料
+interface SalaryReference {
+  title: string;         // 職稱
+  min: number;            // 年薪下限（TWD）
+  max: number;            // 年薪上限（TWD）
+  level: string;         // 年資區間
+  city: string;          // 城市代碼
+}
+
+// 談判腳本
+interface NegotiationScript {
+  title: string;
+  situation: string;     // 適用情境
+  script: string;        // 完整對話範文
+  tip: string;           // 談判要點提示
+}
+
+// 用戶貢獻
+interface Contribution {
+  title: string;
+  salary: number;
+  date: string;          // ISO date string
+}
+
+// 評估歷史
+interface Evaluation {
+  jobTitle: string;
+  score: number;
+  date: string;          // ISO date string
+  totalComp: number;
+}
+```
+
+---
+
+## 2. localStorage DB Schema
+
+### 2.1 Schema 總覽
+
+| Key | 型別 | 範例值 | 說明 |
+|-----|------|--------|------|
+| `offerlift_users` | `string`（數字） | `"127"` | 全域計數：所有用戶的 Offer 評估總次數 |
+| `offerlift_contribs` | `JSON string` | `[{"title":"Frontend","salary":1200000,"date":"2026-04-09T..."}]` | 用戶匿名貢獻的薪資資料陣列 |
+| `offerlift_history` | `JSON string` | `[{"jobTitle":"SDE","score":75,"date":"2026-04-09T...","totalComp":1500000}]` | 最近 5 次評估記錄（目前 MVP 未使用，P1 階段啟用）|
+
+### 2.2 Schema 細節
+
+#### `offerlift_users`
+```json
+"127"
+```
+- 初始化值：字串 `"127"`（表示上線前的示範數據）
+- 遞增時：`parseInt(localStorage.getItem('offerlift_users') || '127') + 1`
+- 上限：無（字串型別可支援任意長度數字）
+
+#### `offerlift_contribs`
+```json
+[
+  {
+    "title": "Senior Frontend Engineer",
+    "salary": 1800000,
+    "date": "2026-04-09T10:30:00.000Z"
+  }
+]
+```
+- 最大長度：無限制（localStorage 建議不超過 5MB）
+- 查詢：線性搜尋（資料量少時可接受，未來可考慮加 index）
+
+#### `offerlift_history`
+```json
+[
+  {
+    "jobTitle": "Backend Engineer",
+    "score": 68,
+    "totalComp": 1350000,
+    "date": "2026-04-09T11:00:00.000Z"
+  }
+]
+```
+- 最大長度：5 筆（`push` 前檢查長度，超過則 `shift()` 移除最舊記錄）
+
+---
+
+## 3. API 規格（JavaScript 介面）
+
+> 注意：OfferLift 為純前端應用，不存在 HTTP API。以下為 JavaScript 函式介面文件，說明各公開函式的輸入輸出合約。
+
+### 3.1 全域函式
+
+| 函式簽名 | 輸入 | 輸出 | 副作用 |
+|----------|------|------|--------|
+| `evaluateOffer()` | 無（讀取 DOM） | `void`（直接操作 DOM 渲染結果） | 更新 DOM + localStorage |
+| `renderScripts()` | 無 | `void` | 更新 `#script-list` DOM |
+| `renderSalaryGrid()` | 無 | `void` | 更新 `#salary-grid` DOM |
+| `contributeData()` | 無 | `void` | 顯示 contribute modal |
+| `closeModal()` | 無 | `void` | 隱藏 contribute modal |
+| `submitContrib()` | 無（讀取 DOM） | `void` | 更新 localStorage + modal |
+| `toggleScript(i)` | `i: number`（腳本索引） | `void` | toggle 腳本 expand/collapse |
+| `copyScript(i)` | `i: number`（腳本索引） | `void` | 寫入 clipboard + alert |
+
+### 3.2 評估邏輯 API（內部使用）
+
+| 函式 | 簽名 | 說明 |
+|------|------|------|
+| `calculateScore` | `(total, base, city, exp, jobTitle, ref) => number` | 核心評分演算法，輸出 0-100 |
+| `getVerdict` | `(score) => string` | 根據分數回傳談判建議文字 |
+| `getScoreLabel` | `(score) => {text, className}` | 根據分數回傳顯示標籤與顏色 |
+
+### 3.3 Storage Service API（封裝 localStorage 存取）
+
+```javascript
+const StorageService = {
+  // 讀取
+  getUserCount(): number,
+  getContributions(): Contribution[],
+  getHistory(): Evaluation[],
+
+  // 寫入
+  incrementUserCount(): void,
+  addContribution(item: {title: string, salary: number}): void,
+  addHistory(item: {jobTitle: string, score: number, totalComp: number}): void,
+
+  // 工具
+  clearAll(): void  // 僅供開發/測試使用，不暴露給用戶
+};
+```
+
+---
+
+## 4. 錯誤處理
+
+### 4.1 輸入驗證
+
+| 錯誤情境 | 處理方式 | 使用者回饋 |
+|----------|----------|------------|
+| `totalComp` 或 `baseSalary` 未填寫 | `alert()` 提示 | 「請至少填寫「年度總薪」和「年薪底薪」」|
+| `totalComp` 或 `baseSalary` 為 0 或負數 | `alert()` 提示 | 同上 |
+| 貢獻資料的 `title` 或 `salary` 空白 | `alert()` 提示 | 「請填寫職位和薪資」|
+
+### 4.2 localStorage 錯誤
+
+| 錯誤情境 | 處理方式 |
+|----------|----------|
+| localStorage 讀取失敗（隱私設定、 Safari 私有模式） | 降級為記憶體內變數，全域統計計數不回寫 |
+| localStorage 寫入失敗（配額已滿） | `console.warn()` 警告，不阻斷操作流程 |
+
+### 4.3 XSS 過濾
+
+用戶輸入的 `jobTitle`、`contrib-title`、`contrib-company` 在存入 localStorage 前需做基本 HTML 跳脫：
+
+```javascript
+function sanitize(str: string): string {
+  return str
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+```
+
+> 注意：此處仅为输出时的基本防护。localStorage 数据仅存储于用户本地浏览器，不存在服务端 XSS 风险。
+
+### 4.4 Clipboard API 失敗
+
+```javascript
+function copyScript(i) {
+  const script = negotiationScripts[i].script;
+  navigator.clipboard.writeText(script).then(() => {
+    alert('腳本已複製到剪貼簿！');
+  }).catch(() => {
+    // Fallback: 選取文字區塊（舊瀏覽器）
+    const textarea = document.createElement('textarea');
+    textarea.value = script;
+    document.body.appendChild(textarea);
+    textarea.select();
+    document.execCommand('copy');
+    document.body.removeChild(textarea);
+    alert('腳本已複製到剪貼簿！');
+  });
+}
+```
+
+---
+
+## 5. 模組介面（未來重構目標）
+
+當前程式碼為單一 `<script>` 區塊內聯所有邏輯。隨著功能增長，建議重構為以下模組結構（不影響當前 MVP 交付）：
+
+```
+assets/
+├── js/
+│   ├── core/
+│   │   ├── evaluator.js      # 評估邏輯（pure function）
+│   │   ├── storage.js        # localStorage 封裝
+│   │   └── sanitizer.js      # XSS 過濾
+│   ├── ui/
+│   │   ├── renderer.js        # DOM 渲染函式
+│   │   ├── modal.js           # Modal 控制
+│   │   └── animations.js      # 過渡動畫
+│   ├── data/
+│   │   ├── salary-data.js     # 薪資參考靜態資料
+│   │   └── scripts-data.js    # 談判腳本靜態資料
+│   └── app.js                 # 初始化與事件綁定
+├── styles/
+│   └── custom.css             # Tailwind 無法覆蓋的自訂樣式
+└── index.html
+```
+
+每個模組透過 `ES6 module` 匯出，允許單獨測試與未來 Tree-shaking 優化。
+
+---
+
+## 6. 外部依賴版本鎖定
+
+| 依賴 | CDN URL | 版本策略 |
+|------|---------|----------|
+| Tailwind CSS | `https://cdn.tailwindcss.com` | 無版本指定（CDN 自動更新到最新穩定版）|
+| Google Fonts (Inter) | `https://fonts.googleapis.com` | 指定了 font weight（400/500/600/700/800），字體本身由 Google 管理 |
+
+> 建議：未來可改用 npm 安裝 Tailwind CLI 並建立 `tailwind.config.js`，在正式發布前先編譯 CSS 成品，移除對 CDN 的依賴，確保離線可用性。
+
+---
+
+*文件版本：v1.0*
+*最後更新：2026-04-09*
+
+
+【開發日誌（近期執行記錄 + 遇到的問題）】
+## [2026-04-10 00:26:14] [done] 100%
+
+OfferLift MVP 開發完成！所有品質門檻達標：PRD(85)→SA_SD(92.5)→dev(97)→test(100)→security(100)→done。產品已具備完整功能：Offer評估器、談判腳本庫、薪資參考數據、深色模式、腳本搜尋、評估歷史。代碼品質高，測試覆蓋完整，安全合規。
+
+> ## OfferLift MVP 開發完成 ✅
+
+### 品質門檻回顧
+
+| 階段 | 分數 | 門檻 | 狀態 |
+|------|------|------|------|
+| PRD | 85 | 85 | ✅ |
+| SA/SD | 92.5 | 85 | ✅ |
+| dev | 97 | 90 | ✅ |
+| test | 100 | 95 | ✅ |
+| security | 100 | 95 | ✅ |
+
+### 本次實作內容
+
+**PRD 文件**：7項全部達標（產品願景、3個User Story、P0/P1/P2各4+功能、非功能需求、Tech Stack、UI/UX色彩規範、4個量化KPI）
+
+**SA/SD 文件**：完整三層架構、資料流、部署架構、API介面、localStorage Schema
+
+**P1 功能**：
+- 深色模式（支援系統偏好偵測 + localStorage 持久化）
+- 談判腳本搜尋（標題/情境/提示關鍵字過濾）
+- 評估歷史（localStorage，最多5筆）
+
+**測試基礎設施**：
+- Jest + jsdom + Babel
+
+
+---
+
+## [2026-04-10 04:56:02] [dev] 100%
+
+完成 P2 功能開發：PWA 離線支援（manifest + sw.js）、多語言支援（ZH/EN/JA）、PDF 匯出報告。所有原有功能測試通過。
+
+> 已完成老闆要求的新功能實作（iteration 2, stage: dev）：
+
+## 已實作 P2 功能
+
+### 1. PWA 離線支援
+- `manifest.json` - Web App Manifest，支援安裝到桌面
+- `sw.js` - Service Worker 快取靜態資源，支援離線使用
+
+### 2. 多語言支援（i18n）
+- 繁體中文（預設）
+- English
+- 日本語
+- 右下角語言切換按鈕，偏好設定存入 localStorage
+
+### 3. PDF 匯出報告
+- 使用 jsPDF（CDN 動態載入）
+- 左下角「匯出 PDF」按鈕
+- 生成含評估分數、breakdown、談判建議的專業報告
+
+## 驗證狀態
+- ✅ 原有 32 個 Jest 測試全部通過
+- ✅ 已推送至 GitHub main 分支
+- ✅ PRD 文件已更新反映 P2 完成狀態
+
+## 待實現 P2
+- Equity/Vesting 分析（需要 Vesting 排程解析邏輯）
+
+
+---
+
+## [2026-04-10 05:36:25] [done] 100%
+
+OfferLift P2 功能全部完成！包括：PWA離線、多語言、PDF匯出、Equity/Vesting分析。所有48個測試通過，測試覆蓋率100%，安全審查通過。
+
+> ## 完成摘要
+
+已實作 **P2 最後一項功能：Equity/Vesting 分析**。
+
+### 實作內容
+
+1. **整合股票/選擇權評估到 Offer 評估器**
+   - 新增輸入欄位：股數（稀釋後）、每股價格、在職年資
+   - 實作標準 4 年 Vesting + 1 年 Cliff 計算邏輯
+   - 根據 equity 與年薪比例給予 +5 至 +20 分評分加成
+   - 顯示 Vesting 狀態（已大量/部分已/早期階段/等待 Cliff）
+   - 顯示股票總價值、已 Vesting 價值、未 Vesting 價值
+
+2. **新增 16 個單元測試**
+   - `calculateEquityValue` 測試：7 個（覆蓋各種 Vesting 情境）
+   - `evaluateEquity` 測試：9 個（覆蓋評分和狀態判斷）
+
+3. **更新文件**
+   - PRD：標記 Equity/Vesting 分析為 ✅ 已實作
+   - DEV_LOG：記錄本次開發內容
+
+### 驗證結果
+
+| 項目 | 結果 |
+|------|------|
+| J
+
+---
+
+
+【專案配置】
+- Name: offerlift
+- Version: 1.0.0
+- Main: index.html
+- Dependencies: None
+- DevDependencies: @babel/core, @babel/preset-env, babel-jest, jest, jest-environment-jsdom, jsdom
+
+{
+  "name": "offerlift",
+  "version": "1.0.0",
+  "description": "OfferLift - 求職者薪資談判智囊",
+  "main": "index.html",
+  "scripts": {
+    "test": "jest",
+    "test:coverage": "jest --coverage"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.24.0",
+    "@babel/preset-env": "^7.24.0",
+    "babel-jest": "^29.7.0",
+    "jest": "^29.7.0",
+    "jest-environment-jsdom": "^30.3.0",
+    "jsdom": "^24.0.0"
+  }
+}
+
+
+【現有文件結構（主要）】
+/home/crawd_user/project/offerlift/coverage/lcov-report/sorter.js
+/home/crawd_user/project/offerlift/coverage/lcov-report/prettify.js
+/home/crawd_user/project/offerlift/coverage/lcov-report/block-navigation.js
+/home/crawd_user/project/offerlift/tests/evaluator.test.js
+/home/crawd_user/project/offerlift/assets/js/core/evaluator.js
+/home/crawd_user/project/offerlift/MEMO.md
+/home/crawd_user/project/offerlift/jest.config.js
+/home/crawd_user/project/offerlift/babel.config.js
+/home/crawd_user/project/offerlift/sw.js
+/home/crawd_user/project/offerlift/docs/SD.md
+/home/crawd_user/project/offerlift/docs/PLAN.md
+/home/crawd_user/project/offerlift/docs/DEV_LOG.md
+/home/crawd_user/project/offerlift/docs/PRD.md
+/home/crawd_user/project/offerlift/docs/SA.md
+
+【老闆的產品願景與需求】
+核心定位
+
+請務必對齊此期望。
+
+【老闆回饋 — 最高優先級】
+可以新增更多功能嗎
+
+⚠️ 以上回饋優先級最高，必須在本輪內處理。
+
+【上次巡檢狀態】
+{
+  "stage": "done",
+  "iteration": 3,
+  "quality_score": 100,
+  "quality_details": {
+    "P2_PWA": "100分 - manifest.json + Service Worker 離線支援完整",
+    "P2_i18n": "100分 - 繁中/英文/日文三語言完整翻譯",
+    "P2_PDF": "100分 - jsPDF PDF報告匯出功能完整",
+    "P2_Equity": "100分 - 四年Vesting+一年cliff計算邏輯完整整合",
+    "all_tests": "100分 - 48個測試全部通過",
+    "test_coverage": "100分 - 測試覆蓋率100%（Stmts/Branches/Funcs/Lines）",
+    "security_audit": "100分 - npm audit 0漏洞，純前端無後端安全疑慮，XSS過濾已實作"
+  },
+  "completeness": 100,
+  "summary": "OfferLift P2 功能全部完成！包括：PWA離線、多語言、PDF匯出、Equity/Vesting分析。所有48個測試通過，測試覆蓋率100%，安全審查通過。",
+  "next_action": "已上線 GitHub Pages",
+  "updated_at": "2026-04-09T12:10:00.000Z"
+}
+
+請根據上次狀態和本次發現，決定是繼續當前階段深化，還是推進到下一階段。
+
+你是這個專案的全權負責工程師。執行「品質驅動」的開發模式：分數達標才往前，可回溯低質量。
+
+【環境上下文】
+- TASK_PRODUCT_DESC: 核心定位
+- TASK_BOSS_NOTE: 可以新增更多功能嗎
+- TASK_PATH: offerlift
+- QUALITY_GATES: {"prd":85,"sa_sd":85,"dev":90,"test":95,"security":95,"done":100}
+
+【品質門檻】
+- prd: 85 分 → 進 sa_sd | < 85 → 繼續迭代 prd
+- sa_sd: 85 分 → 進 dev | < 85 → 繼續迭代 sa_sd
+- dev: 90 分 → 進 test | < 90 → 繼續迭代 dev
+- test: 95 分 → 進 security | < 95 → 繼續迭代 test
+- security: 95 分 → 進 done | < 95 → 繼續迭代 security
+
+【開發流程】
+
+【第 1 步】讀取 Dispatcher 決策
+1. 檢查環境變數 STATE_DECISION（由 dispatcher 計算）：
+   - action: "continue_same_stage" → 留在該 stage，iteration++
+   - action: "advance" → 升級到下一個 stage
+   - action: "complete" → 項目已完成
+   - next_stage: 若 action="advance"，這是下一個 stage
+
+【第 2 步】根據決策執行
+- 若 continue_same_stage：
+  - 讀取當前 stage 的工作清單
+  - 補完缺失部分
+  - 重新評分，aim for threshold
+- 若 advance：
+  - 升級 stage 字段
+  - iteration 重置為 1
+  - 開始新 stage 的工作
+- 若 complete：
+  - 驗證所有工作完成
+  - 標記為 done
+
+【第 3 步】執行工作
+根據 stage 執行對應工作：
+
+**prd 階段**（須 85 分，**每一項都必須滿足，否則卡住**）：
+- 若不存在 docs/PRD.md → 產出完整 PRD
+- 若存在 → 必須逐一核對以下 7 項，**每項都必須存在且有實質內容**，否則先補完再繼續：
+  1. **產品願景**：一段話清楚說明產品是什麼、給誰用、解決什麼問題（不是廢話）
+  2. **User Story**：至少 3 個，每個格式為「作為...我希望...以便...」
+  3. **P0/P1/P2 功能分級**：每個等级至少 2 個具體功能，**不能只有大標題**
+  4. **非功能需求**：效能/可用性/擴展性/安全性 各起碼一項具體指標
+  5. **技術選型**：前端+後端+資料庫+部署工具各一個，附選擇理由
+  6. **UI/UX 色彩計劃**：主色/副色/字體/佈局原則，具體色碼或方向
+  7. **成功指標**：至少 2 個可量化的 KPI（例：頁面載入 < 2s、留存率 > 30%）
+- **硬性審計**：必須實際讀取 PRD.md，確認每項內容 >= 50 個字（不是空白或「待補」）
+- 評分標準：7 項全部達標 = 85 分，缺任何 1 項 = 不及格，繼續補完
+
+**sa_sd 階段**（須 85 分）：
+- 產出 docs/SA.md 和 docs/SD.md
+- SA：架構圖、元件職責、資料流、部署方式
+- SD：API 規格、DB Schema、錯誤處理、模組介面
+- 若 PRD 有變更，SA/SD 可能需要回溯並重新設計
+- 評分標準：完整度 50% + 可執行性 50%
+
+**dev 階段**（須 90 分）：
+- 若 PRD/SA/SD 中定義了里程碑（M1-M6） → 執行里程碑開發
+- 若無里程碑 → 直接開發所有功能
+- 評分標準：
+  - API 實現 40% (對照 SD.md 的所有端點)
+  - 代碼質量 30% (無 TODO、代碼覆蓋、一致性)
+  - 可運行 20% (能啟動、基本測試通過)
+  - Git commit 10% (有新 commit，消息清晰)
+
+**test 階段**（須 95 分）：
+- 單元測試覆蓋率 >= 80%
+- 整合測試覆蓋所有 API
+- 所有測試通過
+- 評分標準：覆蓋率 50% + 測試通過率 50%
+
+**security 階段**（須 95 分）：
+- OWASP Top 10 檢查
+- 依賴漏洞掃描 (npm audit / pip audit)
+- 敏感資料處理審查
+- 評分標準：漏洞修復 60% + 安全檢查項 40%
+
+【第 4 步】自動評分與更新
+完成工作後，自己評估質量分數 (0-100)，更新 docs/.dev_status.json：
+
+```json
+{
+  "stage": "當前階段",
+  "iteration": 迭代次數,
+  "quality_score": 評分 (0-100),
+  "quality_details": {
+    "指標1": 分數,
+    "指標2": 分數,
+    ...
+  },
+  "completeness": 完成度 (0-100),
+  "summary": "本次做了什麼，質量評估",
+  "next_action": "下次應該做什麼",
+  "updated_at": "ISO 時間"
+}
+```
+
+【回溯規則】
+若在當前階段發現下一個階段的工作有問題，可回溯：
+- dev → sa_sd (若發現架構缺陷)
+- test → dev (若發現功能實現有誤)
+- security → dev (若發現代碼安全漏洞)
+
+回溯時，修改 stage 為上一個階段，並清除 quality_score（重新評估）。
+
+【執行原則】
+- 不要問問題，直接做；遇到錯誤自己修復
+- 完成工作後必須推送到遠端：
+  1. 檢查是否有 git remote origin
+  2. 若無 remote，用 gh 自動建立（推送到 https://github.com/pw1131fd0-hub/{project-name}）
+  3. git add 所有變更的檔案（含 docs/.dev_status.json）
+  4. git commit -m "..." （遵守 Conventional Commits: feat/fix/chore 前綴）
+  5. git push origin master
+- docs/.dev_status.json 必須寫入，這是品質控制的依據
+- 品質分數要誠實，不要虛報
+- 若 GitHub API 失敗，記錄錯誤但不阻斷開發
+
+【安全護欄】
+可以做：寫程式碼、跑測試、修 bug、建立檔案、讀取任何檔案
+不可以做：刪除資料庫、修改環境變數、安裝系統級套件、force push
+
+【提案制度】
+遇到框架變更、大規模重構、新增服務依賴、刪除功能 → 寫提案到 docs/PROPOSALS.md
