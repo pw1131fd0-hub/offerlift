@@ -223,3 +223,38 @@ copilot completed
 
 
 ---
+
+## [2026-04-10 15:17:00] [dev] 95%
+
+Implemented Proposal 1: Smart Offer Comparison with radar chart visualization. Added multi-dimensional comparison modal (openCompareAdvisedModal) that captures bonus, equity, benefits. Rendered radar chart using Canvas 2D API. All 48 existing tests pass.
+
+> 
+
+已完成 **Proposal 1：智慧 Offer 比較（雷達圖視覺化）** 的實作。
+
+## 新增功能
+
+### 智慧新增 Offer（含所有維度）
+- 新增 `openCompareAdvisedModal()` 按鈕，引導用戶輸入多維度資料：
+  - 年薪、獎金（月數）
+  - 股數（稀釋後）、每股價格
+  - 年度福利價值
+  - 評估分數
+
+### 雷達圖多維度視覺化
+- 使用 Canvas 2D API 實作雷達圖
+- 5 個維度：年薪、獎金、股票價值、福利、評分
+- 自動計算最大值並正規化
+- 支援多個 Offer 同時比較，以不同顏色區分
+
+### 比較卡片增強
+- 顯示每個 Offer 的詳細資訊（獎金月數、股票價值、福利）
+- 根據資料類型自動切換表格或雷達圖顯示
+
+## 驗證結果
+- 48 個現有測試全部通過 ✅
+- PRD v1.5 更新完成
+- 已推送到 GitHub remote
+
+
+---
