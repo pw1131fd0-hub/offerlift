@@ -1,48 +1,58 @@
-services:
-  offerlift:
-    build: .
-    container_name: offerlift
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    healthcheck:
-      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
-      interval: 30s
-      timeout: 5s
-      retries: 3
-      start_period: 10s
-    environment:
-      DATABASE_URL: postgres://offerlift:offerlift_pass@postgres:5432/offerlift_db
-      REDIS_URL: redis://redis:6379
+version: '3.8'
 
+services:
   postgres:
-    image: postgres:15-alpine
+    image: postgres:16-alpine
     container_name: offerlift-postgres
-    restart: unless-stopped
     environment:
       POSTGRES_USER: offerlift
-      POSTGRES_PASSWORD: offerlift_pass
-      POSTGRES_DB: offerlift_db
+      POSTGRES_PASSWORD: offerlift_dev_password
+      POSTGRES_DB: offerlift
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U offerlift -d offerlift_db"]
-      interval: 10s
+      test: ["CMD-SHELL", "pg_isready -U offerlift"]
+      interval: 5s
       timeout: 5s
       retries: 5
 
   redis:
     image: redis:7-alpine
     container_name: offerlift-redis
-    restart: unless-stopped
-    command: redis-server --appendonly yes
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 3
+      retries: 5
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: offerlift-api
+    environment:
+      NODE_ENV: development
+      PORT: 3000
+      DATABASE_URL: postgres://offerlift:offerlift_dev_password@postgres:5432/offerlift
+      REDIS_URL: redis://redis:6379
+      API_KEY: dev_api_key_12345
+      CORS_ORIGIN: "http://localhost:5173,http://localhost:3000"
+    ports:
+      - "3000:3000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    volumes:
+      - ./server:/app/server
+      - ./index.html:/app/index.html
 
 volumes:
   postgres_data:

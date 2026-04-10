@@ -1,8 +1,18 @@
-FROM nginx:alpine
-COPY index.html /usr/share/nginx/html/
-COPY sw.js /usr/share/nginx/html/
-COPY assets /usr/share/nginx/html/assets
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+FROM node:20-alpine
+
+WORKDIR /app
+
+# Copy package files
+COPY package*.json ./
+
+# Install production dependencies
+RUN npm ci --only=production
+
+# Copy application code
+COPY server/ ./server/
+
+# Expose port
 EXPOSE 3000
-HEALTHCHECK --interval=30s --timeout=5s --start-period=5s --retries=3 \
-  CMD wget -qO- http://localhost:3000/ | grep -q "<!DOCTYPE" || exit 1
+
+# Start the application
+CMD ["node", "server/src/index.js"]

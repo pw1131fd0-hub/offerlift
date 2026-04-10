@@ -2,7 +2,7 @@
 
 ## 1. 系統概述
 
-OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資料計算與資料持久化皆在用戶瀏覽器內完成，不涉及任何後端伺服器服務。系統核心功能包括：Offer 評估、談判腳本庫、薪資參考數據展示、以及用戶貢獻數據收集。
+OfferLift 是一款全端單頁應用（SPA），前端為純靜態 HTML/CSS/JS，後端採用 Node.js + Express.js，資料庫為 PostgreSQL，快取層為 Redis。系統核心功能包括：Offer 評估、談判腳本庫、薪資參考數據展示、用戶匿名貢獻、以及薪資論壇討論。
 
 ---
 
@@ -10,33 +10,57 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                        使用者瀏覽器 (Browser)                    │
+│                        用戶瀏覽器 (Browser)                      │
 ├─────────────────────────────────────────────────────────────────┤
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐  │
-│  │   UI Layer   │  │ Business     │  │   Data Layer         │  │
-│  │  (HTML/CSS)  │←→│ Logic Layer  │←→│  (localStorage)      │  │
-│  │              │  │ (Vanilla JS) │  │                      │  │
-│  └──────────────┘  └──────────────┘  └──────────────────────┘  │
-│         ↑                 ↑                     ↑             │
-│         └─────────────────┼─────────────────────┘             │
-│                           │                                   │
-│              ┌────────────┴────────────┐                     │
-│              │      Tailwind CSS       │                     │
-│              │     (CDN, Runtime)      │                     │
-│              └─────────────────────────┘                     │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────────────┐    │
+│  │   UI Layer   │  │ Business    │  │   API Client        │    │
+│  │  (HTML/CSS)  │←→│ Logic Layer │←→│  (Fetch/Axios)      │    │
+│  │              │  │ (Vanilla JS)│  │                      │    │
+│  └──────────────┘  └──────────────┘  └──────────────────────┘    │
+│         ↑                 ↑                     ↑               │
+│         └─────────────────┼─────────────────────┘               │
+│                           │                                     │
+│              ┌────────────┴────────────┐                       │
+│              │      Tailwind CSS        │                       │
+│              │     (CDN, Runtime)       │                       │
+│              └──────────────────────────┘                       │
 │                                                                  │
-│  ┌──────────────────────────────────────────────────────────┐  │
-│  │                  外部依賴 (CDN)                           │  │
-│  │  - Tailwind CSS (styling)                               │  │
-│  │  - Google Fonts (Inter)                                 │  │
-│  └──────────────────────────────────────────────────────────┘  │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                  外部依賴 (CDN)                            │   │
+│  │  - Tailwind CSS (styling)                               │   │
+│  │  - Google Fonts (Inter)                                 │   │
+│  │  - jsPDF (PDF export)                                   │   │
+│  └──────────────────────────────────────────────────────────┘   │
 └─────────────────────────────────────────────────────────────────┘
                               │
-                              │ (Static Assets, No Backend)
+                              │ HTTP REST API
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      API Gateway / Load Balancer                │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                  Node.js + Express.js                    │   │
+│  │  - Rate Limiting (Redis)                                │   │
+│  │  - CORS Middleware                                      │   │
+│  │  - API Key Validation                                   │   │
+│  │  - Request Logging                                      │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│                              │                                   │
+│         ┌────────────────────┼────────────────────┐            │
+│         ▼                    ▼                    ▼              │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │ PostgreSQL  │     │    Redis    │     │  RSS Fetcher│       │
+│  │  (Primary   │     │   (Cache)   │     │  (Scheduler)│       │
+│  │  Database)  │     │             │     │             │       │
+│  └─────────────┘     └─────────────┘     └─────────────┘       │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ (Static Assets)
                               ▼
                     ┌─────────────────┐
-                    │  GitHub Pages   │
-                    │  (CDN Hosting)   │
+                    │  Static Hosting  │
+                    │  (GitHub Pages)  │
+                    │  or Cloud Run    │
                     └─────────────────┘
 ```
 
@@ -44,59 +68,47 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 
 ## 3. 元件職責
 
-### 3.1 UI Layer（元器件 — HTML）
+### 3.1 Frontend Layer（元器件 — HTML/CSS/JS）
 
 | 元件名稱 | 職責 | 技術實作 |
 |----------|------|----------|
 | Navigation Bar | 全站導航、品牌識別 | `nav` + Tailwind `sticky` + `backdrop-blur` |
 | Hero Section | 價值主張傳達、CTA 導流 | Gradient background + Tailwind utilities |
-| Evaluator Section | Offer 輸入表單 + 結果展示 | Two-column grid layout |
+| Evaluator Section | Offer 輸入表單 + 結果展示 | Two-column grid layout + API call |
 | Scripts Section | 談判腳本列表（可展開） | `details/summary` 模式或 JS toggle |
-| Market Section | 薪資參考卡片網格 | CSS Grid + Tailwind responsive |
-| Contribute Modal | 匿名數據貢獻表單 | Fixed overlay + Tailwind dialog |
+| Market Section | 薪資參考卡片網格 | CSS Grid + Tailwind responsive + API |
 | Comparison Section | 多 Offer 並排比較、雷達圖 | Canvas rendering + Tailwind grid |
-| Benefits Calculator | 完整薪酬福利計算 | Form inputs + JS calculation |
+| Benefits Calculator | 完整薪酬福利計算 | Form inputs + API call |
 | Salary Simulator | 薪資成長模擬、柱狀圖 | Canvas rendering |
 | Email Generator | 談判郵件自動產生 | Form + Copy to clipboard |
-| Language Selector | 繁體/English/日本語 | Fixed position, localStorage 偏好 |
-| Forum Section | 匿名薪資論壇討論區 | Thread list + post form, localStorage |
+| Language Selector | 繁體/English/日本語 | Fixed position, API preference |
+| Forum Section | 匿名薪資論壇討論區 | Thread list + post form, API |
 | Offer Tracker Panel | 多 Offer 追蹤管理 | Sidebar/modal, Notification API |
-| Deadline Reminder | Offer 截止提醒設定 | Notification permission + setTimeout |
-| Footer | 隱私聲明、版權資訊 | Dark background section |
+| Dark Mode Toggle | 深色/淺色模式切換 | Tailwind dark: prefix |
 
-### 3.2 Business Logic Layer（JavaScript 模組）
+### 3.2 Backend Layer（Node.js + Express）
 
-| 函式/模組 | 職責 | 公開 API |
-|-----------|------|----------|
-| `evaluateOffer()` | 計算 Offer 評估分數與 breakdown | 評估按鈕點擊觸發 |
-| `renderScripts()` | 渲染談判腳本列表 | 頁面初始化時呼叫 |
-| `renderSalaryGrid()` | 渲染薪資參考卡片 | 頁面初始化時呼叫 |
-| `contributeData()` / `submitContrib()` | 開啟/提交用戶貢獻 | Modal 按鈕觸發 |
-| `toggleScript(i)` | 腳本展開/收合 | 腳本標題點擊 |
-| `copyScript(i)` | 複製腳本至剪貼簿 | 複製按鈕點擊 |
-| `calculateBenefits()` | 計算福利總價值 | 福利計算機按鈕觸發 |
-| `simulateSalary()` | 模擬未來薪資成長 | 模擬器按鈕觸發 |
-| `generateEmail()` | 產生談判郵件 | 郵件產生器按鈕觸發 |
-| `openCompareModal()` | 新增 Offer 比較 | 比較器按鈕觸發 |
-| `exportToPDF()` | 匯出評估報告 PDF | PDF 按鈕觸發 |
-| `setLanguage(lang)` | 切換多語言 | 語言選擇器觸發 |
-| `renderForum()` | 渲染論壇討論串列表 | 論壇頁面初始化 |
-| `createPost()` | 發表新討論（匿名） | 論壇表單提交 |
-| `deletePost()` | 刪除討論串 | 刪除按鈕點擊 |
-| `addOfferToTracker()` | 新增 Offer 追蹤 | 追蹤器按鈕觸發 |
-| `removeOfferFromTracker()` | 刪除 Offer 追蹤 | 刪除按鈕觸發 |
-| `updateOfferStatus()` | 更新 Offer 狀態 | 狀態選擇變更 |
-| `checkOfferDeadlines()` | 檢查截止日期並發送通知 | 定時檢查（每小時） |
+| 路由/中介軟體 | 職責 | API 端點 |
+|--------------|------|----------|
+| `evaluateRouter` | Offer 評估計算 | `POST /api/evaluate` |
+| `salaryDataRouter` | 薪資參考數據 CRUD | `GET /api/salary-data`, `POST /api/contribute` |
+| `offersRouter` | Offer 追蹤 CRUD | `GET/POST/PUT/DELETE /api/offers` |
+| `interviewsRouter` | 面試進度 CRUD | `GET/POST/PUT/DELETE /api/interviews` |
+| `forumRouter` | 論壇文章 CRUD | `GET/POST/DELETE /api/forum` |
+| `calculatorRouter` | 稅務/福利計算 | `GET /api/calculator/tax`, `GET /api/calculator/benefits` |
+| `rssRouter` | RSS 資料獲取 | `GET /api/rss/104`, `GET /api/rss/cakeresume` |
+| `scriptsRouter` | 談判腳本讀取 | `GET /api/scripts` |
+| `rateLimiter` | API 限流 | Redis-based token bucket |
+| `authMiddleware` | API Key 驗證 | Header: `X-API-Key` |
+| `corsMiddleware` | 跨域資源共用 | 允許指定 origin |
+| `errorHandler` | 全域錯誤處理 | 統一錯誤格式 |
 
-### 3.3 Data Layer（localStorage Schema）
+### 3.3 Data Layer（PostgreSQL + Redis）
 
-| Key | 資料結構 | 用途 |
-|-----|----------|------|
-| `offerlift_users` | `string`（數字） | 全域統計：已評估 Offer 總數 |
-| `offerlift_contribs` | `JSON string → Array<{title, salary, date}>` | 用戶匿名貢獻的薪資資料 |
-| `offerlift_history` | `JSON string → Array<Evaluation>` | 最近 5 次評估記錄 |
-| `offerlift_forum` | `JSON string → Array<ForumPost>` | 匿名論壇討論串 |
-| `offerlift_trackers` | `JSON string → Array<OfferTracker>` | Offer 追蹤記錄（含截止日期） |
+| 服務 | 職責 | 資料範圍 |
+|------|------|----------|
+| PostgreSQL | 主資料庫，持久化所有業務資料 | users, salary_data, offers, interviews, forum_posts, evaluations |
+| Redis | 快取層，加速熱門資料讀取 | salary_data (1h TTL), RSS feeds (1h TTL), rate limit counters |
 
 ---
 
@@ -105,148 +117,175 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 ### 4.1 Offer 評估流程
 
 ```
-用戶輸入 → validateInput() → evaluateOffer()
-                                   │
-                    ┌──────────────┴──────────────┐
-                    ▼                              ▼
-            計算 score                  更新 localStorage
-                    │                              │
-                    │                     offerlift_users +1
-                    │
-                    ▼
-            渲染結果 UI
-            (環圈分數 + breakdown + verdict)
+用戶輸入 → validateInput() → fetch POST /api/evaluate
+                                         │
+                         ┌───────────────┴───────────────┐
+                         ▼                               ▼
+                 計算 score                    寫入 PostgreSQL
+                 (Node.js)                    evaluations table
+                         │                               │
+                         │                      更新 anonymous_id
+                         │
+                         ▼
+                 回傳 JSON
+                 { score, breakdown, verdict }
+                         │
+                         ▼
+                 渲染結果 UI
+                 (環圈分數 + breakdown + verdict)
 ```
 
 ### 4.2 薪資數據貢獻流程
 
 ```
-用戶點擊「貢獻」→ openModal()
+用戶點擊「貢獻」→ 開啟 modal
      │
      ▼
-用戶填寫表單 → submitContrib()
+用戶填寫表單 → fetch POST /api/contribute
      │
-     ├─→ 讀取 localStorage.offerlift_contribs（現有 Array）
+     ├─→ Express 接收請求
      │
-     ├─→ push 新資料 {title, salary, date: ISO}
+     ├─→ XSS 過濾輸入
      │
-     ├─→ 寫回 localStorage
+     ├─→ 寫入 PostgreSQL salary_contributions
+     │
+     ├─→ 回傳成功 JSON
      │
      └─→ 關閉 Modal + 清空表單
 ```
 
-### 4.3 頁面初始化流程
+### 4.3 RSS 資料更新流程
+
+```
+Scheduler (node-cron)
+     │
+     ├─→ 每小時觸發
+     │
+     ├─→ fetch https://www.104.com.tw/...
+     │
+     ├─→ parse RSS/XML
+     │
+     ├─→ 更新 PostgreSQL salary_data
+     │
+     └─→ 快取至 Redis (TTL: 1h)
+```
+
+### 4.4 頁面初始化流程
 
 ```
 DOMContentLoaded
      │
-     ├─→ 讀取 localStorage.offerlift_users → 渲染 stat-users
+     ├─→ fetch GET /api/salary-data → 渲染薪資卡片
      │
-     ├─→ renderScripts() → 渲染談判腳本列表
+     ├─→ fetch GET /api/scripts → 渲染談判腳本列表
      │
-     ├─→ renderSalaryGrid() → 渲染薪資參考卡片
+     ├─→ fetch GET /api/forum → 渲染論壇討論串
      │
-     └─→ renderForum() → 渲染論壇討論串（如果存在的話）
-```
-
-### 4.4 論壇發文流程
-
-```
-用戶點擊「發表」→ 填寫表單（職位、公司、城市、薪資範圍、內容）
-     │
-     ▼
-createPost()
-     │
-     ├─→ XSS 過濾所有輸入
-     │
-     ├─→ 讀取 localStorage.offerlift_forum
-     │
-     ├─→ push 新文章 {id, title, company, city, salaryRange, content, date}
-     │
-     ├─→ 寫回 localStorage
-     │
-     └─→ 重新渲染論壇列表
-```
-
-### 4.5 Offer 追蹤流程
-
-```
-用戶新增追蹤 → addOfferToTracker(company, title, deadline, status)
-     │
-     ├─→ 寫入 localStorage.offerlift_trackers
-     │
-     └─→ 渲染追蹤列表 + 設定通知
-
-定時檢查（每小時）→ checkOfferDeadlines()
-     │
-     ├─→ 遍歷所有追蹤
-     │
-     ├─→ 若即將到期（24小時內）且未提醒 → 發送 Notification
-     │
-     └─→ 若已過期 → 更新狀態為「已過期」
+     └─→ 初始化深色模式（從 localStorage 讀取偏好）
 ```
 
 ---
 
 ## 5. 部署方式
 
-### 5.1 當前部署架構
+### 5.1 本地開發部署
+
+```
+docker-compose up
+     │
+     ├─→ PostgreSQL (port 5432)
+     │
+     ├─→ Redis (port 6379)
+     │
+     └─→ Node.js App (port 3000)
+
+Frontend (index.html) → 透過 Vite/DevServer proxy 或直接 call API
+```
+
+### 5.2 生產環境部署
 
 ```
 GitHub Repository (main branch)
          │
-         │  (自動觸發 or 手動 push)
+         │  (自動觸發 GitHub Actions)
          ▼
-   GitHub Pages
-   (https://pw1131fd0-hub.github.io/offerlift/)
+   Build & Push Docker Image
          │
-         │  (CDN 分發)
          ▼
-   用戶瀏覽器
+   Deploy to Cloud Run / VPS
+   (Docker Container)
+         │
+         ├─→ Node.js App (Express)
+         │
+         ├─→ PostgreSQL (Managed, e.g., Cloud SQL)
+         │
+         └─→ Redis (Managed, e.g., Memorystore)
+         │
+         ▼
+   Static Frontend
+   (GitHub Pages 或 CDN)
 ```
-
-### 5.2 部署流程
-
-- **觸發方式**：程式碼 push 至 `main` 分支後，GitHub Actions 自動部署至 GitHub Pages
-- **發布內容**：`/` 根目錄下的所有靜態檔案（`index.html`、未來可能的 `manifest.json`、`sw.js` 等）
-- **無需建構步驟**：純 HTML + CDN Tailwind，無需 webpack/vite 等 bundler
-- **自訂網域**（未來可選）：可設定 `offerlift.example.com` 指向 GitHub Pages
 
 ### 5.3 環境差異
 
 | 環境 | URL | 觸發條件 |
 |------|-----|----------|
-| 開發環境 | `file://` 或 `http://localhost:xxxx` | 本地直接開啟 HTML |
-| 正式環境 | `https://pw1131fd0-hub.github.io/offerlift/` | `main` branch push |
+| 開發環境 | `http://localhost:3000` | `docker-compose up` |
+| 前端開發 | `http://localhost:5173` (Vite) | `npm run dev` |
+| 正式環境 | `https://api.offerlift.example.com` | main branch push |
 
 ---
 
 ## 6. 擴展性考量
 
-### 6.1 未來後端整合可能性
+### 6.1 未來微服務拆分
 
-目前雖然是純前端架構，但資料層已預留未來擴展：
+目前為簡化架構，所有 API 在單一 Express app 中。未來可拆分為：
+- `offer-service`：Offer 評估與追蹤
+- `forum-service`：論壇功能
+- `salary-service`：薪資數據與貢獻
+- `scheduler-service`：RSS 抓取
 
-- **API 介面卡模式**：若未來需新增後端，可將 `localStorage` 存取包裝為 `DataService` 介面，工廠模式切換 localStorage / REST API 實作
-- **薪資數據同步**：貢獻數據可改為 POST 到後端 API（需対応 CORS 與身份驗證）
+### 6.2 快取策略
 
-### 6.2 PWA 支援（已實作 P2）
+| 資料類型 | 快取策略 | TTL |
+|---------|---------|-----|
+| 薪資參考數據 | Cache-Aside (Redis) | 1 小時 |
+| RSS 資料 | Read-Through | 1 小時 |
+| 熱門論壇文章 | Read-Through | 5 分鐘 |
+| Rate Limit | Redis Counter | - |
 
-- `manifest.json`：定義 PWA 基本資訊與圖示（已實作）
-- `sw.js`（Service Worker）：快取靜態資源，支援離線瀏覽（已實作）
+### 6.3 多租戶架構
 
-### 6.3 多語言支援（i18n）
-
-- 支援語言：繁體中文（預設）、English、日本語
-- 語言偏好存入 localStorage（`offerlift_lang`）
-- 所有 UI 文字使用 `data-i18n` 屬性，透過 `setLanguage()` 動態切換
-
-### 6.4 PDF 匯出（jsPDF）
-
-- 使用 jsPDF CDN 動態載入
-- 支援匯出包含評估分數、breakdown、談判建議的專業報告
+目前為匿名用戶模式（cookie/localStorage 生成 anonymous_id）。未來可支援：
+- JWT 登入
+- OAuth 第三方登入
+- 多租戶隔離
 
 ---
 
-*文件版本：v1.2*
-*最後更新：2026-04-10*
+## 7. 安全性設計
+
+### 7.1 API 認證
+
+- **API Key 模式**：前端攜帶 `X-API-Key` header
+- **速率限制**：每人每分鐘 100 請求（Redis counter）
+- **CORS**：僅允許白名單域名
+
+### 7.2 輸入驗證
+
+- 所有用戶輸入在後端做 XSS 過濾（DOMPurify）
+- SQL 注入防護（Parameterized Queries / ORM）
+- 請求格式驗證（Joi / Zod schema）
+
+### 7.3 資料隔離
+
+- 匿名 ID 僅用於資料關聯，不具備身份識別性
+- 論壇文章完全不儲存個人識別資訊
+
+---
+
+*文件版本：v2.0*
+*最後更新：2026-04-11*
+*作者：OfferLift Dev Team*
+*備註：此版本為 Full-Stack 架構，基於 Node.js + Express + PostgreSQL + Redis*

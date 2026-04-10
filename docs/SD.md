@@ -2,370 +2,777 @@
 
 ## 1. 模組介面定義
 
-### 1.1 核心模組結構
+### 1.1 核心模組結構（Full-Stack）
 
-OfferLift 的業務邏輯以單一 `<script>` 區塊存在於 `index.html` 中。隨著功能增長，建議拆分成以下邏輯模組（current: 全部內聯，未來重構目標）。
-
-```javascript
-// === Data Layer ===
-const SalaryData = { /* salaryData Array */ };
-const NegotiationScripts = { /* negotiationScripts Array */ };
-
-// === Service Layer ===
-const OfferEvaluator = {
-  calculateScore(inputs: OfferInput): EvaluationResult
-};
-
-const StorageService = {
-  getUserCount(): number,
-  incrementUserCount(): void,
-  getContributions(): Contribution[],
-  addContribution(data: ContributionInput): void,
-  getHistory(): Evaluation[],
-  addHistory(evaluation: Evaluation): void
-};
-
-// === UI Layer ===
-const UIRenderer = {
-  renderScripts(): void,
-  renderSalaryGrid(): void,
-  showEvaluationResult(result: EvaluationResult): void,
-  showModal(): void,
-  hideModal(): void
-};
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     Frontend (Browser)                          │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                    Vanilla JavaScript                     │   │
+│  │  ├── api/           # API client functions               │   │
+│  │  ├── ui/            # DOM manipulation                    │   │
+│  │  └── utils/         # sanitize, helpers                  │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              │ HTTP REST
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                     Backend (Node.js)                           │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │                    Express.js Routes                       │   │
+│  │  ├── routes/        # API route handlers                  │   │
+│  │  ├── services/      # Business logic                       │   │
+│  │  ├── models/        # Database models (ORM)                │   │
+│  │  ├── middleware/    # Auth, rate limit, error handling     │   │
+│  │  └── utils/         # XSS, validation                      │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+              ┌───────────────┴───────────────┐
+              ▼                               ▼
+     ┌─────────────┐                 ┌─────────────┐
+     │ PostgreSQL  │                 │    Redis    │
+     │  (Primary)  │                 │   (Cache)   │
+     └─────────────┘                 └─────────────┘
 ```
 
 ### 1.2 資料型別定義
 
 ```typescript
-// 輸入型別
-interface OfferInput {
-  jobTitle: string;      // 職位名稱
-  totalComp: number;     // 年度總薪（含獎金），單位：TWD
-  baseSalary: number;    // 年薪底薪，單位：TWD
-  bonus: number;         // 年終獎金（月數），0-12
-  equity: number;        // 股份/選擇權稀釋後百分比，0-5
+// === API Request/Response Types ===
+
+// POST /api/evaluate
+interface EvaluateRequest {
+  jobTitle: string;
+  totalComp: number;      // 年度總薪（含獎金），單位：TWD
+  baseSalary: number;     // 年薪底薪，單位：TWD
+  bonus: number;          // 年終獎金（月數），0-12
+  equity: number;         // 股份/選擇權稀釋後百分比，0-5
   city: 'taipei' | 'nhc' | 'taichung' | 'kaohsiung' | 'remote';
   experience: '0-2' | '2-5' | '5-10' | '10+';
 }
 
-// 輸出型別
-interface EvaluationResult {
-  score: number;         // 0-100 總分
+interface EvaluateResponse {
+  score: number;          // 0-100 總分
   breakdown: BreakdownItem[];
-  verdict: string;       // 談判建議文字
+  verdict: string;        // 談判建議文字
   label: 'excellent' | 'good' | 'fair' | 'poor';
 }
 
 interface BreakdownItem {
   label: string;
-  value: string;         // e.g., "+15", "-10"
-  good: boolean | null; // true=正面, false=負面, null=中性
+  value: string;          // e.g., "+15", "-10"
+  good: boolean | null;
 }
 
-// 薪資參考資料
-interface SalaryReference {
-  title: string;         // 職稱
-  min: number;            // 年薪下限（TWD）
-  max: number;            // 年薪上限（TWD）
-  level: string;         // 年資區間
-  city: string;          // 城市代碼
+// GET /api/salary-data
+interface SalaryDataResponse {
+  data: SalaryReference[];
+  sources: string[];
 }
 
-// 談判腳本
-interface NegotiationScript {
-  title: string;
-  situation: string;     // 適用情境
-  script: string;        // 完整對話範文
-  tip: string;           // 談判要點提示
-}
-
-// 用戶貢獻
-interface Contribution {
+// POST /api/contribute
+interface ContributeRequest {
   title: string;
   salary: number;
-  date: string;          // ISO date string
+  city: string;
 }
 
-// 評估歷史
+// GET /api/forum
+interface ForumListResponse {
+  posts: ForumPost[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+// POST /api/forum
+interface CreatePostRequest {
+  title: string;
+  company?: string;
+  city: string;
+  salaryRange: string;
+  content: string;
+}
+
+// GET /api/offers
+interface Offer {
+  id: number;
+  company: string;
+  title: string;
+  deadline: string;       // ISO date string
+  status: 'candidate' | 'negotiating' | 'accepted' | 'rejected' | 'expired';
+  createdAt: string;
+}
+
+// GET /api/interviews
+interface Interview {
+  id: number;
+  company: string;
+  title: string;
+  stage: string;
+  notes: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// Salary Reference Data
+interface SalaryReference {
+  id: number;
+  title: string;
+  min: number;
+  max: number;
+  level: string;
+  city: string;
+  source: string;
+}
+
+// Negotiation Script
+interface NegotiationScript {
+  id: number;
+  title: string;
+  situation: string;
+  script: string;
+  tip: string;
+  category: string;
+}
+
+// Evaluation History
 interface Evaluation {
+  id: number;
   jobTitle: string;
   score: number;
-  date: string;          // ISO date string
   totalComp: number;
-}
-
-// 論壇文章
-interface ForumPost {
-  id: string;            // 唯一識別碼（timestamp + random）
-  title: string;         // 文章標題
-  company: string;       // 公司名稱（可選）
-  city: string;          // 城市代碼
-  salaryRange: string;   // 薪資範圍（如 "120-150萬"）
-  content: string;       // 內容（可能包含換行）
-  date: string;          // ISO date string
-}
-
-// Offer 追蹤
-interface OfferTracker {
-  id: string;            // 唯一識別碼
-  company: string;       // 公司名稱
-  title: string;         // 職位名稱
-  deadline: string;       // 截止日期 ISO string
-  status: 'candidate' | 'negotiating' | 'accepted' | 'rejected' | 'expired';
-  createdAt: string;     // 建立時間
-  notified: boolean;     // 是否已提醒
+  breakdown: BreakdownItem[];
+  createdAt: string;
 }
 ```
 
 ---
 
-## 2. localStorage DB Schema
+## 2. PostgreSQL DB Schema
 
 ### 2.1 Schema 總覽
 
-| Key | 型別 | 範例值 | 說明 |
-|-----|------|--------|------|
-| `offerlift_users` | `string`（數字） | `"127"` | 全域計數：所有用戶的 Offer 評估總次數 |
-| `offerlift_contribs` | `JSON string` | `[{"title":"Frontend","salary":1200000,"date":"2026-04-09T..."}]` | 用戶匿名貢獻的薪資資料陣列 |
-| `offerlift_history` | `JSON string` | `[{"jobTitle":"SDE","score":75,"date":"2026-04-09T...","totalComp":1500000}]` | 最近 5 次評估記錄 |
-| `offerlift_forum` | `JSON string` | `[{"id":"ts1234567890","title":"...","company":"...","city":"taipei","salaryRange":"120-150萬","content":"...","date":"2026-04-09T..."}]` | 匿名論壇討論串 |
-| `offerlift_trackers` | `JSON string` | `[{"id":"ts1234567890","company":"...","title":"...","deadline":"2026-04-20","status":"negotiating","createdAt":"...","notified":false}]` | Offer 追蹤記錄 |
+| Table | Primary Key | 说明 |
+|-------|------------|------|
+| users | id (UUID) | 匿名用戶識別 |
+| salary_data | id | 薪資參考數據 |
+| salary_contributions | id | 用戶薪資貢獻 |
+| offers | id | Offer 追蹤 |
+| interviews | id | 面試進度 |
+| forum_posts | id | 論壇文章 |
+| negotiation_scripts | id | 談判腳本 |
+| evaluations | id | 評估歷史 |
 
-### 2.2 Schema 細節
+### 2.2 Table Definitions
 
-#### `offerlift_users`
-```json
-"127"
+#### users
+```sql
+CREATE TABLE users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  anonymous_id VARCHAR(64) UNIQUE NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_anonymous_id (anonymous_id)
+);
 ```
-- 初始化值：字串 `"127"`（表示上線前的示範數據）
-- 遞增時：`parseInt(localStorage.getItem('offerlift_users') || '127') + 1`
-- 上限：無（字串型別可支援任意長度數字）
 
-#### `offerlift_contribs`
-```json
-[
-  {
-    "title": "Senior Frontend Engineer",
-    "salary": 1800000,
-    "date": "2026-04-09T10:30:00.000Z"
-  }
-]
+#### salary_data
+```sql
+CREATE TABLE salary_data (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(100) NOT NULL,
+  min_salary INTEGER NOT NULL,
+  max_salary INTEGER NOT NULL,
+  level VARCHAR(20) NOT NULL,
+  city VARCHAR(20) NOT NULL,
+  source VARCHAR(50) DEFAULT 'manual',
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_title_city (title, city)
+);
 ```
-- 最大長度：無限制（localStorage 建議不超過 5MB）
-- 查詢：線性搜尋（資料量少時可接受，未來可考慮加 index）
 
-#### `offerlift_history`
-```json
-[
-  {
-    "jobTitle": "Backend Engineer",
-    "score": 68,
-    "totalComp": 1350000,
-    "date": "2026-04-09T11:00:00.000Z"
-  }
-]
+#### salary_contributions
+```sql
+CREATE TABLE salary_contributions (
+  id SERIAL PRIMARY KEY,
+  anonymous_id VARCHAR(64) NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  salary INTEGER NOT NULL,
+  city VARCHAR(20) NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_anonymous_id (anonymous_id)
+);
 ```
-- 最大長度：5 筆（`push` 前檢查長度，超過則 `shift()` 移除最舊記錄）
 
-#### `offerlift_forum`
-```json
-[
-  {
-    "id": "ts1234567890",
-    "title": "台積電工程師 offer 請教",
-    "company": "台積電",
-    "city": "nhc",
-    "salaryRange": "180-200萬",
-    "content": "最近收到 TSMC 的 offer，想請問大家的意見...",
-    "date": "2026-04-09T10:30:00.000Z"
-  }
-]
+#### offers
+```sql
+CREATE TABLE offers (
+  id SERIAL PRIMARY KEY,
+  anonymous_id VARCHAR(64) NOT NULL,
+  company VARCHAR(100) NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  deadline TIMESTAMP NOT NULL,
+  status VARCHAR(20) DEFAULT 'candidate',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_anonymous_id (anonymous_id),
+  INDEX idx_status (status)
+);
 ```
-- 最大長度：無限制（localStorage 建議不超過 5MB）
-- 查詢：依城市、職位關鍵字篩選
 
-#### `offerlift_trackers`
-```json
-[
-  {
-    "id": "ts1234567890",
-    "company": "Google",
-    "title": "Senior Frontend Engineer",
-    "deadline": "2026-04-20T23:59:59.000Z",
-    "status": "negotiating",
-    "createdAt": "2026-04-09T10:00:00.000Z",
-    "notified": false
-  }
-]
+#### interviews
+```sql
+CREATE TABLE interviews (
+  id SERIAL PRIMARY KEY,
+  anonymous_id VARCHAR(64) NOT NULL,
+  company VARCHAR(100) NOT NULL,
+  title VARCHAR(100) NOT NULL,
+  stage VARCHAR(50) NOT NULL,
+  notes TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_anonymous_id (anonymous_id),
+  INDEX idx_stage (stage)
+);
 ```
-- 最大長度：無限制
-- 狀態：`candidate`（候選中）、`negotiating`（談判中）、`accepted`（已接受）、`rejected`（已拒絕）、`expired`（已過期）
+
+#### forum_posts
+```sql
+CREATE TABLE forum_posts (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  company VARCHAR(100),
+  city VARCHAR(20) NOT NULL,
+  salary_range VARCHAR(50),
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_city (city),
+  INDEX idx_created_at (created_at DESC)
+);
+```
+
+#### negotiation_scripts
+```sql
+CREATE TABLE negotiation_scripts (
+  id SERIAL PRIMARY KEY,
+  title VARCHAR(200) NOT NULL,
+  situation TEXT NOT NULL,
+  script TEXT NOT NULL,
+  tip TEXT NOT NULL,
+  category VARCHAR(50) NOT NULL,
+  INDEX idx_category (category)
+);
+```
+
+#### evaluations
+```sql
+CREATE TABLE evaluations (
+  id SERIAL PRIMARY KEY,
+  anonymous_id VARCHAR(64) NOT NULL,
+  job_title VARCHAR(100) NOT NULL,
+  score INTEGER NOT NULL,
+  total_comp INTEGER NOT NULL,
+  breakdown JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  INDEX idx_anonymous_id (anonymous_id),
+  INDEX idx_created_at (created_at DESC)
+);
+```
 
 ---
 
-## 3. API 規格（JavaScript 介面）
+## 3. API 規格
 
-> 注意：OfferLift 為純前端應用，不存在 HTTP API。以下為 JavaScript 函式介面文件，說明各公開函式的輸入輸出合約。
+### 3.1 Offer 評估
 
-### 3.1 全域函式
+#### POST /api/evaluate
+```json
+// Request
+{
+  "jobTitle": "Frontend Engineer",
+  "totalComp": 1500000,
+  "baseSalary": 1300000,
+  "bonus": 2,
+  "equity": 0.05,
+  "city": "taipei",
+  "experience": "2-5"
+}
 
-| 函式簽名 | 輸入 | 輸出 | 副作用 |
-|----------|------|------|--------|
-| `evaluateOffer()` | 無（讀取 DOM） | `void`（直接操作 DOM 渲染結果） | 更新 DOM + localStorage |
-| `renderScripts()` | 無 | `void` | 更新 `#script-list` DOM |
-| `renderSalaryGrid()` | 無 | `void` | 更新 `#salary-grid` DOM |
-| `contributeData()` | 無 | `void` | 顯示 contribute modal |
-| `closeModal()` | 無 | `void` | 隱藏 contribute modal |
-| `submitContrib()` | 無（讀取 DOM） | `void` | 更新 localStorage + modal |
-| `toggleScript(i)` | `i: number`（腳本索引） | `void` | toggle 腳本 expand/collapse |
-| `copyScript(i)` | `i: number`（腳本索引） | `void` | 寫入 clipboard + alert |
-| `calculateBenefits()` | 無（讀取表單） | `void` | 計算並顯示福利結果 |
-| `simulateSalary()` | 無（讀取表單） | `void` | 模擬並顯示薪資成長 |
-| `generateEmail()` | 無（讀取表單） | `void` | 產生並顯示郵件內容 |
-| `openCompareModal()` | 無 | `void` | 開啟 Offer 比較對話框 |
-| `exportToPDF()` | 無 | `void` | 產生並下載 PDF 報告 |
-| `setLanguage(lang)` | `lang: 'zh'|'en'|'ja'` | `void` | 切換 UI 語言 |
-| `toggleLangMenu()` | 無 | `void` | 展開/收合語言選單 |
-| `renderForum()` | 無 | `void` | 渲染論壇討論串列表 |
-| `createPost()` | 無（讀取表單） | `void` | 發表新討論（更新 DOM + localStorage） |
-| `deletePost(id)` | `id: string` | `void` | 刪除討論串（從 DOM 和 localStorage） |
-| `filterForum(query, city)` | `query: string, city: string` | `void` | 依關鍵字和城市過濾論壇 |
-| `addOfferToTracker()` | 無（讀取表單） | `void` | 新增 Offer 追蹤 |
-| `removeOfferFromTracker(id)` | `id: string` | `void` | 刪除 Offer 追蹤 |
-| `updateOfferStatus(id, status)` | `id: string, status: string` | `void` | 更新 Offer 狀態 |
-| `checkOfferDeadlines()` | 無 | `void` | 檢查截止日期並發送通知 |
-| `requestNotificationPermission()` | 無 | `void` | 請求瀏覽器通知權限 |
+// Response 200
+{
+  "score": 75,
+  "breakdown": [
+    { "label": "市場薪資比", "value": "+10", "good": true },
+    { "label": "城市加權", "value": "+5", "good": true },
+    { "label": "年資匹配", "value": "0", "good": null }
+  ],
+  "verdict": "可以談判",
+  "label": "good"
+}
+```
 
-### 3.2 評估邏輯 API（內部使用）
+### 3.2 薪資數據
 
-| 函式 | 簽名 | 說明 |
+#### GET /api/salary-data
+```json
+// Response 200
+{
+  "data": [
+    {
+      "id": 1,
+      "title": "Frontend Engineer",
+      "min": 600000,
+      "max": 1200000,
+      "level": "2-5年",
+      "city": "taipei",
+      "source": "104"
+    }
+  ],
+  "sources": ["104", "LinkedIn", "CakeResume"]
+}
+```
+
+#### POST /api/contribute
+```json
+// Request
+{
+  "title": "Senior Frontend Engineer",
+  "salary": 1800000,
+  "city": "taipei"
+}
+
+// Response 201
+{
+  "success": true,
+  "message": "感謝您的貢獻"
+}
+```
+
+### 3.3 Offer 追蹤
+
+#### GET /api/offers
+```json
+// Response 200
+{
+  "offers": [
+    {
+      "id": 1,
+      "company": "Google",
+      "title": "Senior Frontend Engineer",
+      "deadline": "2026-04-20T23:59:59.000Z",
+      "status": "negotiating",
+      "createdAt": "2026-04-09T10:00:00.000Z"
+    }
+  ]
+}
+```
+
+#### POST /api/offers
+```json
+// Request
+{
+  "company": "Google",
+  "title": "Senior Frontend Engineer",
+  "deadline": "2026-04-20T23:59:59.000Z",
+  "status": "candidate"
+}
+
+// Response 201
+{
+  "id": 1,
+  "company": "Google",
+  "title": "Senior Frontend Engineer",
+  "deadline": "2026-04-20T23:59:59.000Z",
+  "status": "candidate",
+  "createdAt": "2026-04-11T00:00:00.000Z"
+}
+```
+
+#### PUT /api/offers/:id
+```json
+// Request
+{
+  "status": "accepted"
+}
+
+// Response 200
+{
+  "id": 1,
+  "status": "accepted",
+  "updatedAt": "2026-04-11T00:00:00.000Z"
+}
+```
+
+#### DELETE /api/offers/:id
+```json
+// Response 204 (No Content)
+```
+
+### 3.4 面試進度
+
+#### GET /api/interviews
+```json
+// Response 200
+{
+  "interviews": [
+    {
+      "id": 1,
+      "company": "Amazon",
+      "title": "Backend Engineer",
+      "stage": "技術面試",
+      "notes": "等通知",
+      "createdAt": "2026-04-09T10:00:00.000Z",
+      "updatedAt": "2026-04-10T00:00:00.000Z"
+    }
+  ]
+}
+```
+
+#### POST /api/interviews
+```json
+// Request
+{
+  "company": "Amazon",
+  "title": "Backend Engineer",
+  "stage": "技術面試",
+  "notes": ""
+}
+
+// Response 201
+{
+  "id": 1,
+  "company": "Amazon",
+  "title": "Backend Engineer",
+  "stage": "技術面試",
+  "notes": "",
+  "createdAt": "2026-04-11T00:00:00.000Z",
+  "updatedAt": "2026-04-11T00:00:00.000Z"
+}
+```
+
+#### PUT /api/interviews/:id
+```json
+// Request
+{
+  "stage": "主管面試",
+  "notes": "下週二複試"
+}
+
+// Response 200
+{
+  "id": 1,
+  "stage": "主管面試",
+  "notes": "下週二複試",
+  "updatedAt": "2026-04-11T00:00:00.000Z"
+}
+```
+
+#### DELETE /api/interviews/:id
+```json
+// Response 204 (No Content)
+```
+
+### 3.5 論壇
+
+#### GET /api/forum
+```
+GET /api/forum?page=1&pageSize=10&city=taipei&query=台積電
+```
+```json
+// Response 200
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "台積電工程師 offer 請教",
+      "company": "台積電",
+      "city": "nhc",
+      "salaryRange": "180-200萬",
+      "content": "最近收到 TSMC 的 offer...",
+      "createdAt": "2026-04-09T10:30:00.000Z"
+    }
+  ],
+  "total": 42,
+  "page": 1,
+  "pageSize": 10
+}
+```
+
+#### POST /api/forum
+```json
+// Request
+{
+  "title": "offer 比較請益",
+  "company": "聯發科",
+  "city": "nhc",
+  "salaryRange": "150-180萬",
+  "content": "同時收到兩家 offer..."
+}
+
+// Response 201
+{
+  "id": 2,
+  "title": "offer 比較請益",
+  "company": "聯發科",
+  "city": "nhc",
+  "salaryRange": "150-180萬",
+  "content": "同時收到兩家 offer...",
+  "createdAt": "2026-04-11T00:00:00.000Z"
+}
+```
+
+#### DELETE /api/forum/:id
+```json
+// Response 204 (No Content)
+```
+
+### 3.6 計算機
+
+#### GET /api/calculator/tax
+```
+GET /api/calculator/tax?annualIncome=1500000&bonus=200000&deduction=standard
+```
+```json
+// Response 200
+{
+  "grossIncome": 1700000,
+  "taxableIncome": 1254000,
+  "taxAmount": 62400,
+  "effectiveRate": 4.16,
+  "monthlyNet": 89450,
+  "bonusBreakdown": {
+    "oneTime": { "tax": 20000, "net": 180000 },
+    "twoTimes": { "tax": 13300, "net": 186700 },
+    "threeTimes": { "tax": 10000, "net": 190000 }
+  },
+  "recommended": "分三次發放",
+  "savings": 10000
+}
+```
+
+#### GET /api/calculator/benefits
+```
+GET /api/calculator/benefits?baseSalary=1300000&annualLeave=14&mealAllowance=24000&transportAllowance=24000
+```
+```json
+// Response 200
+{
+  "baseSalary": 1300000,
+  "totalBenefits": 86400,
+  "breakdown": {
+    "annualLeave": 42000,
+    "mealAllowance": 24000,
+    "transportAllowance": 20400
+  },
+  "totalComp": 1386400
+}
+```
+
+### 3.7 RSS 資料
+
+#### GET /api/rss/104
+```json
+// Response 200 (cached 1 hour)
+{
+  "items": [
+    {
+      "title": "前端工程師薪資趨勢",
+      "link": "https://...",
+      "pubDate": "2026-04-10T00:00:00.000Z"
+    }
+  ],
+  "cachedAt": "2026-04-11T00:00:00.000Z"
+}
+```
+
+#### GET /api/rss/cakeresume
+```json
+// Response 200 (cached 1 hour)
+{
+  "items": [
+    {
+      "title": "2026 科技業薪資報告",
+      "link": "https://...",
+      "pubDate": "2026-04-09T00:00:00.000Z"
+    }
+  ],
+  "cachedAt": "2026-04-11T00:00:00.000Z"
+}
+```
+
+### 3.8 談判腳本
+
+#### GET /api/scripts
+```json
+// Response 200
+{
+  "scripts": [
+    {
+      "id": 1,
+      "title": "開場：感謝 + 確認範圍",
+      "situation": "面試最後一關，HR 打來通知 Offer",
+      "script": "非常感謝您提供這個機會...",
+      "tip": "不要第一時間拒絕或接受",
+      "category": "開場"
+    }
+  ]
+}
+```
+
+---
+
+## 4. Redis 快取策略
+
+### 4.1 Key Pattern
+
+| Key Pattern | TTL | Description |
+|-------------|-----|-------------|
+| `salary:all` | 1h | 所有薪資參考數據 |
+| `salary:{title}:{city}` | 1h | 特定職稱城市薪資 |
+| `rss:104` | 1h | 104 RSS 資料 |
+| `rss:cakeresume` | 1h | CakeResume RSS 資料 |
+| `scripts:all` | 24h | 所有談判腳本 |
+| `ratelimit:{ip}` | 1min | API 限流計數 |
+
+### 4.2 Cache-Aside Pattern
+
+```javascript
+// Example: salary data fetch
+async function getSalaryData() {
+  const cached = await redis.get('salary:all');
+  if (cached) return JSON.parse(cached);
+
+  const data = await db.query('SELECT * FROM salary_data');
+  await redis.setex('salary:all', 3600, JSON.stringify(data));
+  return data;
+}
+```
+
+---
+
+## 5. 錯誤處理
+
+### 5.1 HTTP 錯誤碼
+
+| 錯誤情境 | HTTP 狀態碼 | 錯誤訊息 |
+|----------|------------|----------|
+| 請求格式錯誤 | 400 | `{ "error": "Validation failed", "details": [...] }` |
+| 未授權 | 401 | `{ "error": "Invalid API Key" }` |
+| 請求頻率超限 | 429 | `{ "error": "Rate limit exceeded" }` |
+| 資源不存在 | 404 | `{ "error": "Not found" }` |
+| 伺服器錯誤 | 500 | `{ "error": "Internal server error" }` |
+
+### 5.2 輸入驗證（Zod Schema）
+
+```javascript
+const EvaluateSchema = z.object({
+  jobTitle: z.string().min(1),
+  totalComp: z.number().positive(),
+  baseSalary: z.number().positive(),
+  bonus: z.number().min(0).max(12),
+  equity: z.number().min(0).max(5),
+  city: z.enum(['taipei', 'nhc', 'taichung', 'kaohsiung', 'remote']),
+  experience: z.enum(['0-2', '2-5', '5-10', '10+'])
+});
+
+const ContributeSchema = z.object({
+  title: z.string().min(1).max(100),
+  salary: z.number().positive(),
+  city: z.string().min(1)
+});
+
+const CreatePostSchema = z.object({
+  title: z.string().min(1).max(200),
+  company: z.string().max(100).optional(),
+  city: z.string().min(1),
+  salaryRange: z.string().max(50),
+  content: z.string().min(1)
+});
+```
+
+### 5.3 XSS 過濾
+
+後端使用 DOMPurify 過濾所有用戶輸入：
+
+```javascript
+const DOMPurify = require('isomorphic-dompurify');
+
+function sanitizeInput(str) {
+  return DOMPurify.sanitize(str, { ALLOWED_TAGS: [] });
+}
+```
+
+---
+
+## 6. 模組結構
+
+```
+server/
+├── src/
+│   ├── index.js              # Express app entry point
+│   ├── config/
+│   │   ├── database.js      # PostgreSQL connection
+│   │   ├── redis.js         # Redis connection
+│   │   └── env.js           # Environment variables
+│   ├── routes/
+│   │   ├── index.js          # Route aggregator
+│   │   ├── evaluate.js      # POST /api/evaluate
+│   │   ├── salary-data.js   # GET /api/salary-data, POST /api/contribute
+│   │   ├── offers.js        # CRUD /api/offers
+│   │   ├── interviews.js    # CRUD /api/interviews
+│   │   ├── forum.js         # CRUD /api/forum
+│   │   ├── calculator.js    # GET /api/calculator/tax, /benefits
+│   │   ├── rss.js          # GET /api/rss/104, /cakeresume
+│   │   └── scripts.js       # GET /api/scripts
+│   ├── services/
+│   │   ├── evaluator.js      # Offer 評估商業邏輯
+│   │   ├── salary.js        # 薪資數據服務
+│   │   ├── forum.js         # 論壇服務
+│   │   ├── rss.js           # RSS 抓取服務
+│   │   └── cache.js         # Redis 快取服務
+│   ├── middleware/
+│   │   ├── auth.js          # API Key 驗證
+│   │   ├── rateLimit.js     # 速率限制
+│   │   ├── errorHandler.js  # 全域錯誤處理
+│   │   └── validator.js     # Zod 驗證中介層
+│   ├── models/
+│   │   └── index.js         # Database models (raw SQL or ORM)
+│   └── utils/
+│       ├── sanitize.js      # XSS 過濾
+│       └── anonymous.js     # Anonymous ID generation
+├── migrations/              # Database migrations
+├── seeds/                   # Seed data
+├── tests/                   # Unit & integration tests
+├── docker-compose.yml        # Docker local dev
+├── Dockerfile               # Production Docker
+└── package.json
+```
+
+---
+
+## 7. 外部依賴
+
+| 依賴 | 版本 | 用途 |
 |------|------|------|
-| `calculateScore` | `(total, base, city, exp, jobTitle) => {score, breakdown}` | 核心評分演算法，輸出 0-100 |
-| `findReference` | `(jobTitle, city, level) => SalaryReference|undefined` | 查找薪資參考資料 |
-| `getVerdict` | `(score) => string` | 根據分數回傳談判建議文字 |
-| `filterScripts` | `(query) => NegotiationScript[]` | 依關鍵字過濾腳本 |
-| `sanitize` | `(str) => string` | XSS 過濾，跳脫 HTML |
-| `calculateEquityValue` | `(shares, pricePerShare, yearsAtCompany) => VestingBreakdown` | 計算 Vesting 價值 |
-| `evaluateEquity` | `(equityValue, baseSalary, vesting) => BreakdownItem[]` | 評估股票/選擇權 |
-
-### 3.3 Storage Service API（封裝 localStorage 存取）
-
-```javascript
-const StorageService = {
-  // 讀取
-  getUserCount(): number,
-  getContributions(): Contribution[],
-  getHistory(): Evaluation[],
-
-  // 寫入
-  incrementUserCount(): void,
-  addContribution(item: {title: string, salary: number}): void,
-  addHistory(item: {jobTitle: string, score: number, totalComp: number}): void,
-
-  // 工具
-  clearAll(): void  // 僅供開發/測試使用，不暴露給用戶
-};
-```
+| express | ^4.18 | Web 框架 |
+| pg | ^8.11 | PostgreSQL client |
+| redis | ^4.6 | Redis client |
+| zod | ^3.22 | 輸入驗證 |
+| isomorphic-dompurify | ^2.12 | XSS 過濾 |
+| node-cron | ^3.0 | 排程任務（RSS fetch） |
+| axios | ^1.6 | HTTP client（RSS fetch） |
+| xml2js | ^0.5 | RSS XML 解析 |
+| uuid | ^9.0 | UUID 生成 |
+| dotenv | ^16.3 | 環境變數 |
+| cors | ^2.8 | CORS middleware |
+| helmet | ^7.1 | Security headers |
 
 ---
 
-## 4. 錯誤處理
-
-### 4.1 輸入驗證
-
-| 錯誤情境 | 處理方式 | 使用者回饋 |
-|----------|----------|------------|
-| `totalComp` 或 `baseSalary` 未填寫 | `alert()` 提示 | 「請至少填寫「年度總薪」和「年薪底薪」」|
-| `totalComp` 或 `baseSalary` 為 0 或負數 | `alert()` 提示 | 同上 |
-| 貢獻資料的 `title` 或 `salary` 空白 | `alert()` 提示 | 「請填寫職位和薪資」|
-| 論壇文章 `title` 或 `content` 空白 | `alert()` 提示 | 「請填寫標題和內容」|
-| Offer 追蹤的 `company` 或 `deadline` 空白 | `alert()` 提示 | 「請填寫公司名稱和截止日期」|
-| 請求通知權限被拒絕 | 靜默失敗，不阻斷操作 | 使用 `Notification.permission` 檢查 |
-
-### 4.2 localStorage 錯誤
-
-| 錯誤情境 | 處理方式 |
-|----------|----------|
-| localStorage 讀取失敗（隱私設定、 Safari 私有模式） | 降級為記憶體內變數，全域統計計數不回寫 |
-| localStorage 寫入失敗（配額已滿） | `console.warn()` 警告，不阻斷操作流程 |
-
-### 4.3 XSS 過濾
-
-用戶輸入的 `jobTitle`、`contrib-title`、`contrib-company` 在存入 localStorage 前需做基本 HTML 跳脫：
-
-```javascript
-function sanitize(str: string): string {
-  return str
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#x27;');
-}
-```
-
-> 注意：此處仅为输出时的基本防护。localStorage 数据仅存储于用户本地浏览器，不存在服务端 XSS 风险。
-
-### 4.4 Clipboard API 失敗
-
-```javascript
-function copyScript(i) {
-  const script = negotiationScripts[i].script;
-  navigator.clipboard.writeText(script).then(() => {
-    alert('腳本已複製到剪貼簿！');
-  }).catch(() => {
-    // Fallback: 選取文字區塊（舊瀏覽器）
-    const textarea = document.createElement('textarea');
-    textarea.value = script;
-    document.body.appendChild(textarea);
-    textarea.select();
-    document.execCommand('copy');
-    document.body.removeChild(textarea);
-    alert('腳本已複製到剪貼簿！');
-  });
-}
-```
-
----
-
-## 5. 模組介面（未來重構目標）
-
-當前程式碼為單一 `<script>` 區塊內聯所有邏輯。隨著功能增長，建議重構為以下模組結構（不影響當前 MVP 交付）：
-
-```
-assets/
-├── js/
-│   ├── core/
-│   │   ├── evaluator.js      # 評估邏輯（pure function）
-│   │   ├── storage.js        # localStorage 封裝
-│   │   └── sanitizer.js      # XSS 過濾
-│   ├── ui/
-│   │   ├── renderer.js        # DOM 渲染函式
-│   │   ├── modal.js           # Modal 控制
-│   │   └── animations.js      # 過渡動畫
-│   ├── data/
-│   │   ├── salary-data.js     # 薪資參考靜態資料
-│   │   └── scripts-data.js    # 談判腳本靜態資料
-│   └── app.js                 # 初始化與事件綁定
-├── styles/
-│   └── custom.css             # Tailwind 無法覆蓋的自訂樣式
-└── index.html
-```
-
-每個模組透過 `ES6 module` 匯出，允許單獨測試與未來 Tree-shaking 優化。
-
----
-
-## 6. 外部依賴版本鎖定
-
-| 依賴 | CDN URL | 版本策略 |
-|------|---------|----------|
-| Tailwind CSS | `https://cdn.tailwindcss.com` | 無版本指定（CDN 自動更新到最新穩定版）|
-| Google Fonts (Inter) | `https://fonts.googleapis.com` | 指定了 font weight（400/500/600/700/800），字體本身由 Google 管理 |
-
-> 建議：未來可改用 npm 安裝 Tailwind CLI 並建立 `tailwind.config.js`，在正式發布前先編譯 CSS 成品，移除對 CDN 的依賴，確保離線可用性。
-
----
-
-*文件版本：v1.2*
-*最後更新：2026-04-10*
+*文件版本：v2.0*
+*最後更新：2026-04-11*
+*作者：OfferLift Dev Team*
+*備註：此版本為 Full-Stack 架構，基於 Node.js + Express + PostgreSQL + Redis*
