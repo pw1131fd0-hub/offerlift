@@ -9,6 +9,7 @@
   <meta name="description" content="輸入 Offer 詳情，獲得客觀的市場評估分數、具體的談判腳本、以及參考薪資區間">
   <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect fill='%2322c55e' width='100' height='100' rx='20'/><text x='50%' y='55%' dominant-baseline='middle' text-anchor='middle' font-size='50' font-weight='bold' fill='white'>OL</text></svg>">
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <script>
@@ -855,6 +856,24 @@
         <input id="decrypt-file-data" type="hidden">
         <input id="decrypt-password" type="password" placeholder="輸入解密密碼" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
         <button onclick="decryptAndImport()" data-i18n="decryptBtn" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">解密並匯入</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- QR Code Modal -->
+  <div id="qr-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-sm w-full p-8 relative border border-gray-200 dark:border-gray-700">
+      <button onclick="closeQRModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h3 data-i18n="qrTitle" class="text-xl font-bold mb-4 dark:text-white">📱 QR Code 匯出</h3>
+      <p data-i18n="qrDesc" class="text-gray-500 dark:text-gray-400 text-sm mb-6">掃描右側 QR Code 或點擊下方按鈕下載加密備份。其他設備可掃描此 QR Code 匯入資料。</p>
+      <div class="flex flex-col items-center gap-4">
+        <canvas id="qr-canvas" class="rounded-lg border border-gray-200 dark:border-gray-600"></canvas>
+        <button onclick="downloadQRCode()" data-i18n="qrDownload" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          下載 QR Code 圖片
+        </button>
       </div>
     </div>
   </div>
@@ -3355,6 +3374,52 @@
       closeDeadlineModal();
       checkDeadline();
       alert('截止日期已設定！我們會在到來前提醒你。');
+    }
+
+    // QR Code Functions
+    function openQRModal() {
+      const data = {
+        offerlift_users: localStorage.getItem('offerlift_users'),
+        offerlift_contribs: localStorage.getItem('offerlift_contribs'),
+        offerlift_history: localStorage.getItem('offerlift_history'),
+        offerlift_darkmode: localStorage.getItem('offerlift_darkmode'),
+        offerlift_lang: localStorage.getItem('offerlift_lang'),
+        offerlift_deadline: localStorage.getItem('offerlift_deadline'),
+        offerlift_forum: localStorage.getItem('offerlift_forum'),
+        exportedAt: new Date().toISOString(),
+        version: '1.0.0'
+      };
+      const jsonStr = JSON.stringify(data);
+      if (jsonStr.length > 50000) {
+        alert('資料量過大，請使用加密備份功能（Export/Import）代替 QR Code。');
+        return;
+      }
+      const canvas = document.getElementById('qr-canvas');
+      QRCode.toCanvas(canvas, jsonStr, {
+        width: 256,
+        margin: 2,
+        color: { dark: '#111827', light: '#ffffff' }
+      }).catch(() => {
+        alert('QR Code 產生失敗，請稍後再試。');
+      });
+      document.getElementById('qr-modal').classList.remove('hidden');
+      document.getElementById('qr-modal').classList.add('flex');
+    }
+
+    function closeQRModal() {
+      document.getElementById('qr-modal').classList.add('hidden');
+      document.getElementById('qr-modal').classList.remove('flex');
+    }
+
+    function downloadQRCode() {
+      const canvas = document.getElementById('qr-canvas');
+      const url = canvas.toDataURL('image/png');
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `offerlift-qr-${new Date().toISOString().split('T')[0]}.png`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
     }
 
     function checkDeadline() {
