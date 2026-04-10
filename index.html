@@ -942,6 +942,137 @@
     </div>
   </div>
 
+  <!-- Interview Experience Sharing -->
+  <section id="interview-exp" class="py-20 px-6 bg-white dark:bg-gray-800">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="interviewExpTitle" class="text-3xl font-bold mb-3 dark:text-white">🏢 面試經驗分享</h2>
+        <p data-i18n="interviewExpDesc" class="text-gray-500 dark:text-gray-400">分享各公司的面試流程與體驗，幫助其他人準備面試</p>
+      </div>
+
+      <!-- Interview Exp Header Actions -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="filterInterviewExp('all')" id="interview-exp-filter-all" data-i18n="interviewExpFilterAll" class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition">全部</button>
+          <button onclick="filterInterviewExp('frontend')" id="interview-exp-filter-frontend" data-i18n="interviewExpFilterFrontend" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Frontend</button>
+          <button onclick="filterInterviewExp('backend')" id="interview-exp-filter-backend" data-i18n="interviewExpFilterBackend" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Backend</button>
+          <button onclick="filterInterviewExp('fullstack')" id="interview-exp-filter-fullstack" data-i18n="interviewExpFilterFullstack" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Full Stack</button>
+          <button onclick="filterInterviewExp('mle')" id="interview-exp-filter-mle" data-i18n="interviewExpFilterMLE" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">ML/AI</button>
+        </div>
+        <button onclick="openNewInterviewExpModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span data-i18n="interviewExpNewPost">分享經驗</span>
+        </button>
+      </div>
+
+      <!-- Interview Exp Search -->
+      <div class="mb-6">
+        <input id="interview-exp-search" type="text" data-i18n-placeholder="interviewExpSearchPlaceholder" placeholder="搜尋面試經驗..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" oninput="searchInterviewExp(this.value)">
+      </div>
+
+      <!-- Interview Exp Posts Container -->
+      <div id="interview-exp-posts" class="space-y-4">
+        <!-- Posts will be rendered here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="interview-exp-empty" class="hidden text-center py-12">
+        <div class="text-6xl mb-4">📝</div>
+        <p class="text-gray-500 dark:text-gray-400" data-i18n="interviewExpEmpty">還沒有任何面試經驗，分享你的故事幫助其他人！</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- New Interview Experience Modal -->
+  <div id="interview-exp-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 data-i18n="interviewExpNewPostTitle" class="text-xl font-bold dark:text-white">分享面試經驗</h3>
+          <button onclick="closeNewInterviewExpModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewExpPostCompany">公司名稱</label>
+          <input id="exp-company" type="text" data-i18n-placeholder="interviewExpPostCompanyPlaceholder" placeholder="例如：Google、TSMC" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewExpPostPosition">應徵職位</label>
+          <input id="exp-position" type="text" data-i18n-placeholder="interviewExpPostPositionPlaceholder" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewExpPostCategory">職位類型</label>
+          <select id="exp-category" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="frontend">Frontend</option>
+            <option value="backend">Backend</option>
+            <option value="fullstack">Full Stack</option>
+            <option value="mle">ML/AI</option>
+            <option value="pm">PM</option>
+            <option value="devops">DevOps</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewExpPostDifficulty">面試難度</label>
+          <div class="flex gap-2">
+            <label class="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="radio" name="exp-difficulty" value="easy" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">⭐ 簡單</span>
+            </label>
+            <label class="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="radio" name="exp-difficulty" value="medium" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">⭐⭐ 中等</span>
+            </label>
+            <label class="flex items-center gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="radio" name="exp-difficulty" value="hard" class="rounded" checked>
+              <span class="text-sm text-gray-700 dark:text-gray-300">⭐⭐⭐ 困難</span>
+            </label>
+          </div>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewExpPostProcess">面試流程</label>
+          <textarea id="exp-process" rows="4" data-i18n-placeholder="interviewExpPostProcessPlaceholder" placeholder="描述面試的各個階段與類型（HR Phone Screen、Technical Interview、Onsite 等）..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewExpPostQuestions">常見題目</label>
+          <textarea id="exp-questions" rows="3" data-i18n-placeholder="interviewExpPostQuestionsPlaceholder" placeholder="分享面試中遇到的常見題目類型..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewExpPostTips">給求職者的建議</label>
+          <textarea id="exp-tips" rows="3" data-i18n-placeholder="interviewExpPostTipsPlaceholder" placeholder="分享你的面試準備建議與心得..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span data-i18n="interviewExpAnonymous">所有分享完全匿名，不會收集任何個人識別資訊</span>
+        </div>
+      </div>
+      <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+        <button onclick="closeNewInterviewExpModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition" data-i18n="interviewExpCancel">取消</button>
+        <button onclick="submitInterviewExp()" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition" data-i18n="interviewExpSubmit">發表</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interview Experience Detail Modal -->
+  <div id="interview-exp-detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 id="detail-exp-title" class="text-xl font-bold dark:text-white"></h3>
+          <button onclick="closeInterviewExpDetailModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6">
+        <div id="detail-exp-content" class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></div>
+        <div id="detail-exp-meta" class="text-xs text-gray-500 dark:text-gray-400 mt-4"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Offer Tracker -->
   <section id="tracker" class="py-20 px-6 bg-white dark:bg-gray-800">
     <div class="max-w-4xl mx-auto">
@@ -3113,6 +3244,288 @@
       }).join('');
     }
 
+    // === Interview Experience Sharing Functions ===
+    let currentInterviewExpFilter = 'all';
+
+    function getInterviewExpPosts() {
+      return JSON.parse(localStorage.getItem('offerlift_interview_exp') || '[]');
+    }
+
+    function saveInterviewExpPosts(posts) {
+      localStorage.setItem('offerlift_interview_exp', JSON.stringify(posts));
+    }
+
+    function generateExpPostId() {
+      return 'exp_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function openNewInterviewExpModal() {
+      document.getElementById('interview-exp-modal').classList.remove('hidden');
+    }
+
+    function closeNewInterviewExpModal() {
+      document.getElementById('interview-exp-modal').classList.add('hidden');
+      // Clear form
+      document.getElementById('exp-company').value = '';
+      document.getElementById('exp-position').value = '';
+      document.getElementById('exp-category').value = 'frontend';
+      document.getElementById('exp-process').value = '';
+      document.getElementById('exp-questions').value = '';
+      document.getElementById('exp-tips').value = '';
+    }
+
+    function submitInterviewExp() {
+      const company = document.getElementById('exp-company').value.trim();
+      const position = document.getElementById('exp-position').value.trim();
+      const category = document.getElementById('exp-category').value;
+      const process = document.getElementById('exp-process').value.trim();
+      const questions = document.getElementById('exp-questions').value.trim();
+      const tips = document.getElementById('exp-tips').value.trim();
+      const difficulty = document.querySelector('input[name="exp-difficulty"]:checked').value;
+
+      if (!process || !questions) {
+        alert(currentLang === 'zh' ? '請填寫面試流程與常見題目' : currentLang === 'ja' ? '面接プロセスとよく出る問題を入力してください' : 'Please fill in interview process and common questions');
+        return;
+      }
+
+      const post = {
+        id: generateExpPostId(),
+        company: sanitize(company),
+        position: sanitize(position),
+        category: category,
+        difficulty: difficulty,
+        process: sanitize(process),
+        questions: sanitize(questions),
+        tips: sanitize(tips),
+        date: new Date().toISOString(),
+        likes: 0
+      };
+
+      const posts = getInterviewExpPosts();
+      posts.unshift(post);
+      saveInterviewExpPosts(posts);
+
+      closeNewInterviewExpModal();
+      renderInterviewExpPosts();
+    }
+
+    function renderInterviewExpPosts() {
+      const posts = getInterviewExpPosts();
+      const container = document.getElementById('interview-exp-posts');
+      const emptyState = document.getElementById('interview-exp-empty');
+
+      let filteredPosts = posts;
+      if (currentInterviewExpFilter !== 'all') {
+        filteredPosts = posts.filter(p => p.category === currentInterviewExpFilter);
+      }
+
+      if (filteredPosts.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      const difficultyLabels = {
+        easy: { zh: '⭐ 簡單', en: '⭐ Easy', ja: '⭐ 簡単' },
+        medium: { zh: '⭐⭐ 中等', en: '⭐⭐ Medium', ja: '⭐⭐ 中程度' },
+        hard: { zh: '⭐⭐⭐ 困難', en: '⭐⭐⭐ Hard', ja: '⭐⭐⭐ 難しい' }
+      };
+
+      const categoryLabels = {
+        frontend: 'Frontend',
+        backend: 'Backend',
+        fullstack: 'Full Stack',
+        mle: 'ML/AI',
+        pm: 'PM',
+        devops: 'DevOps'
+      };
+
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+
+      container.innerHTML = filteredPosts.map(post => {
+        const date = new Date(post.date);
+        const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        return `
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="openInterviewExpDetail('${post.id}')">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded text-xs font-medium">${categoryLabels[post.category]}</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">${difficultyLabels[post.difficulty][langKey]}</span>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400">${dateStr}</span>
+            </div>
+            <h3 class="font-bold text-lg mb-2 dark:text-white">${post.company || '匿名公司'} - ${post.position || '匿名職位'}</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">${post.process.substring(0, 100)}${post.process.length > 100 ? '...' : ''}</p>
+            <div class="flex justify-between items-center text-gray-500 dark:text-gray-400 text-sm">
+              <span>${posts.filter(p => p.company === post.company).length} 篇相同公司經驗</span>
+              <span>查看詳情 →</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openInterviewExpDetail(expId) {
+      const posts = getInterviewExpPosts();
+      const post = posts.find(p => p.id === expId);
+      if (!post) return;
+
+      const difficultyLabels = {
+        easy: { zh: '⭐ 簡單', en: '⭐ Easy', ja: '⭐ 簡単' },
+        medium: { zh: '⭐⭐ 中等', en: '⭐⭐ Medium', ja: '⭐⭐ 中程度' },
+        hard: { zh: '⭐⭐⭐ 困難', en: '⭐⭐⭐ Hard', ja: '⭐⭐⭐ 難しい' }
+      };
+
+      const categoryLabels = {
+        frontend: 'Frontend',
+        backend: 'Backend',
+        fullstack: 'Full Stack',
+        mle: 'ML/AI',
+        pm: 'PM',
+        devops: 'DevOps'
+      };
+
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+
+      document.getElementById('detail-exp-title').textContent = `${post.company || '匿名公司'} - ${post.position || '匿名職位'}`;
+
+      const contentHtml = `
+        <div class="mb-4">
+          <div class="flex gap-2 mb-3">
+            <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded text-xs">${categoryLabels[post.category]}</span>
+            <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">${difficultyLabels[post.difficulty][langKey]}</span>
+          </div>
+        </div>
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2 dark:text-white">${currentLang === 'zh' ? '面試流程' : currentLang === 'ja' ? '面接プロセス' : 'Interview Process'}</h4>
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${post.process}</div>
+        </div>
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2 dark:text-white">${currentLang === 'zh' ? '常見題目' : currentLang === 'ja' ? 'よく出る問題' : 'Common Questions'}</h4>
+          <div class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">${post.questions}</div>
+        </div>
+        <div class="mb-4">
+          <h4 class="font-semibold mb-2 dark:text-white">${currentLang === 'zh' ? '給求職者的建議' : currentLang === 'ja' ? '就活生生へのアドバイス' : 'Tips for Job Seekers'}</h4>
+          <div class="bg-brand-50 dark:bg-brand-900/20 rounded-lg p-4 text-brand-700 dark:text-brand-300 whitespace-pre-wrap">${post.tips}</div>
+        </div>
+      `;
+
+      document.getElementById('detail-exp-content').innerHTML = contentHtml;
+
+      const date = new Date(post.date);
+      const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      document.getElementById('detail-exp-meta').textContent = `${dateStr}`;
+
+      document.getElementById('interview-exp-detail-modal').classList.remove('hidden');
+    }
+
+    function closeInterviewExpDetailModal() {
+      document.getElementById('interview-exp-detail-modal').classList.add('hidden');
+    }
+
+    function filterInterviewExp(filter) {
+      currentInterviewExpFilter = filter;
+
+      ['all', 'frontend', 'backend', 'fullstack', 'mle'].forEach(f => {
+        const btn = document.getElementById(`interview-exp-filter-${f}`);
+        if (f === filter) {
+          btn.className = 'px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition';
+        } else {
+          btn.className = 'px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition';
+        }
+      });
+
+      renderInterviewExpPosts();
+    }
+
+    function searchInterviewExp(query) {
+      const posts = getInterviewExpPosts();
+      const container = document.getElementById('interview-exp-posts');
+      const emptyState = document.getElementById('interview-exp-empty');
+
+      if (!query.trim()) {
+        renderInterviewExpPosts();
+        return;
+      }
+
+      const lowerQuery = query.toLowerCase();
+      let filteredPosts = posts.filter(p =>
+        (p.company && p.company.toLowerCase().includes(lowerQuery)) ||
+        (p.position && p.position.toLowerCase().includes(lowerQuery)) ||
+        p.process.toLowerCase().includes(lowerQuery) ||
+        p.questions.toLowerCase().includes(lowerQuery) ||
+        p.tips.toLowerCase().includes(lowerQuery)
+      );
+
+      if (currentInterviewExpFilter !== 'all') {
+        filteredPosts = filteredPosts.filter(p => p.category === currentInterviewExpFilter);
+      }
+
+      if (filteredPosts.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      const difficultyLabels = {
+        easy: { zh: '⭐ 簡單', en: '⭐ Easy', ja: '⭐ 簡単' },
+        medium: { zh: '⭐⭐ 中等', en: '⭐⭐ Medium', ja: '⭐⭐ 中程度' },
+        hard: { zh: '⭐⭐⭐ 困難', en: '⭐⭐⭐ Hard', ja: '⭐⭐⭐ 難しい' }
+      };
+
+      const categoryLabels = {
+        frontend: 'Frontend',
+        backend: 'Backend',
+        fullstack: 'Full Stack',
+        mle: 'ML/AI',
+        pm: 'PM',
+        devops: 'DevOps'
+      };
+
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+
+      container.innerHTML = filteredPosts.map(post => {
+        const date = new Date(post.date);
+        const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        return `
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="openInterviewExpDetail('${post.id}')">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-2 py-1 bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300 rounded text-xs font-medium">${categoryLabels[post.category]}</span>
+                <span class="px-2 py-1 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded text-xs">${difficultyLabels[post.difficulty][langKey]}</span>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400">${dateStr}</span>
+            </div>
+            <h3 class="font-bold text-lg mb-2 dark:text-white">${post.company || '匿名公司'} - ${post.position || '匿名職位'}</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">${post.process.substring(0, 100)}${post.process.length > 100 ? '...' : ''}</p>
+            <div class="flex justify-between items-center text-gray-500 dark:text-gray-400 text-sm">
+              <span>查看詳情 →</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     // === Offer Tracker Functions ===
     let currentTrackerFilter = 'all';
     let currentOfferId = null;
@@ -3908,6 +4321,32 @@
         forumFilterOffer: 'Offer 分享',
         forumFilterNegotiation: '談判經驗',
         forumFilterTips: '技巧分享',
+        interviewExpTitle: '🏢 面試經驗分享',
+        interviewExpDesc: '分享各公司的面試流程與體驗，幫助其他人準備面試',
+        interviewExpFilterAll: '全部',
+        interviewExpFilterFrontend: 'Frontend',
+        interviewExpFilterBackend: 'Backend',
+        interviewExpFilterFullstack: 'Full Stack',
+        interviewExpFilterMLE: 'ML/AI',
+        interviewExpNewPost: '分享經驗',
+        interviewExpSearchPlaceholder: '搜尋面試經驗...',
+        interviewExpEmpty: '還沒有任何面試經驗，分享你的故事幫助其他人！',
+        interviewExpNewPostTitle: '分享面試經驗',
+        interviewExpPostCompany: '公司名稱',
+        interviewExpPostCompanyPlaceholder: '例如：Google、TSMC',
+        interviewExpPostPosition: '應徵職位',
+        interviewExpPostPositionPlaceholder: '例如：Senior Frontend Engineer',
+        interviewExpPostCategory: '職位類型',
+        interviewExpPostDifficulty: '面試難度',
+        interviewExpPostProcess: '面試流程',
+        interviewExpPostProcessPlaceholder: '描述面試的各個階段與類型（HR Phone Screen、Technical Interview、Onsite 等）...',
+        interviewExpPostQuestions: '常見題目',
+        interviewExpPostQuestionsPlaceholder: '分享面試中遇到的常見題目類型...',
+        interviewExpPostTips: '給求職者的建議',
+        interviewExpPostTipsPlaceholder: '分享你的面試準備建議與心得...',
+        interviewExpAnonymous: '所有分享完全匿名，不會收集任何個人識別資訊',
+        interviewExpCancel: '取消',
+        interviewExpSubmit: '發表',
         encryptBackup: '加密備份',
         decryptImport: '解密匯入',
         encryptTitle: '🔐 加密備份',
@@ -4181,6 +4620,32 @@
         forumFilterOffer: 'Offer Sharing',
         forumFilterNegotiation: 'Negotiation',
         forumFilterTips: 'Tips',
+        interviewExpTitle: '🏢 Interview Experience',
+        interviewExpDesc: 'Share interview processes and experiences to help others prepare',
+        interviewExpFilterAll: 'All',
+        interviewExpFilterFrontend: 'Frontend',
+        interviewExpFilterBackend: 'Backend',
+        interviewExpFilterFullstack: 'Full Stack',
+        interviewExpFilterMLE: 'ML/AI',
+        interviewExpNewPost: 'Share Experience',
+        interviewExpSearchPlaceholder: 'Search interview experiences...',
+        interviewExpEmpty: 'No interview experiences yet. Share your story to help others!',
+        interviewExpNewPostTitle: 'Share Interview Experience',
+        interviewExpPostCompany: 'Company',
+        interviewExpPostCompanyPlaceholder: 'e.g.: Google, TSMC',
+        interviewExpPostPosition: 'Position',
+        interviewExpPostPositionPlaceholder: 'e.g.: Senior Frontend Engineer',
+        interviewExpPostCategory: 'Category',
+        interviewExpPostDifficulty: 'Interview Difficulty',
+        interviewExpPostProcess: 'Interview Process',
+        interviewExpPostProcessPlaceholder: 'Describe the interview stages (HR Phone Screen, Technical Interview, Onsite, etc.)...',
+        interviewExpPostQuestions: 'Common Questions',
+        interviewExpPostQuestionsPlaceholder: 'Share common interview questions...',
+        interviewExpPostTips: 'Tips for Job Seekers',
+        interviewExpPostTipsPlaceholder: 'Share your interview preparation tips...',
+        interviewExpAnonymous: 'All shares are anonymous. No personal identification collected.',
+        interviewExpCancel: 'Cancel',
+        interviewExpSubmit: 'Submit',
         encryptBackup: 'Encrypt Backup',
         decryptImport: 'Decrypt Import',
         encryptTitle: '🔐 Encrypted Backup',
@@ -4453,6 +4918,32 @@
         forumFilterOffer: 'オファー共有',
         forumFilterNegotiation: '交渉経験',
         forumFilterTips: 'テク共有',
+        interviewExpTitle: '🏢 面接体験共有',
+        interviewExpDesc: '会社の面接プロセスと体験を共有し、他の就活生を助けましょう',
+        interviewExpFilterAll: 'すべて',
+        interviewExpFilterFrontend: 'Frontend',
+        interviewExpFilterBackend: 'Backend',
+        interviewExpFilterFullstack: 'Full Stack',
+        interviewExpFilterMLE: 'ML/AI',
+        interviewExpNewPost: '体験共有',
+        interviewExpSearchPlaceholder: '面接体験を検索...',
+        interviewExpEmpty: 'まだ面接体験がありません。あなたのストーリーを共有して他の人を助けましょう！',
+        interviewExpNewPostTitle: '面接体験共有',
+        interviewExpPostCompany: '会社名',
+        interviewExpPostCompanyPlaceholder: '例：Google、TSMC',
+        interviewExpPostPosition: '応募職種',
+        interviewExpPostPositionPlaceholder: '例：Senior Frontend Engineer',
+        interviewExpPostCategory: '職種カテゴリ',
+        interviewExpPostDifficulty: '面接難易度',
+        interviewExpPostProcess: '面接プロセス',
+        interviewExpPostProcessPlaceholder: '面接の各段階と类型を記述（HR Phone Screen、Technical Interview、Onsite 等）...',
+        interviewExpPostQuestions: 'よく出る問題',
+        interviewExpPostQuestionsPlaceholder: '面接で遇到的よく出る問題を共有...',
+        interviewExpPostTips: '就活生生へのアドバイス',
+        interviewExpPostTipsPlaceholder: 'あなたの面接準備のヒントと心得を共有...',
+        interviewExpAnonymous: 'すべての共有は完全匿名です。個人を特定できる情報は収集されません。',
+        interviewExpCancel: 'キャンセル',
+        interviewExpSubmit: '送信',
         encryptBackup: '暗号化バックアップ',
         decryptImport: '復号してインポート',
         encryptTitle: '🔐 暗号化バックアップ',
@@ -4915,6 +5406,7 @@
     renderIQAs(interviewQAs);
     renderSalaryGrid();
     renderForumPosts();
+    renderInterviewExpPosts();
     renderTrackerOffers();
     renderInterviewTrackers();
     checkDeadline();

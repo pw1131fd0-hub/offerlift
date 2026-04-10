@@ -417,6 +417,17 @@ P3（功能增強）
 ### 優先級
 P4（未來規劃）
 
+### 實作狀態
+✅ 已實作（2026-04-11）
+- `getInterviewExpPosts()` / `saveInterviewExpPosts()` 資料存取
+- `openNewInterviewExpModal()` / `closeNewInterviewExpModal()` 新增面試體驗
+- `submitInterviewExp()` 提交新面試體驗
+- `renderInterviewExpPosts()` 渲染面試體驗列表
+- `openInterviewExpDetail()` / `closeInterviewExpDetailModal()` 查看詳情
+- `filterInterviewExp()` / `searchInterviewExp()` 篩選/搜尋功能
+- 面試難度評分（簡單/中等/困難）
+- 支援 i18n（ZH/EN/JA）
+
 ---
 
 ## Proposal 13：HR 回覆模板庫
