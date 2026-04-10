@@ -1,9 +1,9 @@
 {
-  "deployed_at": "2026-04-09T21:36:00.000Z",
-  "method": "npx serve",
+  "deployed_at": "2026-04-10T14:37:31+00:00",
+  "method": "python3 -m http.server",
   "ports": [3000],
   "urls": ["http://localhost:3000"],
-  "pid_or_container": "1527269",
+  "pid_or_container": "2151812",
   "status": "running",
   "error": null
 }
