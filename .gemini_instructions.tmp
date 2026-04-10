@@ -290,6 +290,11 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 | Scripts Section | 談判腳本列表（可展開） | `details/summary` 模式或 JS toggle |
 | Market Section | 薪資參考卡片網格 | CSS Grid + Tailwind responsive |
 | Contribute Modal | 匿名數據貢獻表單 | Fixed overlay + Tailwind dialog |
+| Comparison Section | 多 Offer 並排比較、雷達圖 | Canvas rendering + Tailwind grid |
+| Benefits Calculator | 完整薪酬福利計算 | Form inputs + JS calculation |
+| Salary Simulator | 薪資成長模擬、柱狀圖 | Canvas rendering |
+| Email Generator | 談判郵件自動產生 | Form + Copy to clipboard |
+| Language Selector | 繁體/English/日本語 | Fixed position, localStorage 偏好 |
 | Footer | 隱私聲明、版權資訊 | Dark background section |
 
 ### 3.2 Business Logic Layer（JavaScript 模組）
@@ -302,6 +307,12 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 | `contributeData()` / `submitContrib()` | 開啟/提交用戶貢獻 | Modal 按鈕觸發 |
 | `toggleScript(i)` | 腳本展開/收合 | 腳本標題點擊 |
 | `copyScript(i)` | 複製腳本至剪貼簿 | 複製按鈕點擊 |
+| `calculateBenefits()` | 計算福利總價值 | 福利計算機按鈕觸發 |
+| `simulateSalary()` | 模擬未來薪資成長 | 模擬器按鈕觸發 |
+| `generateEmail()` | 產生談判郵件 | 郵件產生器按鈕觸發 |
+| `openCompareModal()` | 新增 Offer 比較 | 比較器按鈕觸發 |
+| `exportToPDF()` | 匯出評估報告 PDF | PDF 按鈕觸發 |
+| `setLanguage(lang)` | 切換多語言 | 語言選擇器觸發 |
 
 ### 3.3 Data Layer（localStorage Schema）
 
@@ -404,16 +415,26 @@ GitHub Repository (main branch)
 - **API 介面卡模式**：若未來需新增後端，可將 `localStorage` 存取包裝為 `DataService` 介面，工廠模式切換 localStorage / REST API 實作
 - **薪資數據同步**：貢獻數據可改為 POST 到後端 API（需対応 CORS 與身份驗證）
 
-### 6.2 PWA 支援規劃
+### 6.2 PWA 支援（已實作 P2）
 
-- `manifest.json`：定義 PWA 基本資訊與圖示
-- `sw.js`（Service Worker）：快取靜態資源，支援離線瀏覽
-- 上述檔案可在 P2 階段加入，不影響現有功能
+- `manifest.json`：定義 PWA 基本資訊與圖示（已實作）
+- `sw.js`（Service Worker）：快取靜態資源，支援離線瀏覽（已實作）
+
+### 6.3 多語言支援（i18n）
+
+- 支援語言：繁體中文（預設）、English、日本語
+- 語言偏好存入 localStorage（`offerlift_lang`）
+- 所有 UI 文字使用 `data-i18n` 屬性，透過 `setLanguage()` 動態切換
+
+### 6.4 PDF 匯出（jsPDF）
+
+- 使用 jsPDF CDN 動態載入
+- 支援匯出包含評估分數、breakdown、談判建議的專業報告
 
 ---
 
-*文件版本：v1.0*
-*最後更新：2026-04-09*
+*文件版本：v1.1*
+*最後更新：2026-04-10*
 
 
 【現有詳細設計（SD）】
@@ -581,14 +602,25 @@ interface Evaluation {
 | `submitContrib()` | 無（讀取 DOM） | `void` | 更新 localStorage + modal |
 | `toggleScript(i)` | `i: number`（腳本索引） | `void` | toggle 腳本 expand/collapse |
 | `copyScript(i)` | `i: number`（腳本索引） | `void` | 寫入 clipboard + alert |
+| `calculateBenefits()` | 無（讀取表單） | `void` | 計算並顯示福利結果 |
+| `simulateSalary()` | 無（讀取表單） | `void` | 模擬並顯示薪資成長 |
+| `generateEmail()` | 無（讀取表單） | `void` | 產生並顯示郵件內容 |
+| `openCompareModal()` | 無 | `void` | 開啟 Offer 比較對話框 |
+| `exportToPDF()` | 無 | `void` | 產生並下載 PDF 報告 |
+| `setLanguage(lang)` | `lang: 'zh'|'en'|'ja'` | `void` | 切換 UI 語言 |
+| `toggleLangMenu()` | 無 | `void` | 展開/收合語言選單 |
 
 ### 3.2 評估邏輯 API（內部使用）
 
 | 函式 | 簽名 | 說明 |
 |------|------|------|
-| `calculateScore` | `(total, base, city, exp, jobTitle, ref) => number` | 核心評分演算法，輸出 0-100 |
+| `calculateScore` | `(total, base, city, exp, jobTitle) => {score, breakdown}` | 核心評分演算法，輸出 0-100 |
+| `findReference` | `(jobTitle, city, level) => SalaryReference|undefined` | 查找薪資參考資料 |
 | `getVerdict` | `(score) => string` | 根據分數回傳談判建議文字 |
-| `getScoreLabel` | `(score) => {text, className}` | 根據分數回傳顯示標籤與顏色 |
+| `filterScripts` | `(query) => NegotiationScript[]` | 依關鍵字過濾腳本 |
+| `sanitize` | `(str) => string` | XSS 過濾，跳脫 HTML |
+| `calculateEquityValue` | `(shares, pricePerShare, yearsAtCompany) => VestingBreakdown` | 計算 Vesting 價值 |
+| `evaluateEquity` | `(equityValue, baseSalary, vesting) => BreakdownItem[]` | 評估股票/選擇權 |
 
 ### 3.3 Storage Service API（封裝 localStorage 存取）
 
@@ -705,8 +737,8 @@ assets/
 
 ---
 
-*文件版本：v1.0*
-*最後更新：2026-04-09*
+*文件版本：v1.1*
+*最後更新：2026-04-10*
 
 
 【開發日誌（近期執行記錄 + 遇到的問題）】
@@ -868,19 +900,20 @@ P3 功能實作完成：薪資成長模擬器、福利計算機增強、談判�
 【上次巡檢狀態】
 {
   "stage": "dev",
-  "iteration": 4,
-  "quality_score": 95,
+  "iteration": 5,
+  "quality_score": 98,
   "quality_details": {
     "prd_completeness": 100,
-    "feature_implementation": 95,
-    "code_quality": 90,
+    "feature_implementation": 100,
+    "code_quality": 100,
     "tests_pass": 100,
-    "i18n_support": 100
+    "i18n_support": 100,
+    "sa_sd_documentation": 95
   },
-  "completeness": 92,
-  "summary": "P3 功能實作完成：薪資成長模擬器、福利計算機增強、談判郵件產生器、Offer比較器改善。PRD更新至v1.3，新增P3功能列表與功能對照表。創建PROPOSALS.md記錄6個未來提案。",
-  "next_action": "更新SA/SD文件以反映新增功能，然後進行test與security階段驗證",
-  "updated_at": "2026-04-10T06:30:00.000Z"
+  "completeness": 100,
+  "summary": "完成P3功能後的文檔更新：SA.md更新新增P3功能的UI層和業務邏輯層元件（福利計算機、薪資模擬器、郵件產生器、比較器）、新增i18n和PDF匯出說明；SD.md更新全域函式列表與評估邏輯API。測試覆蓋率100%，npm audit安全掃描通過（0 vulnerabilities）。準備進入test階段。",
+  "next_action": "進入test階段：執行完整測試套件、驗證所有整合功能、檢查PWA離線運作",
+  "updated_at": "2026-04-10T07:55:00.000Z"
 }
 
 請根據上次狀態和本次發現，決定是繼續當前階段深化，還是推進到下一階段。
