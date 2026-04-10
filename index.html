@@ -602,6 +602,15 @@
     <button onclick="dismissDeadlineBanner()" class="ml-4 underline hover:no-underline">✕</button>
   </div>
 
+  <!-- PWA Install Banner -->
+  <div id="pwa-install-banner" class="hidden fixed top-16 left-0 right-0 z-40 bg-brand-600 text-white py-3 px-4 text-center text-sm shadow-lg">
+    <span data-i18n="pwaInstallText">安裝 OfferLift 到主畫面，隨時隨地快速評估 Offer</span>
+    <div class="mt-2 flex justify-center gap-3">
+      <button onclick="installPWA()" data-i18n="pwaInstallBtn" class="bg-white text-brand-600 font-semibold px-4 py-1 rounded-lg text-sm hover:bg-gray-100 transition">立即安裝</button>
+      <button onclick="dismissPWAInstall()" class="text-white/80 hover:text-white text-sm underline">稍後再說</button>
+    </div>
+  </div>
+
   <!-- Contribute Modal -->
   <div id="contribute-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
     <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-md w-full p-8 relative border border-gray-200 dark:border-gray-700">
@@ -1670,6 +1679,8 @@
         deadlineSave: '儲存截止日期',
         setDeadline: '設定 Offer 截止日期',
         deadlineBannerText: '⚠️ 你有 Offer 即將到期：',
+        pwaInstallText: '安裝 OfferLift 到主畫面，隨時隨地快速評估 Offer',
+        pwaInstallBtn: '立即安裝',
         totalCompSummary: '總薪酬概覽'
       },
       en: {
@@ -1783,6 +1794,8 @@
         deadlineSave: 'Save Deadline',
         setDeadline: 'Set Offer Deadline',
         deadlineBannerText: '⚠️ You have an offer expiring:',
+        pwaInstallText: 'Install OfferLift to your home screen for quick offer evaluations anywhere',
+        pwaInstallBtn: 'Install Now',
         totalCompSummary: 'Total Compensation Summary'
       },
       ja: {
@@ -1896,6 +1909,8 @@
         deadlineSave: '期限を保存',
         setDeadline: 'オファー期限を設定',
         deadlineBannerText: '⚠️ オファーが期限切れ間近です：',
+        pwaInstallText: 'OfferLiftをホーム画面に追加、どこでも簡単にオファーを評価',
+        pwaInstallBtn: '今すぐインストール',
         totalCompSummary: '総報酬概要'
       }
     };
@@ -2048,6 +2063,51 @@
       });
     }
 
+    // PWA Install Prompt
+    let deferredPrompt = null;
+
+    function setupPWAInstallPrompt() {
+      window.addEventListener('beforeinstallprompt', (e) => {
+        e.preventDefault();
+        deferredPrompt = e;
+        // Check if user already dismissed or installed
+        const dismissed = localStorage.getItem('offerlift_pwa_dismissed');
+        const installed = localStorage.getItem('offerlift_pwa_installed');
+        if (!dismissed && !installed) {
+          // Show install banner after a short delay
+          setTimeout(() => {
+            document.getElementById('pwa-install-banner').classList.remove('hidden');
+          }, 5000);
+        }
+      });
+
+      window.addEventListener('appinstalled', () => {
+        localStorage.setItem('offerlift_pwa_installed', 'true');
+        document.getElementById('pwa-install-banner').classList.add('hidden');
+      });
+    }
+
+    function installPWA() {
+      if (!deferredPrompt) {
+        // Fallback: open app in standalone mode instructions
+        alert('請使用瀏覽器的「加到主畫面」功能安裝 OfferLift');
+        return;
+      }
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then((choiceResult) => {
+        if (choiceResult.outcome === 'accepted') {
+          localStorage.setItem('offerlift_pwa_installed', 'true');
+        }
+        deferredPrompt = null;
+        document.getElementById('pwa-install-banner').classList.add('hidden');
+      });
+    }
+
+    function dismissPWAInstall() {
+      localStorage.setItem('offerlift_pwa_dismissed', 'true');
+      document.getElementById('pwa-install-banner').classList.add('hidden');
+    }
+
     // Register Service Worker
     function registerServiceWorker() {
       if ('serviceWorker' in navigator) {
@@ -2062,6 +2122,8 @@
     document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
     renderScripts();
     renderSalaryGrid();
+    checkDeadline();
+    setupPWAInstallPrompt();
     applyTranslations();
     registerServiceWorker();
     loadJsPDF().then(() => {
