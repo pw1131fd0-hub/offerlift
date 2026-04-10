@@ -55,6 +55,8 @@
         <a href="#evaluator" data-i18n="navEvaluator" class="hover:text-brand-600 dark:hover:text-brand-400 transition">評估工具</a>
         <a href="#scripts" data-i18n="navScripts" class="hover:text-brand-600 dark:hover:text-brand-400 transition">談判腳本</a>
         <a href="#market" data-i18n="navMarket" class="hover:text-brand-600 dark:hover:text-brand-400 transition">薪資參考</a>
+        <a href="#tax-calculator" data-i18n="navTax" class="hover:text-brand-600 dark:hover:text-brand-400 transition">稅務計算</a>
+        <a href="#bonus-tax-planner" data-i18n="navBonusTax" class="hover:text-brand-600 dark:hover:text-brand-400 transition">獎金節稅</a>
         <a href="#tracker" data-i18n="navTracker" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Offer追蹤</a>
         <a href="#interview-tracker" data-i18n="navInterview" class="hover:text-brand-600 dark:hover:text-brand-400 transition">面試進度</a>
         <a href="#interview-qa" data-i18n="navIQA" class="hover:text-brand-600 dark:hover:text-brand-400 transition">問答庫</a>
@@ -464,6 +466,167 @@
           <div class="mt-4 p-4 bg-white dark:bg-gray-800 rounded-lg">
             <div class="text-sm text-gray-500 mb-2" data-i18n="benefitsBreakdownLabel">福利 breakdown</div>
             <div id="benefits-breakdown" class="space-y-2 text-sm"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tax Calculator -->
+  <section id="tax-calculator" class="py-20 px-6 bg-white dark:bg-gray-800">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-3 dark:text-white">🧮 薪資稅務計算機</h2>
+        <p data-i18n="taxCalcDesc" class="text-gray-500 dark:text-gray-400">計算台灣所得稅，了解税後實際收入</p>
+      </div>
+      <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-8">
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="taxCalcAnnualIncome">年薪總收入 (TWD)</label>
+            <input id="tax-annual-income" type="number" placeholder="1500000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="taxCalcBonus">年終獎金 (TWD)</label>
+            <input id="tax-bonus" type="number" placeholder="200000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="taxCalcDeduction">扣除方式</label>
+            <select id="tax-deduction-type" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="standard" data-i18n="taxCalcStandardDeduction">標準扣除額 (134,000)</option>
+              <option value="itemized" data-i18n="taxCalcItemizedDeduction">列舉扣除額</option>
+            </select>
+          </div>
+          <div id="itemized-deduction-fields" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="taxCalcItemizedAmount">列舉扣除額金額 (TWD)</label>
+            <input id="tax-itemized-amount" type="number" placeholder="100000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+        </div>
+        <button onclick="calculateTax()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span data-i18n="taxCalcBtn">計算税款</span>
+        </button>
+        <div id="tax-result" class="hidden mt-6 p-6 bg-brand-50 dark:bg-brand-900/20 rounded-xl border border-brand-200 dark:border-brand-700">
+          <h4 class="font-semibold text-lg mb-4 text-brand-700 dark:text-brand-300" data-i18n="taxResultTitle">税額分析結果</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div class="text-2xl font-bold text-brand-600 dark:text-brand-400" id="tax-gross">0</div>
+              <div class="text-sm text-gray-500" data-i18n="taxGrossIncome">年薪總收入</div>
+            </div>
+            <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div class="text-2xl font-bold text-red-500" id="tax-amount">0</div>
+              <div class="text-sm text-gray-500" data-i18n="taxAmount">應納稅額</div>
+            </div>
+            <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div class="text-2xl font-bold text-brand-600 dark:text-brand-400" id="tax-net">0</div>
+              <div class="text-sm text-gray-500" data-i18n="taxNetIncome">税後年收入</div>
+            </div>
+            <div class="text-center p-4 bg-white dark:bg-gray-800 rounded-lg">
+              <div class="text-2xl font-bold text-brand-600 dark:text-brand-400" id="tax-effective">0%</div>
+              <div class="text-sm text-gray-500" data-i18n="taxEffectiveRate">有效税率</div>
+            </div>
+          </div>
+          <div class="p-4 bg-white dark:bg-gray-800 rounded-lg mb-4">
+            <div class="text-sm text-gray-500 mb-2" data-i18n="taxMonthlyTitle">月收入分析</div>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400" data-i18n="taxMonthlyGross">月薪總計</span>
+                <span class="font-medium" id="tax-monthly-gross">0</span>
+              </div>
+              <div class="flex justify-between">
+                <span class="text-gray-600 dark:text-gray-400" data-i18n="taxMonthlyNet">月薪實領</span>
+                <span class="font-medium text-brand-600 dark:text-brand-400" id="tax-monthly-net">0</span>
+              </div>
+            </div>
+          </div>
+          <div id="tax-savings-tip" class="hidden p-4 bg-green-50 dark:bg-green-900/20 rounded-lg border border-green-200 dark:border-green-700">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <div class="font-medium text-green-800 dark:text-green-300" data-i18n="taxSavingsTitle">節稅建議</div>
+                <div id="tax-savings-content" class="text-sm text-green-700 dark:text-green-400 mt-1"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Bonus Tax Planner -->
+  <section id="bonus-tax-planner" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 class="text-3xl font-bold mb-3 dark:text-white">🎯 年終獎金節稅規劃器</h2>
+        <p data-i18n="bonusTaxDesc" class="text-gray-500 dark:text-gray-400">比較不同獎金發放方式，找出最節稅的配置</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl p-8 shadow-xl">
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="bonusTaxBaseSalary">年薪底薪 (TWD)</label>
+            <input id="bonus-base-salary" type="number" placeholder="1200000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="bonusTaxBonusAmount">年終獎金 (TWD)</label>
+            <input id="bonus-amount" type="number" placeholder="200000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="bonusTaxDeduction">扣除方式</label>
+            <select id="bonus-deduction-type" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="standard" data-i18n="bonusTaxStandard">標準扣除額</option>
+              <option value="itemized" data-i18n="bonusTaxItemized">列舉扣除額</option>
+            </select>
+          </div>
+          <div id="bonus-itemized-fields" class="hidden">
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="bonusTaxItemizedAmount">列舉扣除額金額 (TWD)</label>
+            <input id="bonus-itemized-amount" type="number" placeholder="100000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+        </div>
+        <button onclick="calculateBonusTax()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span data-i18n="bonusTaxBtn">比較節稅方案</span>
+        </button>
+        <div id="bonus-tax-result" class="hidden mt-6">
+          <h4 class="font-semibold text-lg mb-4 text-gray-800 dark:text-white" data-i18n="bonusTaxResultTitle">獎金發放方案比較</h4>
+          <div class="grid md:grid-cols-3 gap-4 mb-6">
+            <div id="bonus-option-1" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border-2 border-gray-200 dark:border-gray-600">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="bonusTaxOneTime">一次發放</div>
+              <div class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-1" id="bonus-tax-1">0</div>
+              <div class="text-sm text-gray-500" data-i18n="bonusTaxTax">應納稅額</div>
+              <div class="text-lg font-semibold text-gray-600 dark:text-gray-300 mt-2" id="bonus-net-1">0</div>
+              <div class="text-sm text-gray-500" data-i18n="bonusTaxNet">税後獎金</div>
+            </div>
+            <div id="bonus-option-2" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border-2 border-gray-200 dark:border-gray-600">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="bonusTaxSplit2">分兩次發放</div>
+              <div class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-1" id="bonus-tax-2">0</div>
+              <div class="text-sm text-gray-500" data-i18n="bonusTaxTax">應納稅額</div>
+              <div class="text-lg font-semibold text-gray-600 dark:text-gray-300 mt-2" id="bonus-net-2">0</div>
+              <div class="text-sm text-gray-500" data-i18n="bonusTaxNet">税後獎金</div>
+            </div>
+            <div id="bonus-option-3" class="p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border-2 border-gray-200 dark:border-gray-600">
+              <div class="text-sm font-medium text-gray-500 dark:text-gray-400 mb-2" data-i18n="bonusTaxSplit3">分三次發放</div>
+              <div class="text-2xl font-bold text-gray-700 dark:text-gray-200 mb-1" id="bonus-tax-3">0</div>
+              <div class="text-sm text-gray-500" data-i18n="bonusTaxTax">應納稅額</div>
+              <div class="text-lg font-semibold text-gray-600 dark:text-gray-300 mt-2" id="bonus-net-3">0</div>
+              <div class="text-sm text-gray-500" data-i18n="bonusTaxNet">税後獎金</div>
+            </div>
+          </div>
+          <div id="bonus-recommendation" class="p-4 bg-green-50 dark:bg-green-900/20 rounded-xl border border-green-200 dark:border-green-700">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <div class="font-medium text-green-800 dark:text-green-300" data-i18n="bonusTaxRecommend">最佳方案</div>
+                <div id="bonus-recommend-content" class="text-sm text-green-700 dark:text-green-400 mt-1"></div>
+              </div>
+            </div>
+          </div>
+          <div class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-700">
+            <div class="flex items-start gap-3">
+              <svg class="w-5 h-5 text-blue-600 dark:text-blue-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <div>
+                <div class="font-medium text-blue-800 dark:text-blue-300" data-i18n="bonusTaxNoteTitle">節稅原理說明</div>
+                <div id="bonus-note-content" class="text-sm text-blue-700 dark:text-blue-400 mt-1" data-i18n="bonusTaxNote">台灣薪資所得特別扣除額為 207,000 元，每次發放獎金時都可扣除一次。分次發放可讓獎金利用更低的稅率級距計算，達到節稅效果。</div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -1912,6 +2075,229 @@
       document.getElementById('benefits-result').classList.remove('hidden');
     }
 
+    // Tax Calculator
+    function calculateTax() {
+      const annualIncome = parseFloat(document.getElementById('tax-annual-income').value) || 0;
+      const bonus = parseFloat(document.getElementById('tax-bonus').value) || 0;
+      const deductionType = document.getElementById('tax-deduction-type').value;
+      const itemizedAmount = parseFloat(document.getElementById('tax-itemized-amount').value) || 0;
+
+      if (!annualIncome) {
+        alert('請輸入年薪總收入');
+        return;
+      }
+
+      // Taiwan tax brackets 2024
+      const taxBrackets = [
+        { min: 0, max: 560000, rate: 0.05, deduction: 0 },
+        { min: 560001, max: 1260000, rate: 0.12, deduction: 0 },
+        { min: 1260001, max: 2520000, rate: 0.20, deduction: 0 },
+        { min: 2520001, max: 4720000, rate: 0.30, deduction: 0 },
+        { min: 4720001, max: Infinity, rate: 0.40, deduction: 0 }
+      ];
+
+      // Standard deductions
+      const standardDeduction = 134000;
+      const salaryDeduction = 207000;
+
+      // Calculate taxable income
+      const grossIncome = annualIncome + bonus;
+      const totalDeduction = deductionType === 'standard'
+        ? standardDeduction + salaryDeduction
+        : itemizedAmount + salaryDeduction;
+
+      const taxableIncome = Math.max(0, grossIncome - totalDeduction);
+
+      // Calculate progressive tax
+      let taxAmount = 0;
+      let remainingIncome = taxableIncome;
+
+      for (const bracket of taxBrackets) {
+        if (remainingIncome <= 0) break;
+        const taxableInBracket = Math.min(remainingIncome, bracket.max - bracket.min + 1);
+        taxAmount += taxableInBracket * bracket.rate;
+        remainingIncome -= taxableInBracket;
+      }
+
+      // Calculate monthly net
+      const monthlyGross = grossIncome / 12;
+      const monthlyTax = taxAmount / 12;
+      const monthlyNet = monthlyGross - monthlyTax;
+
+      // Update UI
+      document.getElementById('tax-gross').textContent = (grossIncome / 10000).toFixed(0) + '萬';
+      document.getElementById('tax-amount').textContent = (taxAmount / 10000).toFixed(0) + '萬';
+      document.getElementById('tax-net').textContent = ((grossIncome - taxAmount) / 10000).toFixed(0) + '萬';
+      document.getElementById('tax-effective').textContent = ((taxAmount / grossIncome) * 100).toFixed(1) + '%';
+      document.getElementById('tax-monthly-gross').textContent = (monthlyGross / 10000).toFixed(2) + '萬';
+      document.getElementById('tax-monthly-net').textContent = (monthlyNet / 10000).toFixed(2) + '萬';
+
+      // Show savings tip if applicable
+      const taxSavingsTip = document.getElementById('tax-savings-tip');
+      const taxSavingsContent = document.getElementById('tax-savings-content');
+
+      if (bonus > 0) {
+        const bonusTaxSavings = calculateBonusTaxSavings(bonus, annualIncome, taxBrackets, salaryDeduction, standardDeduction);
+        if (bonusTaxSavings > 0) {
+          taxSavingsContent.innerHTML = `將年終獎金分次發放（如 6/6 或 4/8/）可能節省約 <strong>${(bonusTaxSavings / 10000).toFixed(0)}萬</strong> 税款。`;
+          taxSavingsTip.classList.remove('hidden');
+        } else {
+          taxSavingsTip.classList.add('hidden');
+        }
+      } else {
+        taxSavingsTip.classList.add('hidden');
+      }
+
+      document.getElementById('tax-result').classList.remove('hidden');
+    }
+
+    function calculateBonusTaxSavings(bonus, annualIncome, taxBrackets, salaryDeduction, standardDeduction) {
+      // Compare one-time bonus vs split bonus
+      const totalIncomeWithBonus = annualIncome + bonus;
+
+      // One-time bonus tax
+      const taxable1 = Math.max(0, totalIncomeWithBonus - standardDeduction - salaryDeduction);
+      const tax1 = calculateProgressiveTax(taxable1, taxBrackets);
+
+      // Split bonus (assuming split equally)
+      const taxableBase = Math.max(0, annualIncome - standardDeduction - salaryDeduction);
+      const taxableBonus = Math.max(0, bonus - salaryDeduction);
+      const tax2 = calculateProgressiveTax(taxableBase, taxBrackets) + calculateProgressiveTax(taxableBonus, taxBrackets);
+
+      return Math.max(0, tax1 - tax2);
+    }
+
+    function calculateProgressiveTax(taxableIncome, taxBrackets) {
+      let tax = 0;
+      let remaining = taxableIncome;
+
+      for (const bracket of taxBrackets) {
+        if (remaining <= 0) break;
+        const taxableInBracket = Math.min(remaining, bracket.max - bracket.min + 1);
+        tax += taxableInBracket * bracket.rate;
+        remaining -= taxableInBracket;
+      }
+
+      return tax;
+    }
+
+    // Bonus Tax Planner
+    function calculateBonusTax() {
+      const baseSalary = parseFloat(document.getElementById('bonus-base-salary').value) || 0;
+      const bonusAmount = parseFloat(document.getElementById('bonus-amount').value) || 0;
+      const deductionType = document.getElementById('bonus-deduction-type').value;
+      const itemizedAmount = parseFloat(document.getElementById('bonus-itemized-amount').value) || 0;
+
+      if (!baseSalary) {
+        alert('請輸入年薪底薪');
+        return;
+      }
+      if (!bonusAmount) {
+        alert('請輸入年終獎金金額');
+        return;
+      }
+
+      // Taiwan tax brackets
+      const taxBrackets = [
+        { min: 0, max: 560000, rate: 0.05 },
+        { min: 560001, max: 1260000, rate: 0.12 },
+        { min: 1260001, max: 2520000, rate: 0.20 },
+        { min: 2520001, max: 4720000, rate: 0.30 },
+        { min: 4720001, max: Infinity, rate: 0.40 }
+      ];
+
+      const standardDeduction = 134000;
+      const salaryDeduction = 207000;
+
+      // Calculate total deduction
+      const totalDeduction = deductionType === 'standard'
+        ? standardDeduction + salaryDeduction
+        : itemizedAmount + salaryDeduction;
+
+      // Option 1: One-time bonus
+      const gross1 = baseSalary + bonusAmount;
+      const taxable1 = Math.max(0, gross1 - totalDeduction);
+      const tax1 = calculateProgressiveTax(taxable1, taxBrackets);
+      const net1 = bonusAmount - tax1;
+
+      // Option 2: Split into 2 payments (bonus split in half)
+      // First payment: base salary only
+      const taxableBase = Math.max(0, baseSalary - totalDeduction);
+      const taxBase = calculateProgressiveTax(taxableBase, taxBrackets);
+      // Second payment: half bonus with salary deduction
+      const halfBonus = bonusAmount / 2;
+      const taxableBonus2 = Math.max(0, halfBonus - salaryDeduction);
+      const taxBonus2 = calculateProgressiveTax(taxableBonus2, taxBrackets);
+      const tax2 = taxBase + taxBonus2;
+      const net2 = bonusAmount - tax2;
+
+      // Option 3: Split into 3 payments (bonus split into thirds)
+      const thirdBonus = bonusAmount / 3;
+      const taxableBonus3 = Math.max(0, thirdBonus - salaryDeduction);
+      const taxBonus3 = calculateProgressiveTax(taxableBonus3, taxBrackets);
+      const tax3 = taxBase + taxBonus3 * 2; // base tax + 2x third bonus tax
+      const net3 = bonusAmount - tax3;
+
+      // Update UI
+      document.getElementById('bonus-tax-1').textContent = (tax1 / 10000).toFixed(0) + '萬';
+      document.getElementById('bonus-net-1').textContent = (net1 / 10000).toFixed(0) + '萬';
+      document.getElementById('bonus-tax-2').textContent = (tax2 / 10000).toFixed(0) + '萬';
+      document.getElementById('bonus-net-2').textContent = (net2 / 10000).toFixed(0) + '萬';
+      document.getElementById('bonus-tax-3').textContent = (tax3 / 10000).toFixed(0) + '萬';
+      document.getElementById('bonus-net-3').textContent = (net3 / 10000).toFixed(0) + '萬';
+
+      // Highlight best option
+      const options = [
+        { id: 'bonus-option-1', tax: tax1, net: net1 },
+        { id: 'bonus-option-2', tax: tax2, net: net2 },
+        { id: 'bonus-option-3', tax: tax3, net: net3 }
+      ];
+      const best = options.reduce((a, b) => a.tax < b.tax ? a : b);
+
+      options.forEach(opt => {
+        const el = document.getElementById(opt.id);
+        el.classList.remove('border-brand-500', 'ring-2', 'ring-brand-500', 'ring-opacity-50');
+        if (opt.id === best.id) {
+          el.classList.add('border-brand-500', 'ring-2', 'ring-brand-500', 'ring-opacity-50');
+        }
+      });
+
+      // Show recommendation
+      const recommendContent = document.getElementById('bonus-recommend-content');
+      const savings = tax1 - best.tax;
+      if (savings > 0) {
+        if (best.id === 'bonus-option-2') {
+          recommendContent.textContent = `分兩次發放可節省約 ${(savings / 10000).toFixed(0)} 萬税款，實領增加 ${((net2 - net1) / 10000).toFixed(0)} 萬`;
+        } else if (best.id === 'bonus-option-3') {
+          recommendContent.textContent = `分三次發放可節省約 ${(savings / 10000).toFixed(0)} 萬税款，實領增加 ${((net3 - net1) / 10000).toFixed(0)} 萬`;
+        }
+      } else {
+        recommendContent.textContent = '一次發放已是最節稅方案，無需分次發放';
+      }
+
+      document.getElementById('bonus-tax-result').classList.remove('hidden');
+    }
+
+    // Toggle itemized deduction fields for bonus planner
+    document.getElementById('bonus-deduction-type').addEventListener('change', function() {
+      const itemizedFields = document.getElementById('bonus-itemized-fields');
+      if (this.value === 'itemized') {
+        itemizedFields.classList.remove('hidden');
+      } else {
+        itemizedFields.classList.add('hidden');
+      }
+    });
+
+    // Toggle itemized deduction fields for tax calculator
+    document.getElementById('tax-deduction-type').addEventListener('change', function() {
+      const itemizedFields = document.getElementById('itemized-deduction-fields');
+      if (this.value === 'itemized') {
+        itemizedFields.classList.remove('hidden');
+      } else {
+        itemizedFields.classList.add('hidden');
+      }
+    });
+
     // Email Generator
     function generateEmail() {
       const emailType = document.getElementById('email-type').value;
@@ -3338,6 +3724,8 @@
         navEvaluator: '評估工具',
         navScripts: '談判腳本',
         navMarket: '薪資參考',
+        navTax: '稅務計算',
+        navBonusTax: '獎金節稅',
         heroTagline: '還在用資訊劣勢談薪資？',
         heroTitle: '讓你的 Offer',
         heroTitleAccent: '不再被低估',
@@ -3415,6 +3803,40 @@
         benefitsBase: '基本年薪',
         benefitsTotal: '完整薪酬包',
         benefitsBreakdownLabel: '福利 breakdown',
+        taxCalcDesc: '計算台灣所得稅，了解税後實際收入',
+        taxCalcAnnualIncome: '年薪總收入 (TWD)',
+        taxCalcBonus: '年終獎金 (TWD)',
+        taxCalcDeduction: '扣除方式',
+        taxCalcStandardDeduction: '標準扣除額 (134,000)',
+        taxCalcItemizedDeduction: '列舉扣除額',
+        taxCalcItemizedAmount: '列舉扣除額金額 (TWD)',
+        taxCalcBtn: '計算税款',
+        taxResultTitle: '税額分析結果',
+        taxGrossIncome: '年薪總收入',
+        taxAmount: '應納稅額',
+        taxNetIncome: '税後年收入',
+        taxEffectiveRate: '有效税率',
+        taxMonthlyTitle: '月收入分析',
+        taxMonthlyGross: '月薪總計',
+        taxMonthlyNet: '月薪實領',
+        taxSavingsTitle: '節稅建議',
+        bonusTaxDesc: '比較不同獎金發放方式，找出最節稅的配置',
+        bonusTaxBaseSalary: '年薪底薪 (TWD)',
+        bonusTaxBonusAmount: '年終獎金 (TWD)',
+        bonusTaxDeduction: '扣除方式',
+        bonusTaxStandard: '標準扣除額',
+        bonusTaxItemized: '列舉扣除額',
+        bonusTaxItemizedAmount: '列舉扣除額金額 (TWD)',
+        bonusTaxBtn: '比較節稅方案',
+        bonusTaxResultTitle: '獎金發放方案比較',
+        bonusTaxOneTime: '一次發放',
+        bonusTaxSplit2: '分兩次發放',
+        bonusTaxSplit3: '分三次發放',
+        bonusTaxTax: '應納稅額',
+        bonusTaxNet: '税後獎金',
+        bonusTaxRecommend: '最佳方案',
+        bonusTaxNoteTitle: '節稅原理說明',
+        bonusTaxNote: '台灣薪資所得特別扣除額為 207,000 元，每次發放獎金時都可扣除一次。分次發放可讓獎金利用更低的稅率級距計算，達到節稅效果。',
         emailGenTitle: '📧 談判郵件產生器',
         emailGenDesc: '生成專業的談判郵件，直接複製使用',
         emailTypeLabel: '郵件類型',
@@ -3575,6 +3997,8 @@
         navEvaluator: 'Evaluator',
         navScripts: 'Scripts',
         navMarket: 'Salary Data',
+        navTax: 'Tax Calculator',
+        navBonusTax: 'Bonus Tax',
         heroTagline: 'Stop negotiating with information disadvantage?',
         heroTitle: 'Make Your Offer',
         heroTitleAccent: 'Never Undervalued',
@@ -3652,6 +4076,40 @@
         benefitsBase: 'Base Salary',
         benefitsTotal: 'Total Package',
         benefitsBreakdownLabel: 'Benefits Breakdown',
+        taxCalcDesc: 'Calculate Taiwan income tax and understand your actual after-tax income',
+        taxCalcAnnualIncome: 'Annual Total Income (TWD)',
+        taxCalcBonus: 'Year-End Bonus (TWD)',
+        taxCalcDeduction: 'Deduction Type',
+        taxCalcStandardDeduction: 'Standard Deduction (134,000)',
+        taxCalcItemizedDeduction: 'Itemized Deduction',
+        taxCalcItemizedAmount: 'Itemized Deduction Amount (TWD)',
+        taxCalcBtn: 'Calculate Tax',
+        taxResultTitle: 'Tax Analysis Results',
+        taxGrossIncome: 'Gross Annual Income',
+        taxAmount: 'Tax Amount',
+        taxNetIncome: 'Net Annual Income',
+        taxEffectiveRate: 'Effective Tax Rate',
+        taxMonthlyTitle: 'Monthly Income Analysis',
+        taxMonthlyGross: 'Monthly Gross',
+        taxMonthlyNet: 'Monthly Net',
+        taxSavingsTitle: 'Tax Savings Tip',
+        bonusTaxDesc: 'Compare different bonus distribution methods to find the most tax-efficient option',
+        bonusTaxBaseSalary: 'Base Annual Salary (TWD)',
+        bonusTaxBonusAmount: 'Year-End Bonus (TWD)',
+        bonusTaxDeduction: 'Deduction Type',
+        bonusTaxStandard: 'Standard Deduction',
+        bonusTaxItemized: 'Itemized Deduction',
+        bonusTaxItemizedAmount: 'Itemized Deduction Amount (TWD)',
+        bonusTaxBtn: 'Compare Tax Plans',
+        bonusTaxResultTitle: 'Bonus Distribution Comparison',
+        bonusTaxOneTime: 'One-Time Payment',
+        bonusTaxSplit2: 'Split into 2 Payments',
+        bonusTaxSplit3: 'Split into 3 Payments',
+        bonusTaxTax: 'Tax Amount',
+        bonusTaxNet: 'After-Tax Bonus',
+        bonusTaxRecommend: 'Best Option',
+        bonusTaxNoteTitle: 'How Tax Savings Work',
+        bonusTaxNote: 'Taiwan salary income special deduction is 207,000 TWD. Each bonus payment can use this deduction once. Splitting bonus payments allows the amount to be taxed at lower rate brackets.',
         emailGenTitle: '📧 Negotiation Email Generator',
         emailGenDesc: 'Generate professional negotiation emails, ready to copy and use',
         emailTypeLabel: 'Email Type',
@@ -3811,6 +4269,8 @@
         navEvaluator: '評価ツール',
         navScripts: '交渉スクリプト',
         navMarket: '給与データ',
+        navTax: '税金計算',
+        navBonusTax: 'ボーナス税',
         heroTagline: '情報劣下で交渉しないでください？',
         heroTitle: 'あなたのオファーを',
         heroTitleAccent: '低估されないように',
@@ -3888,6 +4348,40 @@
         benefitsBase: '基本給',
         benefitsTotal: '合計パッケージ',
         benefitsBreakdownLabel: '福利内訳',
+        taxCalcDesc: '台湾の所得税を計算し、税引き後の実際の収入を理解する',
+        taxCalcAnnualIncome: '年間総収入 (TWD)',
+        taxCalcBonus: '年末ボーナス (TWD)',
+        taxCalcDeduction: '控除方法',
+        taxCalcStandardDeduction: '標準控除 (134,000)',
+        taxCalcItemizedDeduction: '明細控除',
+        taxCalcItemizedAmount: '明細控除額 (TWD)',
+        taxCalcBtn: '税額を計算',
+        taxResultTitle: '税金分析結果',
+        taxGrossIncome: '年収総収入',
+        taxAmount: '納税額',
+        taxNetIncome: '税引き後年収',
+        taxEffectiveRate: '実効税率',
+        taxMonthlyTitle: '月収分析',
+        taxMonthlyGross: '月額総収入',
+        taxMonthlyNet: '月額手取り',
+        taxSavingsTitle: '節税提案',
+        bonusTaxDesc: 'ボーナス配布方法を比較して、最も節稅な設定を見つける',
+        bonusTaxBaseSalary: '年間基本給 (TWD)',
+        bonusTaxBonusAmount: '年末ボーナス (TWD)',
+        bonusTaxDeduction: '控除方法',
+        bonusTaxStandard: '標準控除',
+        bonusTaxItemized: '明細控除',
+        bonusTaxItemizedAmount: '明細控除額 (TWD)',
+        bonusTaxBtn: '節稅方案を比較',
+        bonusTaxResultTitle: 'ボーナス配布方案比較',
+        bonusTaxOneTime: '一回で配布',
+        bonusTaxSplit2: '2回分割配布',
+        bonusTaxSplit3: '3回分割配布',
+        bonusTaxTax: '納税額',
+        bonusTaxNet: '税引き後ボーナス',
+        bonusTaxRecommend: '最佳方案',
+        bonusTaxNoteTitle: '節稅原理說明',
+        bonusTaxNote: '台湾の給与所得特別控除は207,000 TWDです。ボーナス每次配布時にこの控除を1回利用可能。分割配布すると、ボーナスがより低い税率区分で計算され、節稅效果が得られます。',
         emailGenTitle: '📧 交渉メールジェネレーター',
         emailGenDesc: 'プロフェッショナルな交渉メールを生成、そのままでコピー可能',
         emailTypeLabel: 'メールタイプ',
