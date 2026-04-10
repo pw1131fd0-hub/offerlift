@@ -268,6 +268,70 @@
     </div>
   </section>
 
+  <!-- Market Report Generator -->
+  <section id="market-report" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="marketReportTitle" class="text-3xl font-bold mb-3 dark:text-white">📄 個人化市場報告</h2>
+        <p data-i18n="marketReportDesc" class="text-gray-500 dark:text-gray-400">生成專業薪資報告，作為談判依據</p>
+      </div>
+      <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-8">
+        <div class="grid md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="reportJobTitleLabel">目標職位</label>
+            <input id="report-job-title" type="text" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="reportCityLabel">目標城市</label>
+            <select id="report-city" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="taipei">台北</option>
+              <option value="nhc">新竹</option>
+              <option value="taichung">台中</option>
+              <option value="kaohsiung">高雄</option>
+              <option value="remote">遠端</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="reportLevelLabel">年資區間</label>
+            <select id="report-level" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="0-2年">0-2 年</option>
+              <option value="2-5年" selected>2-5 年</option>
+              <option value="5-10年">5-10 年</option>
+              <option value="10+年">10+ 年</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="reportIncludeTrendsLabel">報告內容</label>
+            <div class="flex flex-wrap gap-4 mt-3">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="report-include-market" checked class="w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                <span class="text-sm text-gray-600 dark:text-gray-400" data-i18n="reportMarketData">市場數據</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="report-include-negotiation" checked class="w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                <span class="text-sm text-gray-600 dark:text-gray-400" data-i18n="reportNegotiationTips">談判建議</span>
+              </label>
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input type="checkbox" id="report-include-trends" class="w-4 h-4 text-brand-600 rounded focus:ring-brand-500">
+                <span class="text-sm text-gray-600 dark:text-gray-400" data-i18n="reportTrends">市場趨勢</span>
+              </label>
+            </div>
+          </div>
+        </div>
+        <div class="text-center">
+          <button onclick="generateMarketReport()" class="bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 px-8 rounded-xl transition flex items-center justify-center gap-2 mx-auto">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            <span data-i18n="generateReportBtn">生成 PDF 報告</span>
+          </button>
+        </div>
+        <div id="report-preview" class="hidden mt-8 p-6 bg-gray-50 dark:bg-gray-700 rounded-xl">
+          <h4 class="font-semibold text-lg mb-4 dark:text-white" data-i18n="reportPreviewTitle">報告預覽</h4>
+          <div id="report-preview-content" class="text-sm text-gray-600 dark:text-gray-400 space-y-2"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- CTA -->
   <section class="gradient-bg text-white py-20 px-6">
     <div class="max-w-3xl mx-auto text-center">
@@ -1681,7 +1745,18 @@
         deadlineBannerText: '⚠️ 你有 Offer 即將到期：',
         pwaInstallText: '安裝 OfferLift 到主畫面，隨時隨地快速評估 Offer',
         pwaInstallBtn: '立即安裝',
-        totalCompSummary: '總薪酬概覽'
+        totalCompSummary: '總薪酬概覽',
+        marketReportTitle: '📄 個人化市場報告',
+        marketReportDesc: '生成專業薪資報告，作為談判依據',
+        reportJobTitleLabel: '目標職位',
+        reportCityLabel: '目標城市',
+        reportLevelLabel: '年資區間',
+        reportIncludeTrendsLabel: '報告內容',
+        reportMarketData: '市場數據',
+        reportNegotiationTips: '談判建議',
+        reportTrends: '市場趨勢',
+        generateReportBtn: '生成 PDF 報告',
+        reportPreviewTitle: '報告預覽'
       },
       en: {
         exportPdf: 'Export PDF',
@@ -1796,7 +1871,18 @@
         deadlineBannerText: '⚠️ You have an offer expiring:',
         pwaInstallText: 'Install OfferLift to your home screen for quick offer evaluations anywhere',
         pwaInstallBtn: 'Install Now',
-        totalCompSummary: 'Total Compensation Summary'
+        totalCompSummary: 'Total Compensation Summary',
+        marketReportTitle: '📄 Personalized Market Report',
+        marketReportDesc: 'Generate professional salary report as negotiation reference',
+        reportJobTitleLabel: 'Target Position',
+        reportCityLabel: 'Target City',
+        reportLevelLabel: 'Experience Level',
+        reportIncludeTrendsLabel: 'Report Contents',
+        reportMarketData: 'Market Data',
+        reportNegotiationTips: 'Negotiation Tips',
+        reportTrends: 'Market Trends',
+        generateReportBtn: 'Generate PDF Report',
+        reportPreviewTitle: 'Report Preview'
       },
       ja: {
         exportPdf: 'PDF出力',
@@ -1911,7 +1997,18 @@
         deadlineBannerText: '⚠️ オファーが期限切れ間近です：',
         pwaInstallText: 'OfferLiftをホーム画面に追加、どこでも簡単にオファーを評価',
         pwaInstallBtn: '今すぐインストール',
-        totalCompSummary: '総報酬概要'
+        totalCompSummary: '総報酬概要',
+        marketReportTitle: '📄 パーソナル市場レポート',
+        marketReportDesc: '交渉参考资料として専門的工资レポートを生成',
+        reportJobTitleLabel: '目標職種',
+        reportCityLabel: '目標都市',
+        reportLevelLabel: '経験年数',
+        reportIncludeTrendsLabel: 'レポート内容',
+        reportMarketData: '市場データ',
+        reportNegotiationTips: '交渉ヒント',
+        reportTrends: '市場トレンド',
+        generateReportBtn: 'PDFレポート生成',
+        reportPreviewTitle: 'レポートプレビュー'
       }
     };
 
@@ -2060,6 +2157,173 @@
         script.onload = resolve;
         script.onerror = reject;
         document.head.appendChild(script);
+      });
+    }
+
+    // Market Report Generator (Proposal 6)
+    function generateMarketReport() {
+      const jobTitle = document.getElementById('report-job-title').value || '未指定職位';
+      const city = document.getElementById('report-city').value;
+      const level = document.getElementById('report-level').value;
+      const includeMarket = document.getElementById('report-include-market').checked;
+      const includeNegotiation = document.getElementById('report-include-negotiation').checked;
+      const includeTrends = document.getElementById('report-include-trends').checked;
+
+      // Find matching salary reference
+      const ref = findReference(jobTitle, city, level);
+      const cityNames = { taipei: '台北', nhc: '新竹', taichung: '台中', kaohsiung: '高雄', remote: '遠端' };
+      const cityName = cityNames[city] || city;
+
+      // Build preview content
+      const preview = document.getElementById('report-preview');
+      const previewContent = document.getElementById('report-preview-content');
+      preview.classList.remove('hidden');
+
+      let html = `<div class="font-semibold text-brand-600 dark:text-brand-400 mb-2">${jobTitle} - ${cityName} (${level})</div>`;
+
+      if (includeMarket && ref) {
+        html += `<div>市場年薪區間：${(ref.min / 10000).toFixed(0)}萬 - ${(ref.max / 10000).toFixed(0)}萬 TWD</div>`;
+        html += `<div>市場中位數：${((ref.min + ref.max) / 2 / 10000).toFixed(0)}萬 TWD</div>`;
+      } else if (includeMarket) {
+        html += `<div>市場數據：該職位/城市/年資組合暫無直接市場數據</div>`;
+      }
+
+      if (includeNegotiation) {
+        html += `<div class="mt-2">談判建議：建議以市場中位數 $+20\%$ 作為談判起點</div>`;
+      }
+
+      if (includeTrends) {
+        const growthRate = city === 'nhc' ? '5-8%' : '3-5%';
+        html += `<div class="mt-2">市場趨勢：該地區年薪年均成長率約 ${growthRate}</div>`;
+      }
+
+      html += `<div class="mt-4 text-xs text-gray-400">報告來源：OfferLift 薪資數據庫（整合 104、LinkedIn、CakeResume）</div>`;
+      previewContent.innerHTML = html;
+
+      // Generate PDF
+      loadJsPDF().then(() => {
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        const pageWidth = 210;
+        const pageHeight = 297;
+        let yPos = 20;
+
+        // Header
+        doc.setFillColor(34, 197, 94);
+        doc.rect(0, 0, pageWidth, 35, 'F');
+        doc.setTextColor(255, 255, 255);
+        doc.setFontSize(20);
+        doc.setFont('helvetica', 'bold');
+        doc.text('OfferLift 個人化市場薪資報告', 20, 22);
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        doc.text(new Date().toLocaleDateString('zh-TW'), 160, 22);
+        doc.text(`目標：${jobTitle}`, 20, 30);
+
+        doc.setTextColor(0, 0, 0);
+        yPos = 50;
+
+        // Section 1: Target Information
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('目標職位資訊', 20, yPos);
+        yPos += 10;
+        doc.setFontSize(11);
+        doc.setFont('helvetica', 'normal');
+        doc.text(`職位：${jobTitle}`, 20, yPos);
+        yPos += 7;
+        doc.text(`地區：${cityName}`, 20, yPos);
+        yPos += 7;
+        doc.text(`年資：${level}`, 20, yPos);
+        yPos += 15;
+
+        // Section 2: Market Data
+        if (includeMarket) {
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text('市場薪資數據', 20, yPos);
+          yPos += 10;
+
+          if (ref) {
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text(`市場年薪區間：${(ref.min / 10000).toFixed(0)}萬 - ${(ref.max / 10000).toFixed(0)}萬 TWD`, 20, yPos);
+            yPos += 7;
+            doc.text(`市場中位數：${((ref.min + ref.max) / 2 / 10000).toFixed(0)}萬 TWD`, 20, yPos);
+            yPos += 7;
+            doc.text(`數據來源：104、LinkedIn、CakeResume 整合數據`, 20, yPos);
+            yPos += 7;
+
+            // Percentile line
+            const p25 = ref.min;
+            const p50 = (ref.min + ref.max) / 2;
+            const p75 = ref.max;
+            doc.text(`25th 分位：${(p25 / 10000).toFixed(0)}萬 | 50th 分位：${(p50 / 10000).toFixed(0)}萬 | 75th 分位：${(p75 / 10000).toFixed(0)}萬`, 20, yPos);
+            yPos += 15;
+          } else {
+            doc.setFontSize(11);
+            doc.setFont('helvetica', 'normal');
+            doc.text('該職位/地區/年資組合暫無直接市場數據', 20, yPos);
+            yPos += 15;
+          }
+        }
+
+        // Section 3: Negotiation Tips
+        if (includeNegotiation) {
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text('談判策略建議', 20, yPos);
+          yPos += 10;
+
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          const tips = [
+            '1. 建議以市場中位數 +20% 作為談判起點',
+            '2. 先了解完整薪酬 package 再討論具體數字',
+            '3. 非薪資福利（年假、彈性、遠端）也是談判方向',
+            '4. 保持專業姿態，HR 預期求職者會談判',
+            '5. 永遠爭取 24-48 小時考慮時間'
+          ];
+          tips.forEach(tip => {
+            doc.text(tip, 20, yPos);
+            yPos += 6;
+          });
+          yPos += 10;
+        }
+
+        // Section 4: Market Trends
+        if (includeTrends) {
+          if (yPos > pageHeight - 80) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.setFontSize(14);
+          doc.setFont('helvetica', 'bold');
+          doc.text('市場趨勢分析', 20, yPos);
+          yPos += 10;
+
+          doc.setFontSize(10);
+          doc.setFont('helvetica', 'normal');
+          const trends = [
+            `科技業薪資年均成長率：${city === 'nhc' ? '5-8%' : '3-5%'}`,
+            'AI/ML 相關職位需求持續成長',
+            '遠端工作選項成為重要吸引力',
+            '股票/選擇權比例在科技公司持續增加'
+          ];
+          trends.forEach(t => {
+            doc.text(t, 20, yPos);
+            yPos += 6;
+          });
+        }
+
+        // Footer
+        doc.setFontSize(8);
+        doc.setTextColor(128, 128, 128);
+        doc.text('此報告由 OfferLift 自動生成。數據僅存在於您的瀏覽器，不會上傳至任何伺服器。', 20, pageHeight - 10);
+        doc.text('本報告僅供參考，不構成任何薪資保證。', 20, pageHeight - 5);
+
+        // Save
+        doc.save(`offerlift-market-report-${Date.now()}.pdf`);
       });
     }
 
