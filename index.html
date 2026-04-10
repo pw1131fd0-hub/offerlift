@@ -293,6 +293,10 @@
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
             <span data-i18n="addOfferBtn">新增 Offer 比較的 Offer</span>
           </button>
+          <button onclick="openCompareAdvisedModal()" class="bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            <span data-i18n="addOfferAdvisedBtn">智慧新增（含所有維度）</span>
+          </button>
         </div>
         <div id="compare-container" class="grid md:grid-cols-3 gap-4 mt-6">
           <div class="text-center text-gray-400 dark:text-gray-500 col-span-3 py-12" id="compare-placeholder">
@@ -1202,6 +1206,39 @@
       renderCompareCards();
     }
 
+    // Multi-dimensional offer comparison modal
+    function openCompareAdvisedModal() {
+      const title = prompt('請輸入 Offer 名稱（例如：公司A）:');
+      if (!title) return;
+
+      const total = parseFloat(prompt('年度總薪（含獎金，TWD）:')) || 0;
+      const base = parseFloat(prompt('年薪底薪（TWD）:')) || 0;
+      const bonus = parseFloat(prompt('年終獎金（月數）:')) || 0;
+      const equityShares = parseFloat(prompt('股數（稀釋後，可留空）:')) || 0;
+      const pricePerShare = parseFloat(prompt('每股價格 TWD（可留空）:')) || 0;
+      const benefits = parseFloat(prompt('年度福利價值 TWD（年假、餐補等，可留空）:')) || 0;
+      const score = parseFloat(prompt('評估分數（0-100，可留空）:')) || null;
+
+      // Calculate equity value
+      const equityValue = equityShares * pricePerShare;
+
+      // Calculate adjusted annual total (total + equity value * vesting factor)
+      const vestingFactor = 0.5; // Assume 50% of equity is accessible
+      const equityAnnualized = equityValue * vestingFactor;
+
+      compareOffers.push({
+        title,
+        total,
+        base,
+        bonus,
+        equityValue,
+        benefits,
+        score
+      });
+
+      renderCompareCards();
+    }
+
     function renderCompareCards() {
       const container = document.getElementById('compare-container');
 
@@ -1214,15 +1251,25 @@
         return;
       }
 
-      container.innerHTML = compareOffers.map((offer, i) => `
+      container.innerHTML = compareOffers.map((offer, i) => {
+        const hasMultiDim = offer.bonus !== undefined && offer.equityValue !== undefined;
+        return `
         <div class="bg-white dark:bg-gray-800 rounded-xl p-4 shadow-lg relative">
           <button onclick="removeCompareOffer(${i})" class="absolute top-2 right-2 text-gray-400 hover:text-red-500">✕</button>
           <h4 class="font-semibold text-lg mb-2 dark:text-white">${offer.title}</h4>
           <div class="text-2xl font-bold text-brand-600 dark:text-brand-400 mb-1">${(offer.total / 10000).toFixed(0)}萬</div>
           <div class="text-sm text-gray-500">年薪底薪: ${(offer.base / 10000).toFixed(0)}萬</div>
+          ${hasMultiDim ? `
+            <div class="mt-2 text-xs text-gray-400 space-y-1">
+              ${offer.bonus > 0 ? `<div>獎金: ${offer.bonus}個月</div>` : ''}
+              ${offer.equityValue > 0 ? `<div>股票: ${(offer.equityValue / 10000).toFixed(0)}萬</div>` : ''}
+              ${offer.benefits > 0 ? `<div>福利: ${(offer.benefits / 10000).toFixed(1)}萬</div>` : ''}
+            </div>
+          ` : ''}
           ${offer.score !== null ? `<div class="mt-2 text-sm font-medium text-brand-600 dark:text-brand-400">評分: ${offer.score}</div>` : ''}
         </div>
-      `).join('');
+      `;
+      }).join('');
 
       // Render comparison chart
       if (compareOffers.length >= 2) {
@@ -1234,34 +1281,163 @@
       const chartDiv = document.getElementById('compare-chart');
       chartDiv.classList.remove('hidden');
 
-      // Simple comparison table instead of radar chart
-      const maxTotal = Math.max(...compareOffers.map(o => o.total));
-      const chartHtml = `
-        <div class="mt-4 space-y-3">
-          <h5 class="font-semibold text-sm dark:text-white">Offer 比較</h5>
-          <div class="overflow-x-auto">
-            <table class="w-full text-sm">
-              <thead>
-                <tr class="border-b border-gray-200 dark:border-gray-700">
-                  <th class="text-left py-2 dark:text-gray-300">Offer</th>
-                  <th class="text-right py-2 dark:text-gray-300">年薪</th>
-                  <th class="text-right py-2 dark:text-gray-300">佔最高%</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${compareOffers.map(offer => `
-                  <tr class="border-b border-gray-100 dark:border-gray-700">
-                    <td class="py-2 dark:text-gray-200">${offer.title}</td>
-                    <td class="text-right py-2 font-medium dark:text-gray-200">${offer.total.toLocaleString()}</td>
-                    <td class="text-right py-2 dark:text-gray-400">${Math.round((offer.total / maxTotal) * 100)}%</td>
+      if (compareOffers.length < 2) {
+        chartDiv.innerHTML = '';
+        return;
+      }
+
+      // Check if offers have multi-dimensional data
+      const hasMultiDim = compareOffers.every(o => o.bonus !== undefined && o.equityValue !== undefined);
+
+      if (hasMultiDim && compareOffers.length >= 2) {
+        // Render radar chart for multi-dimensional comparison
+        renderRadarChart();
+      } else {
+        // Simple comparison table
+        const maxTotal = Math.max(...compareOffers.map(o => o.total));
+        const chartHtml = `
+          <div class="mt-4 space-y-3">
+            <h5 class="font-semibold text-sm dark:text-white">Offer 比較</h5>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead>
+                  <tr class="border-b border-gray-200 dark:border-gray-700">
+                    <th class="text-left py-2 dark:text-gray-300">Offer</th>
+                    <th class="text-right py-2 dark:text-gray-300">年薪</th>
+                    <th class="text-right py-2 dark:text-gray-300">佔最高%</th>
                   </tr>
-                `).join('')}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  ${compareOffers.map(offer => `
+                    <tr class="border-b border-gray-100 dark:border-gray-700">
+                      <td class="py-2 dark:text-gray-200">${offer.title}</td>
+                      <td class="text-right py-2 font-medium dark:text-gray-200">${offer.total.toLocaleString()}</td>
+                      <td class="text-right py-2 dark:text-gray-400">${Math.round((offer.total / maxTotal) * 100)}%</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
-      `;
-      chartDiv.innerHTML = chartHtml;
+        `;
+        chartDiv.innerHTML = chartHtml;
+      }
+    }
+
+    // Radar chart dimensions
+    const RADAR_DIMS = [
+      { key: 'total', label: '年薪', color: '#22c55e' },
+      { key: 'bonus', label: '獎金', color: '#3b82f6' },
+      { key: 'equityValue', label: '股票價值', color: '#8b5cf6' },
+      { key: 'benefits', label: '福利', color: '#f59e0b' },
+      { key: 'score', label: '評分', color: '#ef4444' }
+    ];
+
+    function renderRadarChart() {
+      const canvas = document.getElementById('radar-chart');
+      const ctx = canvas.getContext('2d');
+      const width = 400, height = 400;
+      canvas.width = width;
+      canvas.height = height;
+
+      const cx = width / 2, cy = height / 2;
+      const radius = Math.min(width, height) / 2 - 60;
+      const angleStep = (Math.PI * 2) / RADAR_DIMS.length;
+
+      ctx.clearRect(0, 0, width, height);
+
+      // Helper function to get point on radar
+      function getPoint(value, maxValue, index, distance = 1) {
+        const angle = index * angleStep - Math.PI / 2;
+        const normalized = Math.min(value / maxValue, 1) * distance;
+        return {
+          x: cx + Math.cos(angle) * radius * normalized,
+          y: cy + Math.sin(angle) * radius * normalized
+        };
+      }
+
+      // Find max values for normalization
+      const maxValues = {};
+      RADAR_DIMS.forEach(dim => {
+        maxValues[dim.key] = Math.max(...compareOffers.map(o => Math.abs(o[dim.key] || 0)), 1);
+      });
+
+      // Draw concentric circles (grid)
+      ctx.strokeStyle = '#e5e7eb';
+      ctx.lineWidth = 1;
+      for (let level = 1; level <= 4; level++) {
+        ctx.beginPath();
+        for (let i = 0; i <= RADAR_DIMS.length; i++) {
+          const idx = i % RADAR_DIMS.length;
+          const angle = idx * angleStep - Math.PI / 2;
+          const r = radius * (level / 4);
+          const x = cx + Math.cos(angle) * r;
+          const y = cy + Math.sin(angle) * r;
+          if (i === 0) ctx.moveTo(x, y);
+          else ctx.lineTo(x, y);
+        }
+        ctx.stroke();
+      }
+
+      // Draw axis lines
+      RADAR_DIMS.forEach((dim, i) => {
+        ctx.beginPath();
+        ctx.moveTo(cx, cy);
+        const endPoint = getPoint(maxValues[dim.key], maxValues[dim.key], i, 1);
+        ctx.lineTo(endPoint.x, endPoint.y);
+        ctx.strokeStyle = '#d1d5db';
+        ctx.stroke();
+
+        // Draw label
+        const labelPoint = getPoint(maxValues[dim.key], maxValues[dim.key], i, 1.15);
+        ctx.fillStyle = '#374151';
+        ctx.font = '12px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(dim.label, labelPoint.x, labelPoint.y);
+      });
+
+      // Draw offer polygons
+      compareOffers.forEach((offer, offerIdx) => {
+        ctx.beginPath();
+        RADAR_DIMS.forEach((dim, i) => {
+          const value = offer[dim.key] || 0;
+          const point = getPoint(value, maxValues[dim.key], i, 1);
+          if (i === 0) ctx.moveTo(point.x, point.y);
+          else ctx.lineTo(point.x, point.y);
+        });
+        ctx.closePath();
+
+        const colors = ['#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
+        ctx.strokeStyle = colors[offerIdx % colors.length];
+        ctx.lineWidth = 2;
+        ctx.stroke();
+
+        ctx.fillStyle = colors[offerIdx % colors.length] + '30';
+        ctx.fill();
+
+        // Draw data points
+        RADAR_DIMS.forEach((dim, i) => {
+          const value = offer[dim.key] || 0;
+          const point = getPoint(value, maxValues[dim.key], i, 1);
+          ctx.beginPath();
+          ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+          ctx.fillStyle = colors[offerIdx % colors.length];
+          ctx.fill();
+        });
+      });
+
+      // Draw legend
+      let legendY = height - 20;
+      compareOffers.forEach((offer, i) => {
+        const colors = ['#22c55e', '#3b82f6', '#8b5cf6', '#f59e0b', '#ef4444'];
+        ctx.fillStyle = colors[i % colors.length];
+        ctx.fillRect(10 + i * 90, legendY, 12, 12);
+        ctx.fillStyle = '#374151';
+        ctx.font = '11px Inter, sans-serif';
+        ctx.textAlign = 'left';
+        ctx.fillText(offer.title, 26 + i * 90, legendY + 10);
+      });
     }
 
     function removeCompareOffer(index) {
