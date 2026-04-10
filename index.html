@@ -292,6 +292,12 @@
         <div id="compare-chart" class="hidden mt-6">
           <canvas id="radar-chart" width="400" height="400"></canvas>
         </div>
+        <div class="mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
+          <button onclick="openHistoryModal()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-semibold py-3 px-6 rounded-xl transition flex items-center justify-center gap-2">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span data-i18n="viewHistoryBtn">查看歷史記錄</span>
+          </button>
+        </div>
       </div>
     </div>
   </section>
@@ -308,6 +314,10 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="annualLeaveLabel">特休天數</label>
             <input id="annual-leave" type="number" value="7" min="0" max="30" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="benefitsBaseSalaryLabel">年薪底薪 (TWD)</label>
+            <input id="benefits-base-salary" type="number" placeholder="1200000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="mealAllowanceLabel">每月餐補 (TWD)</label>
@@ -553,6 +563,19 @@
         <input id="contrib-company" type="text" placeholder="產業（可略）" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
         <button onclick="submitContrib()" data-i18n="contributeSubmit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">送出匿名數據</button>
       </div>
+    </div>
+  </div>
+
+  <!-- History Modal -->
+  <div id="history-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-2xl w-full max-h-[80vh] overflow-hidden p-8 relative border border-gray-200 dark:border-gray-700">
+      <button onclick="closeHistoryModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h3 data-i18n="historyTitle" class="text-xl font-bold mb-4 dark:text-white">📜 評估歷史記錄</h3>
+      <p data-i18n="historyDesc" class="text-gray-500 dark:text-gray-400 text-sm mb-6">選擇兩個記錄來比較差異</p>
+      <div id="history-list" class="space-y-3 overflow-y-auto max-h-64 mb-6"></div>
+      <div id="history-compare-result" class="hidden border-t border-gray-200 dark:border-gray-700 pt-6"></div>
     </div>
   </div>
 
@@ -973,7 +996,7 @@
 
     // Benefits Calculator
     function calculateBenefits() {
-      const baseSalary = parseFloat(document.getElementById('base-salary').value) || 0;
+      const baseSalary = parseFloat(document.getElementById('benefits-base-salary').value) || 0;
       const annualLeave = parseInt(document.getElementById('annual-leave').value) || 0;
       const mealAllowance = parseInt(document.getElementById('meal-allowance').value) || 0;
       const transportAllowance = parseInt(document.getElementById('transport-allowance').value) || 0;
@@ -1193,6 +1216,118 @@
       renderCompareCards();
     }
 
+    // Evaluation History
+    let selectedHistoryItems = [];
+
+    function openHistoryModal() {
+      selectedHistoryItems = [];
+      renderHistoryList();
+      document.getElementById('history-modal').classList.remove('hidden');
+      document.getElementById('history-modal').classList.add('flex');
+      document.getElementById('history-compare-result').classList.add('hidden');
+    }
+
+    function closeHistoryModal() {
+      document.getElementById('history-modal').classList.add('hidden');
+      document.getElementById('history-modal').classList.remove('flex');
+    }
+
+    function renderHistoryList() {
+      const history = JSON.parse(localStorage.getItem('offerlift_history') || '[]');
+      const container = document.getElementById('history-list');
+
+      if (history.length === 0) {
+        container.innerHTML = `
+          <div class="text-center text-gray-400 dark:text-gray-500 py-8">
+            <svg class="w-16 h-16 mx-auto mb-4 opacity-50" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <p data-i18n="noHistory">尚無評估記錄</p>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = history.map((item, i) => {
+        const date = new Date(item.date).toLocaleDateString('zh-TW');
+        const isSelected = selectedHistoryItems.includes(i);
+        return `
+          <div onclick="toggleHistorySelection(${i})" class="p-4 rounded-xl cursor-pointer transition border-2 ${isSelected ? 'border-brand-500 bg-brand-50 dark:bg-brand-900/30' : 'border-gray-200 dark:border-gray-700 hover:border-brand-300'}">
+            <div class="flex justify-between items-start">
+              <div>
+                <h4 class="font-semibold dark:text-white">${item.jobTitle}</h4>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${date}</p>
+              </div>
+              <div class="text-right">
+                <div class="text-2xl font-bold ${item.score >= 80 ? 'text-green-500' : item.score >= 60 ? 'text-yellow-500' : 'text-red-500'}">${item.score}</div>
+                <div class="text-sm text-gray-500 dark:text-gray-400">${(item.totalComp / 10000).toFixed(0)}萬/年</div>
+              </div>
+            </div>
+            ${isSelected ? '<p class="text-sm text-brand-600 dark:text-brand-400 mt-2">✓ 已選擇比較</p>' : ''}
+          </div>`;
+      }).join('');
+    }
+
+    function toggleHistorySelection(index) {
+      const idx = selectedHistoryItems.indexOf(index);
+      if (idx === -1) {
+        if (selectedHistoryItems.length < 2) {
+          selectedHistoryItems.push(index);
+        } else {
+          selectedHistoryItems.shift();
+          selectedHistoryItems.push(index);
+        }
+      } else {
+        selectedHistoryItems.splice(idx, 1);
+      }
+      renderHistoryList();
+
+      if (selectedHistoryItems.length === 2) {
+        compareHistoryItems();
+      } else {
+        document.getElementById('history-compare-result').classList.add('hidden');
+      }
+    }
+
+    function compareHistoryItems() {
+      const history = JSON.parse(localStorage.getItem('offerlift_history') || '[]');
+      const item1 = history[selectedHistoryItems[0]];
+      const item2 = history[selectedHistoryItems[1]];
+
+      if (!item1 || !item2) return;
+
+      const date1 = new Date(item1.date).toLocaleDateString('zh-TW');
+      const date2 = new Date(item2.date).toLocaleDateString('zh-TW');
+      const scoreDiff = item1.score - item2.score;
+      const salaryDiff = item1.totalComp - item2.totalComp;
+
+      const resultHtml = `
+        <h4 class="font-bold text-lg mb-4 dark:text-white">📊 比較結果</h4>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">${item1.jobTitle}</p>
+            <p class="text-xs text-gray-400 mb-2">${date1}</p>
+            <div class="text-3xl font-bold mb-1">${item1.score}</div>
+            <div class="text-gray-500 dark:text-gray-400">${(item1.totalComp / 10000).toFixed(0)}萬/年</div>
+          </div>
+          <div class="p-4 rounded-xl bg-gray-50 dark:bg-gray-700">
+            <p class="text-sm text-gray-500 dark:text-gray-400 mb-1">${item2.jobTitle}</p>
+            <p class="text-xs text-gray-400 mb-2">${date2}</p>
+            <div class="text-3xl font-bold mb-1">${item2.score}</div>
+            <div class="text-gray-500 dark:text-gray-400">${(item2.totalComp / 10000).toFixed(0)}萬/年</div>
+          </div>
+        </div>
+        <div class="mt-4 p-4 rounded-xl ${scoreDiff >= 0 ? 'bg-green-50 dark:bg-green-900/30' : 'bg-red-50 dark:bg-red-900/30'}">
+          <p class="font-medium ${scoreDiff >= 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}">
+            分數差異: ${scoreDiff >= 0 ? '+' : ''}${scoreDiff} 分
+          </p>
+          <p class="font-medium ${salaryDiff >= 0 ? 'text-green-700 dark:text-green-300' : 'text-red-700 dark:text-red-300'}">
+            年薪差異: ${salaryDiff >= 0 ? '+' : ''}${(salaryDiff / 10000).toFixed(0)}萬
+          </p>
+        </div>`;
+
+      const resultDiv = document.getElementById('history-compare-result');
+      resultDiv.innerHTML = resultHtml;
+      resultDiv.classList.remove('hidden');
+    }
+
     // i18n - Translations
     const translations = {
       zh: {
@@ -1293,7 +1428,11 @@
         copyEmail: '複製郵件',
         compareTitle: '⚖️ Offer 比較器',
         compareDesc: '比較多個 Offer，找出最佳選擇',
-        addOfferBtn: '新增 Offer 比較的 Offer'
+        addOfferBtn: '新增 Offer 比較的 Offer',
+        viewHistoryBtn: '查看歷史記錄',
+        historyTitle: '📜 評估歷史記錄',
+        historyDesc: '選擇兩個記錄來比較差異',
+        noHistory: '尚無評估記錄'
       },
       en: {
         exportPdf: 'Export PDF',
@@ -1393,7 +1532,11 @@
         copyEmail: 'Copy Email',
         compareTitle: '⚖️ Offer Comparator',
         compareDesc: 'Compare multiple offers to find the best choice',
-        addOfferBtn: 'Add Offer to Compare'
+        addOfferBtn: 'Add Offer to Compare',
+        viewHistoryBtn: 'View History',
+        historyTitle: '📜 Evaluation History',
+        historyDesc: 'Select two records to compare differences',
+        noHistory: 'No evaluation records yet'
       },
       ja: {
         exportPdf: 'PDF出力',
@@ -1493,7 +1636,11 @@
         copyEmail: 'メールをコピー',
         compareTitle: '⚖️ オファー比較器',
         compareDesc: '複数のオファーを比較して最佳の選択を見つける',
-        addOfferBtn: 'オファーを追加して比較'
+        addOfferBtn: 'オファーを追加して比較',
+        viewHistoryBtn: '履歴を見る',
+        historyTitle: '📜 評価履歴',
+        historyDesc: '2つの記録を選択して比較する',
+        noHistory: '評価履歴がありません'
       }
     };
 
