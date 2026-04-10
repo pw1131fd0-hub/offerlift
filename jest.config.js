@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testEnvironment: 'jsdom',
   transform: {
     '^.+\\.js$': 'babel-jest'
@@ -6,7 +6,8 @@ module.exports = {
   testMatch: ['**/tests/**/*.test.js'],
   collectCoverageFrom: [
     'assets/js/**/*.js',
-    'index.html'
+    'index.html',
+    'server/src/**/*.js'
   ],
   coverageDirectory: 'coverage',
   coverageReporters: ['text', 'lcov']
