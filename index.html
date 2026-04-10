@@ -57,6 +57,7 @@
         <a href="#market" data-i18n="navMarket" class="hover:text-brand-600 dark:hover:text-brand-400 transition">薪資參考</a>
         <a href="#tracker" data-i18n="navTracker" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Offer追蹤</a>
         <a href="#interview-tracker" data-i18n="navInterview" class="hover:text-brand-600 dark:hover:text-brand-400 transition">面試進度</a>
+        <a href="#interview-qa" data-i18n="navIQA" class="hover:text-brand-600 dark:hover:text-brand-400 transition">問答庫</a>
       </div>
       <button id="dark-toggle" class="ml-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="切換深色模式">
         <svg id="icon-moon" class="w-5 h-5 text-gray-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -982,6 +983,22 @@
     </div>
   </div>
 
+  <!-- Interview Q&A Library -->
+  <section id="interview-qa" class="py-20 px-6 bg-white dark:bg-gray-800">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="iqaTitle" class="text-3xl font-bold mb-3 dark:text-white">❓ 面試問答庫</h2>
+        <p data-i18n="iqaDesc" class="text-gray-500 dark:text-gray-400">常見面試問題與回答策略，幫助你準備面試</p>
+      </div>
+      <div class="mb-6">
+        <input id="iqa-search" type="text" data-i18n-placeholder="iqaSearchPlaceholder" placeholder="搜尋問題..." class="w-full max-w-md mx-auto px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-500 outline-none" oninput="filterIQAs(this.value)">
+      </div>
+      <div class="grid md:grid-cols-2 gap-4" id="iqa-list">
+        <!-- Q&A cards injected by JS -->
+      </div>
+    </div>
+  </section>
+
   <!-- Salary Expectation Calculator -->
   <section id="expectation" class="py-20 px-6 bg-white dark:bg-gray-800 hidden">
     <div class="max-w-4xl mx-auto">
@@ -1363,6 +1380,116 @@
         tip: '永遠不要當場答應或拒絕，爭取 24-48 小時考慮時間'
       }
     ];
+
+    // Interview Q&A Data
+    const interviewQAs = [
+      {
+        category: '自我介紹',
+        question: '請簡單介紹一下你自己',
+        answer: '我是 [姓名]，過去在 [產業] 有 [年資] 年的工作經驗。主要擅長 [技能]，曾在 [公司/專案] 負責 [職責]。這個職位最吸引我的是 [為何有興趣]，我希望能將過去的 [相關經驗] 應用在這個角色上。',
+        tip: '控制在 2 分鐘內，強調與職位的相關性'
+      },
+      {
+        category: '經驗與成就',
+        question: '你過去最有成就感的專案是什麼？',
+        answer: '我在 [公司] 時帶領了一個 [專案類型] 專案，目標是 [目標]。我採用了 [方法]，最終結果是 [量化成果，例如：提升效率 30% / 營收增加 X 萬]。過程中最困難的是 [挑戰]，我是透過 [解決方式] 克服的。',
+        tip: '用 STAR 法則：Situation, Task, Action, Result'
+      },
+      {
+        category: '技術能力',
+        question: '你擅長的技術栈是什麼？',
+        answer: '我最熟悉的是 [主要技術]，大約有 [年資] 年的實務經驗。之前在 [公司] 我用 [技術] 開發了 [專案類型]，處理過 [規模，如：日均百萬請求]。另外我也具備 [其他相關技術] 的能力。',
+        tip: '強調實際專案經驗與成果，而非只是列出技術名稱'
+      },
+      {
+        category: '問題應對',
+        question: '你最大的弱點是什麼？',
+        answer: '我的弱點是 [具體弱點，例如：有時過度追求完美]。意識到這個問題後，我開始 [具體改善行動，例如：設定明確的截止時間，避免過度打磨]。這個改進讓我在效率與品質間找到更好的平衡。',
+        tip: '選擇與工作核心能力無關的弱點，並說明改善方式'
+      },
+      {
+        category: '價值觀與文化',
+        question: '你為什麼想離開現在的公司？',
+        answer: '我在 [現職公司] 學到了很多，也很感謝這個機會。但現在我想尋找 [更具挑戰性/規模更大/更具發展性的機會]，希望能在 [新公司/新產業] 貢獻我的 [核心技能]，同時持續學習與成長。',
+        tip: '保持正面，不要批評現任雇主'
+      },
+      {
+        category: '未來規劃',
+        question: '你未來 3-5 年的職涯規劃是什麼？',
+        answer: '短期來說，我希望在 [應徵職位] 領域深入發展，持續精進 [核心技能]。中期目標是希望能夠 [帶團隊/主導專案/成為技術專家]，為公司創造更大的價值。長期而言，我有興趣往 [管理/技術專家/創業] 方向發展。',
+        tip: '展現野心但也要務實，與應徵公司的發展方向呼應'
+      },
+      {
+        category: '情境題',
+        question: '如果專案進度落後，你會怎麼辦？',
+        answer: '首先，我會盡快找出落後的根本原因——是 [資源不足/技術問題/需求变更]。確認問題後，我會 [具體行動，例如：重新調整時程/請求額外資源/與利害關係人溝通]。同時我也會檢討流程，避免同樣的問題再次發生。',
+        tip: '展現分析問題與解決問題的能力'
+      },
+      {
+        category: '薪資與期望',
+        question: '你的期望薪資是多少？',
+        answer: '根據我的經驗與市場行情，我的期望年薪大約在 [範圍] 左右。當然，薪酬不是唯一的考量因素，我更看重 [發展潛力/團隊文化/專案挑戰性]。如果整體 package 有競爭力，我可以討論。',
+        tip: '給出一個範圍而非固定數字，留有談判空間'
+      },
+      {
+        category: '最後提問',
+        question: '你還有什麼問題想問嗎？',
+        answer: '我很好奇這個角色的日常工作是什麼？團隊的組成與工作方式？這個職位最大的挑戰是什麼？以及公司如何看待這個角色的成功？',
+        tip: '準備 3-5 個有深度的問題，展現你對職位的認真態度'
+      },
+      {
+        category: '壓力測試',
+        question: '如果我們不錄取你，你會怎麼想？',
+        answer: '我會尊重貴公司的決定。這個面試過程對我來說是一次很好的學習機會，讓我更了解自己的不足之處。無論結果如何，我都會持續精進這方面的能力，未來如果有機會，很高興能再次交流。',
+        tip: '保持正向與專業，不要表現出過度失望或攻擊性'
+      }
+    ];
+
+    // Render Interview Q&As
+    function renderIQAs(qas) {
+      const container = document.getElementById('iqa-list');
+      container.innerHTML = qas.map((q, i) => `
+        <div class="bg-gray-50 dark:bg-gray-700 rounded-xl p-5 card-hover">
+          <div class="flex items-start gap-2 mb-3">
+            <span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 text-xs font-medium rounded">${q.category}</span>
+          </div>
+          <h4 class="font-semibold text-gray-900 dark:text-white mb-3">${q.question}</h4>
+          <div class="bg-white dark:bg-gray-800 rounded-lg p-4 mb-3">
+            <p class="text-gray-600 dark:text-gray-300 text-sm whitespace-pre-wrap">${q.answer}</p>
+          </div>
+          <button onclick="copyIQA(${i})" class="inline-flex items-center gap-2 text-brand-600 dark:text-brand-400 hover:text-brand-700 dark:hover:text-brand-300 text-sm font-medium">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+            複製回答
+          </button>
+          <div class="mt-3 flex items-start gap-2 text-gray-500 dark:text-gray-400 text-sm">
+            <svg class="w-4 h-4 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+            <span>${q.tip}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function filterIQAs(query) {
+      const q = query.toLowerCase().trim();
+      if (!q) {
+        renderIQAs(interviewQAs);
+        return;
+      }
+      const filtered = interviewQAs.filter(iqa =>
+        iqa.question.toLowerCase().includes(q) ||
+        iqa.answer.toLowerCase().includes(q) ||
+        iqa.category.toLowerCase().includes(q)
+      );
+      renderIQAs(filtered);
+    }
+
+    function copyIQA(i) {
+      const qa = interviewQAs[i];
+      const text = `Q: ${qa.question}\n\nA: ${qa.answer}`;
+      navigator.clipboard.writeText(text).then(() => {
+        alert('回答已複製到剪貼簿！');
+      });
+    }
 
     // Render scripts
     function renderScripts() {
@@ -3400,7 +3527,8 @@
         trackerEnableNotif: '啟用通知',
         navTracker: 'Offer追蹤',
         navInterview: '面試進度',
-        interviewTitle: '📝 面試進度追蹤',
+        navIQA: '問答庫',
+        iqaTitle: '❓ 面試問答庫',
         interviewDesc: '追蹤你在各公司的面試進度，從投遞履歷到拿到 Offer',
         interviewFilterAll: '全部',
         interviewFilterActive: '面試中',
@@ -4290,6 +4418,7 @@
     initDarkMode();
     document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
     renderScripts();
+    renderIQAs(interviewQAs);
     renderSalaryGrid();
     renderForumPosts();
     renderTrackerOffers();
