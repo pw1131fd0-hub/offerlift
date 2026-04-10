@@ -647,6 +647,134 @@
     </div>
   </section>
 
+  <!-- Anonymous Salary Forum -->
+  <section id="forum" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="forumTitle" class="text-3xl font-bold mb-3 dark:text-white">💬 薪資論壇</h2>
+        <p data-i18n="forumDesc" class="text-gray-500 dark:text-gray-400">分享你的談判經驗，看看其他人怎麼說</p>
+      </div>
+
+      <!-- Forum Header Actions -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="filterForum('all')" id="forum-filter-all" data-i18n="forumFilterAll" class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition">全部</button>
+          <button onclick="filterForum('offer')" id="forum-filter-offer" data-i18n="forumFilterOffer" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">Offer 分享</button>
+          <button onclick="filterForum('negotiation')" id="forum-filter-negotiation" data-i18n="forumFilterNegotiation" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">談判經驗</button>
+          <button onclick="filterForum('tips')" id="forum-filter-tips" data-i18n="forumFilterTips" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">技巧分享</button>
+        </div>
+        <button onclick="openNewPostModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span data-i18n="forumNewPost">發表新帖</span>
+        </button>
+      </div>
+
+      <!-- Forum Search -->
+      <div class="mb-6">
+        <input id="forum-search" type="text" data-i18n-placeholder="forumSearchPlaceholder" placeholder="搜尋論壇內容..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none" oninput="searchForum(this.value)">
+      </div>
+
+      <!-- Forum Posts Container -->
+      <div id="forum-posts" class="space-y-4">
+        <!-- Posts will be rendered here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="forum-empty" class="hidden text-center py-12">
+        <div class="text-6xl mb-4">💭</div>
+        <p class="text-gray-500 dark:text-gray-400" data-i18n="forumEmpty">還沒有任何貼文，成為第一個分享的人吧！</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- New Post Modal -->
+  <div id="forum-post-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 data-i18n="forumNewPostTitle" class="text-xl font-bold dark:text-white">發表新帖</h3>
+          <button onclick="closeNewPostModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="forumPostCategory">分類</label>
+          <select id="post-category" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="offer">Offer 分享</option>
+            <option value="negotiation">談判經驗</option>
+            <option value="tips">技巧分享</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="forumPostTitle">標題</label>
+          <input id="post-title" type="text" data-i18n-placeholder="forumPostTitlePlaceholder" placeholder="簡短描述你的分享..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="forumPostContent">內容</label>
+          <textarea id="post-content" rows="5" data-i18n-placeholder="forumPostContentPlaceholder" placeholder="分享你的薪資談判經歷..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="forumPostTags">標籤（可多選）</label>
+          <div class="flex flex-wrap gap-2">
+            <label class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="checkbox" id="tag-frontend" value="Frontend" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">Frontend</span>
+            </label>
+            <label class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="checkbox" id="tag-backend" value="Backend" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">Backend</span>
+            </label>
+            <label class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="checkbox" id="tag-fullstack" value="Full Stack" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">Full Stack</span>
+            </label>
+            <label class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="checkbox" id="tag-mle" value="ML/AI" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">ML/AI</span>
+            </label>
+            <label class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="checkbox" id="tag-pm" value="PM" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">PM</span>
+            </label>
+            <label class="flex items-center gap-2 px-3 py-1.5 bg-gray-100 dark:bg-gray-700 rounded-full cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 transition">
+              <input type="checkbox" id="tag-devops" value="DevOps" class="rounded">
+              <span class="text-sm text-gray-700 dark:text-gray-300">DevOps</span>
+            </label>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+          <span data-i18n="forumAnonymous">所有貼文完全匿名，不會收集任何個人識別資訊</span>
+        </div>
+      </div>
+      <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex gap-3 justify-end">
+        <button onclick="closeNewPostModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition" data-i18n="forumCancel">取消</button>
+        <button onclick="submitNewPost()" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition" data-i18n="forumSubmit">發表</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Forum Post Detail Modal -->
+  <div id="forum-post-detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 id="detail-post-title" class="text-xl font-bold dark:text-white"></h3>
+          <button onclick="closePostDetailModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6">
+        <div id="detail-post-content" class="text-gray-700 dark:text-gray-300 whitespace-pre-wrap"></div>
+        <div id="detail-post-tags" class="flex flex-wrap gap-2 mt-4"></div>
+        <div id="detail-post-meta" class="text-xs text-gray-500 dark:text-gray-400 mt-4"></div>
+      </div>
+    </div>
+  </div>
+
   <!-- Language Selector -->
   <div id="lang-selector" class="fixed bottom-6 right-6 z-40">
     <div class="relative">
@@ -1791,6 +1919,254 @@
       container.scrollTop = container.scrollHeight;
     }
 
+    // === Anonymous Salary Forum Functions ===
+    let currentForumFilter = 'all';
+
+    function getForumPosts() {
+      return JSON.parse(localStorage.getItem('offerlift_forum') || '[]');
+    }
+
+    function saveForumPosts(posts) {
+      localStorage.setItem('offerlift_forum', JSON.stringify(posts));
+    }
+
+    function generatePostId() {
+      return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    function openNewPostModal() {
+      document.getElementById('forum-post-modal').classList.remove('hidden');
+    }
+
+    function closeNewPostModal() {
+      document.getElementById('forum-post-modal').classList.add('hidden');
+      // Clear form
+      document.getElementById('post-title').value = '';
+      document.getElementById('post-content').value = '';
+      document.getElementById('post-category').value = 'offer';
+      document.querySelectorAll('#forum-post-modal input[type="checkbox"]').forEach(cb => cb.checked = false);
+    }
+
+    function submitNewPost() {
+      const title = document.getElementById('post-title').value.trim();
+      const content = document.getElementById('post-content').value.trim();
+      const category = document.getElementById('post-category').value;
+
+      if (!title || !content) {
+        alert(currentLang === 'zh' ? '請填寫標題和內容' : currentLang === 'ja' ? 'タイトルと内容を入力してください' : 'Please fill in title and content');
+        return;
+      }
+
+      const tags = [];
+      document.querySelectorAll('#forum-post-modal input[type="checkbox"]:checked').forEach(cb => {
+        tags.push(cb.value);
+      });
+
+      const post = {
+        id: generatePostId(),
+        title: sanitize(title),
+        content: sanitize(content),
+        category: category,
+        tags: tags,
+        date: new Date().toISOString(),
+        likes: 0
+      };
+
+      const posts = getForumPosts();
+      posts.unshift(post); // Add to beginning
+      saveForumPosts(posts);
+
+      closeNewPostModal();
+      renderForumPosts();
+    }
+
+    function renderForumPosts() {
+      const posts = getForumPosts();
+      const container = document.getElementById('forum-posts');
+      const emptyState = document.getElementById('forum-empty');
+
+      let filteredPosts = posts;
+      if (currentForumFilter !== 'all') {
+        filteredPosts = posts.filter(p => p.category === currentForumFilter);
+      }
+
+      if (filteredPosts.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      const categoryLabels = {
+        offer: { zh: 'Offer 分享', en: 'Offer Sharing', ja: 'オファー共有' },
+        negotiation: { zh: '談判經驗', en: 'Negotiation Tips', ja: '交渉経験' },
+        tips: { zh: '技巧分享', en: 'Tips', ja: 'テク共有' }
+      };
+
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+
+      container.innerHTML = filteredPosts.map(post => {
+        const date = new Date(post.date);
+        const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        const tagsHtml = post.tags.map(tag =>
+          `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${tag}</span>`
+        ).join('');
+
+        return `
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="openPostDetail('${post.id}')">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded text-xs font-medium ${post.category === 'offer' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : post.category === 'negotiation' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'}">
+                  ${categoryLabels[post.category][langKey]}
+                </span>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400">${dateStr}</span>
+            </div>
+            <h3 class="font-bold text-lg mb-2 dark:text-white">${post.title}</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
+            <div class="flex justify-between items-center">
+              <div class="flex flex-wrap gap-1">${tagsHtml}</div>
+              <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                <span>${post.likes}</span>
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <span>${post.comments || 0}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openPostDetail(postId) {
+      const posts = getForumPosts();
+      const post = posts.find(p => p.id === postId);
+      if (!post) return;
+
+      document.getElementById('detail-post-title').textContent = post.title;
+      document.getElementById('detail-post-content').textContent = post.content;
+
+      const tagsHtml = post.tags.map(tag =>
+        `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${tag}</span>`
+      ).join('');
+      document.getElementById('detail-post-tags').innerHTML = tagsHtml;
+
+      const date = new Date(post.date);
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+      const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+      document.getElementById('detail-post-meta').textContent = `${dateStr}`;
+
+      document.getElementById('forum-post-detail-modal').classList.remove('hidden');
+    }
+
+    function closePostDetailModal() {
+      document.getElementById('forum-post-detail-modal').classList.add('hidden');
+    }
+
+    function filterForum(filter) {
+      currentForumFilter = filter;
+
+      // Update filter button styles
+      ['all', 'offer', 'negotiation', 'tips'].forEach(f => {
+        const btn = document.getElementById(`forum-filter-${f}`);
+        if (f === filter) {
+          btn.className = 'px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition';
+        } else {
+          btn.className = 'px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition';
+        }
+      });
+
+      renderForumPosts();
+    }
+
+    function searchForum(query) {
+      const posts = getForumPosts();
+      const container = document.getElementById('forum-posts');
+      const emptyState = document.getElementById('forum-empty');
+
+      if (!query.trim()) {
+        renderForumPosts();
+        return;
+      }
+
+      const lowerQuery = query.toLowerCase();
+      let filteredPosts = posts.filter(p =>
+        p.title.toLowerCase().includes(lowerQuery) ||
+        p.content.toLowerCase().includes(lowerQuery) ||
+        p.tags.some(t => t.toLowerCase().includes(lowerQuery))
+      );
+
+      if (currentForumFilter !== 'all') {
+        filteredPosts = filteredPosts.filter(p => p.category === currentForumFilter);
+      }
+
+      if (filteredPosts.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      // Re-use the same rendering logic but filtered
+      const categoryLabels = {
+        offer: { zh: 'Offer 分享', en: 'Offer Sharing', ja: 'オファー共有' },
+        negotiation: { zh: '談判經驗', en: 'Negotiation Tips', ja: '交渉経験' },
+        tips: { zh: '技巧分享', en: 'Tips', ja: 'テク共有' }
+      };
+
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+
+      container.innerHTML = filteredPosts.map(post => {
+        const date = new Date(post.date);
+        const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        });
+
+        const tagsHtml = post.tags.map(tag =>
+          `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${tag}</span>`
+        ).join('');
+
+        return `
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="openPostDetail('${post.id}')">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded text-xs font-medium ${post.category === 'offer' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : post.category === 'negotiation' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'}">
+                  ${categoryLabels[post.category][langKey]}
+                </span>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400">${dateStr}</span>
+            </div>
+            <h3 class="font-bold text-lg mb-2 dark:text-white">${post.title}</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
+            <div class="flex justify-between items-center">
+              <div class="flex flex-wrap gap-1">${tagsHtml}</div>
+              <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                <span>${post.likes}</span>
+                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+                <span>${post.comments || 0}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
     // i18n - Translations
     const translations = {
       zh: {
@@ -1927,7 +2303,26 @@
         coachQuickCompete: '有競爭 Offer',
         coachQuickDeadline: '即將到期',
         coachPlaceholder: '輸入你的問題...',
-        coachSend: '發送'
+        coachSend: '發送',
+        forumTitle: '💬 薪資論壇',
+        forumDesc: '分享你的談判經驗，看看其他人怎麼說',
+        forumNewPost: '發表新帖',
+        forumSearchPlaceholder: '搜尋論壇內容...',
+        forumEmpty: '還沒有任何貼文，成為第一個分享的人吧！',
+        forumNewPostTitle: '發表新帖',
+        forumPostCategory: '分類',
+        forumPostTitle: '標題',
+        forumPostTitlePlaceholder: '簡短描述你的分享...',
+        forumPostContent: '內容',
+        forumPostContentPlaceholder: '分享你的薪資談判經歷...',
+        forumPostTags: '標籤（可多選）',
+        forumAnonymous: '所有貼文完全匿名，不會收集任何個人識別資訊',
+        forumCancel: '取消',
+        forumSubmit: '發表',
+        forumFilterAll: '全部',
+        forumFilterOffer: 'Offer 分享',
+        forumFilterNegotiation: '談判經驗',
+        forumFilterTips: '技巧分享'
       },
       en: {
         exportPdf: 'Export PDF',
@@ -2063,7 +2458,26 @@
         coachQuickCompete: 'Have Competing Offer',
         coachQuickDeadline: 'Deadline Approaching',
         coachPlaceholder: 'Ask me anything...',
-        coachSend: 'Send'
+        coachSend: 'Send',
+        forumTitle: '💬 Salary Forum',
+        forumDesc: 'Share your negotiation experiences and learn from others',
+        forumNewPost: 'New Post',
+        forumSearchPlaceholder: 'Search forum...',
+        forumEmpty: 'No posts yet. Be the first to share!',
+        forumNewPostTitle: 'Create New Post',
+        forumPostCategory: 'Category',
+        forumPostTitle: 'Title',
+        forumPostTitlePlaceholder: 'Brief description of your share...',
+        forumPostContent: 'Content',
+        forumPostContentPlaceholder: 'Share your salary negotiation experience...',
+        forumPostTags: 'Tags (multiple select)',
+        forumAnonymous: 'All posts are completely anonymous. No personal identifying information is collected.',
+        forumCancel: 'Cancel',
+        forumSubmit: 'Submit',
+        forumFilterAll: 'All',
+        forumFilterOffer: 'Offer Sharing',
+        forumFilterNegotiation: 'Negotiation',
+        forumFilterTips: 'Tips'
       },
       ja: {
         exportPdf: 'PDF出力',
@@ -2199,7 +2613,26 @@
         coachQuickCompete: '競合オファーあり',
         coachQuickDeadline: '期限が近づく',
         coachPlaceholder: '質問を入力...',
-        coachSend: '送信'
+        coachSend: '送信',
+        forumTitle: '💬 給与フォーラム',
+        forumDesc: 'あなたの交渉経験を共有し、他の人の声を聞こう',
+        forumNewPost: '新規投稿',
+        forumSearchPlaceholder: 'フォーラムを検索...',
+        forumEmpty: 'まだ投稿がありません。最初の分享者になりましょう！',
+        forumNewPostTitle: '新規投稿',
+        forumPostCategory: 'カテゴリ',
+        forumPostTitle: 'タイトル',
+        forumPostTitlePlaceholder: '共有内容の簡単な説明...',
+        forumPostContent: '内容',
+        forumPostContentPlaceholder: 'あなたの給与交渉経験を共有...',
+        forumPostTags: 'タグ（複数選択可）',
+        forumAnonymous: 'すべての投稿は完全に匿名です。個人を特定できる情報は収集されません。',
+        forumCancel: 'キャンセル',
+        forumSubmit: '送信',
+        forumFilterAll: 'すべて',
+        forumFilterOffer: 'オファー共有',
+        forumFilterNegotiation: '交渉経験',
+        forumFilterTips: 'テク共有'
       }
     };
 
@@ -2578,6 +3011,7 @@
     document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
     renderScripts();
     renderSalaryGrid();
+    renderForumPosts();
     checkDeadline();
     setupPWAInstallPrompt();
     applyTranslations();
@@ -2645,6 +3079,7 @@
         offerlift_darkmode: localStorage.getItem('offerlift_darkmode'),
         offerlift_lang: localStorage.getItem('offerlift_lang'),
         offerlift_deadline: localStorage.getItem('offerlift_deadline'),
+        offerlift_forum: localStorage.getItem('offerlift_forum'),
         exportedAt: new Date().toISOString(),
         version: '1.0.0'
       };
