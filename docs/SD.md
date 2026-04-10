@@ -94,6 +94,28 @@ interface Evaluation {
   date: string;          // ISO date string
   totalComp: number;
 }
+
+// 論壇文章
+interface ForumPost {
+  id: string;            // 唯一識別碼（timestamp + random）
+  title: string;         // 文章標題
+  company: string;       // 公司名稱（可選）
+  city: string;          // 城市代碼
+  salaryRange: string;   // 薪資範圍（如 "120-150萬"）
+  content: string;       // 內容（可能包含換行）
+  date: string;          // ISO date string
+}
+
+// Offer 追蹤
+interface OfferTracker {
+  id: string;            // 唯一識別碼
+  company: string;       // 公司名稱
+  title: string;         // 職位名稱
+  deadline: string;       // 截止日期 ISO string
+  status: 'candidate' | 'negotiating' | 'accepted' | 'rejected' | 'expired';
+  createdAt: string;     // 建立時間
+  notified: boolean;     // 是否已提醒
+}
 ```
 
 ---
@@ -106,7 +128,9 @@ interface Evaluation {
 |-----|------|--------|------|
 | `offerlift_users` | `string`（數字） | `"127"` | 全域計數：所有用戶的 Offer 評估總次數 |
 | `offerlift_contribs` | `JSON string` | `[{"title":"Frontend","salary":1200000,"date":"2026-04-09T..."}]` | 用戶匿名貢獻的薪資資料陣列 |
-| `offerlift_history` | `JSON string` | `[{"jobTitle":"SDE","score":75,"date":"2026-04-09T...","totalComp":1500000}]` | 最近 5 次評估記錄（目前 MVP 未使用，P1 階段啟用）|
+| `offerlift_history` | `JSON string` | `[{"jobTitle":"SDE","score":75,"date":"2026-04-09T...","totalComp":1500000}]` | 最近 5 次評估記錄 |
+| `offerlift_forum` | `JSON string` | `[{"id":"ts1234567890","title":"...","company":"...","city":"taipei","salaryRange":"120-150萬","content":"...","date":"2026-04-09T..."}]` | 匿名論壇討論串 |
+| `offerlift_trackers` | `JSON string` | `[{"id":"ts1234567890","company":"...","title":"...","deadline":"2026-04-20","status":"negotiating","createdAt":"...","notified":false}]` | Offer 追蹤記錄 |
 
 ### 2.2 Schema 細節
 
@@ -144,6 +168,40 @@ interface Evaluation {
 ```
 - 最大長度：5 筆（`push` 前檢查長度，超過則 `shift()` 移除最舊記錄）
 
+#### `offerlift_forum`
+```json
+[
+  {
+    "id": "ts1234567890",
+    "title": "台積電工程師 offer 請教",
+    "company": "台積電",
+    "city": "nhc",
+    "salaryRange": "180-200萬",
+    "content": "最近收到 TSMC 的 offer，想請問大家的意見...",
+    "date": "2026-04-09T10:30:00.000Z"
+  }
+]
+```
+- 最大長度：無限制（localStorage 建議不超過 5MB）
+- 查詢：依城市、職位關鍵字篩選
+
+#### `offerlift_trackers`
+```json
+[
+  {
+    "id": "ts1234567890",
+    "company": "Google",
+    "title": "Senior Frontend Engineer",
+    "deadline": "2026-04-20T23:59:59.000Z",
+    "status": "negotiating",
+    "createdAt": "2026-04-09T10:00:00.000Z",
+    "notified": false
+  }
+]
+```
+- 最大長度：無限制
+- 狀態：`candidate`（候選中）、`negotiating`（談判中）、`accepted`（已接受）、`rejected`（已拒絕）、`expired`（已過期）
+
 ---
 
 ## 3. API 規格（JavaScript 介面）
@@ -169,6 +227,15 @@ interface Evaluation {
 | `exportToPDF()` | 無 | `void` | 產生並下載 PDF 報告 |
 | `setLanguage(lang)` | `lang: 'zh'|'en'|'ja'` | `void` | 切換 UI 語言 |
 | `toggleLangMenu()` | 無 | `void` | 展開/收合語言選單 |
+| `renderForum()` | 無 | `void` | 渲染論壇討論串列表 |
+| `createPost()` | 無（讀取表單） | `void` | 發表新討論（更新 DOM + localStorage） |
+| `deletePost(id)` | `id: string` | `void` | 刪除討論串（從 DOM 和 localStorage） |
+| `filterForum(query, city)` | `query: string, city: string` | `void` | 依關鍵字和城市過濾論壇 |
+| `addOfferToTracker()` | 無（讀取表單） | `void` | 新增 Offer 追蹤 |
+| `removeOfferFromTracker(id)` | `id: string` | `void` | 刪除 Offer 追蹤 |
+| `updateOfferStatus(id, status)` | `id: string, status: string` | `void` | 更新 Offer 狀態 |
+| `checkOfferDeadlines()` | 無 | `void` | 檢查截止日期並發送通知 |
+| `requestNotificationPermission()` | 無 | `void` | 請求瀏覽器通知權限 |
 
 ### 3.2 評估邏輯 API（內部使用）
 
@@ -212,6 +279,9 @@ const StorageService = {
 | `totalComp` 或 `baseSalary` 未填寫 | `alert()` 提示 | 「請至少填寫「年度總薪」和「年薪底薪」」|
 | `totalComp` 或 `baseSalary` 為 0 或負數 | `alert()` 提示 | 同上 |
 | 貢獻資料的 `title` 或 `salary` 空白 | `alert()` 提示 | 「請填寫職位和薪資」|
+| 論壇文章 `title` 或 `content` 空白 | `alert()` 提示 | 「請填寫標題和內容」|
+| Offer 追蹤的 `company` 或 `deadline` 空白 | `alert()` 提示 | 「請填寫公司名稱和截止日期」|
+| 請求通知權限被拒絕 | 靜默失敗，不阻斷操作 | 使用 `Notification.permission` 檢查 |
 
 ### 4.2 localStorage 錯誤
 
@@ -297,5 +367,5 @@ assets/
 
 ---
 
-*文件版本：v1.1*
+*文件版本：v1.2*
 *最後更新：2026-04-10*

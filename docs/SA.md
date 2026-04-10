@@ -59,6 +59,9 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 | Salary Simulator | 薪資成長模擬、柱狀圖 | Canvas rendering |
 | Email Generator | 談判郵件自動產生 | Form + Copy to clipboard |
 | Language Selector | 繁體/English/日本語 | Fixed position, localStorage 偏好 |
+| Forum Section | 匿名薪資論壇討論區 | Thread list + post form, localStorage |
+| Offer Tracker Panel | 多 Offer 追蹤管理 | Sidebar/modal, Notification API |
+| Deadline Reminder | Offer 截止提醒設定 | Notification permission + setTimeout |
 | Footer | 隱私聲明、版權資訊 | Dark background section |
 
 ### 3.2 Business Logic Layer（JavaScript 模組）
@@ -77,6 +80,13 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 | `openCompareModal()` | 新增 Offer 比較 | 比較器按鈕觸發 |
 | `exportToPDF()` | 匯出評估報告 PDF | PDF 按鈕觸發 |
 | `setLanguage(lang)` | 切換多語言 | 語言選擇器觸發 |
+| `renderForum()` | 渲染論壇討論串列表 | 論壇頁面初始化 |
+| `createPost()` | 發表新討論（匿名） | 論壇表單提交 |
+| `deletePost()` | 刪除討論串 | 刪除按鈕點擊 |
+| `addOfferToTracker()` | 新增 Offer 追蹤 | 追蹤器按鈕觸發 |
+| `removeOfferFromTracker()` | 刪除 Offer 追蹤 | 刪除按鈕觸發 |
+| `updateOfferStatus()` | 更新 Offer 狀態 | 狀態選擇變更 |
+| `checkOfferDeadlines()` | 檢查截止日期並發送通知 | 定時檢查（每小時） |
 
 ### 3.3 Data Layer（localStorage Schema）
 
@@ -84,7 +94,9 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 |-----|----------|------|
 | `offerlift_users` | `string`（數字） | 全域統計：已評估 Offer 總數 |
 | `offerlift_contribs` | `JSON string → Array<{title, salary, date}>` | 用戶匿名貢獻的薪資資料 |
-| `offerlift_history` | `JSON string → Array<Evaluation>` | 最近 5 次評估記錄（保留作為未來 P1 功能） |
+| `offerlift_history` | `JSON string → Array<Evaluation>` | 最近 5 次評估記錄 |
+| `offerlift_forum` | `JSON string → Array<ForumPost>` | 匿名論壇討論串 |
+| `offerlift_trackers` | `JSON string → Array<OfferTracker>` | Offer 追蹤記錄（含截止日期） |
 
 ---
 
@@ -132,7 +144,46 @@ DOMContentLoaded
      │
      ├─→ renderScripts() → 渲染談判腳本列表
      │
-     └─→ renderSalaryGrid() → 渲染薪資參考卡片
+     ├─→ renderSalaryGrid() → 渲染薪資參考卡片
+     │
+     └─→ renderForum() → 渲染論壇討論串（如果存在的話）
+```
+
+### 4.4 論壇發文流程
+
+```
+用戶點擊「發表」→ 填寫表單（職位、公司、城市、薪資範圍、內容）
+     │
+     ▼
+createPost()
+     │
+     ├─→ XSS 過濾所有輸入
+     │
+     ├─→ 讀取 localStorage.offerlift_forum
+     │
+     ├─→ push 新文章 {id, title, company, city, salaryRange, content, date}
+     │
+     ├─→ 寫回 localStorage
+     │
+     └─→ 重新渲染論壇列表
+```
+
+### 4.5 Offer 追蹤流程
+
+```
+用戶新增追蹤 → addOfferToTracker(company, title, deadline, status)
+     │
+     ├─→ 寫入 localStorage.offerlift_trackers
+     │
+     └─→ 渲染追蹤列表 + 設定通知
+
+定時檢查（每小時）→ checkOfferDeadlines()
+     │
+     ├─→ 遍歷所有追蹤
+     │
+     ├─→ 若即將到期（24小時內）且未提醒 → 發送 Notification
+     │
+     └─→ 若已過期 → 更新狀態為「已過期」
 ```
 
 ---
@@ -197,5 +248,5 @@ GitHub Repository (main branch)
 
 ---
 
-*文件版本：v1.1*
+*文件版本：v1.2*
 *最後更新：2026-04-10*
