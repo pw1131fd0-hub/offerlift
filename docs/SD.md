@@ -162,14 +162,25 @@ interface Evaluation {
 | `submitContrib()` | 無（讀取 DOM） | `void` | 更新 localStorage + modal |
 | `toggleScript(i)` | `i: number`（腳本索引） | `void` | toggle 腳本 expand/collapse |
 | `copyScript(i)` | `i: number`（腳本索引） | `void` | 寫入 clipboard + alert |
+| `calculateBenefits()` | 無（讀取表單） | `void` | 計算並顯示福利結果 |
+| `simulateSalary()` | 無（讀取表單） | `void` | 模擬並顯示薪資成長 |
+| `generateEmail()` | 無（讀取表單） | `void` | 產生並顯示郵件內容 |
+| `openCompareModal()` | 無 | `void` | 開啟 Offer 比較對話框 |
+| `exportToPDF()` | 無 | `void` | 產生並下載 PDF 報告 |
+| `setLanguage(lang)` | `lang: 'zh'|'en'|'ja'` | `void` | 切換 UI 語言 |
+| `toggleLangMenu()` | 無 | `void` | 展開/收合語言選單 |
 
 ### 3.2 評估邏輯 API（內部使用）
 
 | 函式 | 簽名 | 說明 |
 |------|------|------|
-| `calculateScore` | `(total, base, city, exp, jobTitle, ref) => number` | 核心評分演算法，輸出 0-100 |
+| `calculateScore` | `(total, base, city, exp, jobTitle) => {score, breakdown}` | 核心評分演算法，輸出 0-100 |
+| `findReference` | `(jobTitle, city, level) => SalaryReference|undefined` | 查找薪資參考資料 |
 | `getVerdict` | `(score) => string` | 根據分數回傳談判建議文字 |
-| `getScoreLabel` | `(score) => {text, className}` | 根據分數回傳顯示標籤與顏色 |
+| `filterScripts` | `(query) => NegotiationScript[]` | 依關鍵字過濾腳本 |
+| `sanitize` | `(str) => string` | XSS 過濾，跳脫 HTML |
+| `calculateEquityValue` | `(shares, pricePerShare, yearsAtCompany) => VestingBreakdown` | 計算 Vesting 價值 |
+| `evaluateEquity` | `(equityValue, baseSalary, vesting) => BreakdownItem[]` | 評估股票/選擇權 |
 
 ### 3.3 Storage Service API（封裝 localStorage 存取）
 
@@ -286,5 +297,5 @@ assets/
 
 ---
 
-*文件版本：v1.0*
-*最後更新：2026-04-09*
+*文件版本：v1.1*
+*最後更新：2026-04-10*

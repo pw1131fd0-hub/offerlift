@@ -54,6 +54,11 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 | Scripts Section | 談判腳本列表（可展開） | `details/summary` 模式或 JS toggle |
 | Market Section | 薪資參考卡片網格 | CSS Grid + Tailwind responsive |
 | Contribute Modal | 匿名數據貢獻表單 | Fixed overlay + Tailwind dialog |
+| Comparison Section | 多 Offer 並排比較、雷達圖 | Canvas rendering + Tailwind grid |
+| Benefits Calculator | 完整薪酬福利計算 | Form inputs + JS calculation |
+| Salary Simulator | 薪資成長模擬、柱狀圖 | Canvas rendering |
+| Email Generator | 談判郵件自動產生 | Form + Copy to clipboard |
+| Language Selector | 繁體/English/日本語 | Fixed position, localStorage 偏好 |
 | Footer | 隱私聲明、版權資訊 | Dark background section |
 
 ### 3.2 Business Logic Layer（JavaScript 模組）
@@ -66,6 +71,12 @@ OfferLift 是一款純前端的單頁應用（SPA），所有業務邏輯、資�
 | `contributeData()` / `submitContrib()` | 開啟/提交用戶貢獻 | Modal 按鈕觸發 |
 | `toggleScript(i)` | 腳本展開/收合 | 腳本標題點擊 |
 | `copyScript(i)` | 複製腳本至剪貼簿 | 複製按鈕點擊 |
+| `calculateBenefits()` | 計算福利總價值 | 福利計算機按鈕觸發 |
+| `simulateSalary()` | 模擬未來薪資成長 | 模擬器按鈕觸發 |
+| `generateEmail()` | 產生談判郵件 | 郵件產生器按鈕觸發 |
+| `openCompareModal()` | 新增 Offer 比較 | 比較器按鈕觸發 |
+| `exportToPDF()` | 匯出評估報告 PDF | PDF 按鈕觸發 |
+| `setLanguage(lang)` | 切換多語言 | 語言選擇器觸發 |
 
 ### 3.3 Data Layer（localStorage Schema）
 
@@ -168,13 +179,23 @@ GitHub Repository (main branch)
 - **API 介面卡模式**：若未來需新增後端，可將 `localStorage` 存取包裝為 `DataService` 介面，工廠模式切換 localStorage / REST API 實作
 - **薪資數據同步**：貢獻數據可改為 POST 到後端 API（需対応 CORS 與身份驗證）
 
-### 6.2 PWA 支援規劃
+### 6.2 PWA 支援（已實作 P2）
 
-- `manifest.json`：定義 PWA 基本資訊與圖示
-- `sw.js`（Service Worker）：快取靜態資源，支援離線瀏覽
-- 上述檔案可在 P2 階段加入，不影響現有功能
+- `manifest.json`：定義 PWA 基本資訊與圖示（已實作）
+- `sw.js`（Service Worker）：快取靜態資源，支援離線瀏覽（已實作）
+
+### 6.3 多語言支援（i18n）
+
+- 支援語言：繁體中文（預設）、English、日本語
+- 語言偏好存入 localStorage（`offerlift_lang`）
+- 所有 UI 文字使用 `data-i18n` 屬性，透過 `setLanguage()` 動態切換
+
+### 6.4 PDF 匯出（jsPDF）
+
+- 使用 jsPDF CDN 動態載入
+- 支援匯出包含評估分數、breakdown、談判建議的專業報告
 
 ---
 
-*文件版本：v1.0*
-*最後更新：2026-04-09*
+*文件版本：v1.1*
+*最後更新：2026-04-10*
