@@ -815,9 +815,49 @@
         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
         <span data-i18n="clearData">清除資料</span>
       </button>
+      <button onclick="openEncryptModal()" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-brand-400 transition" title="加密備份">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+        <span data-i18n="encryptBackup">加密備份</span>
+      </button>
+      <button onclick="openDecryptModal()" class="inline-flex items-center gap-1 text-xs text-gray-400 hover:text-brand-400 transition" title="解密匯入">
+        <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 11V7a4 4 0 118 0m-4 8v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2z"/></svg>
+        <span data-i18n="decryptImport">解密匯入</span>
+      </button>
     </div>
     <input type="file" id="import-file" accept=".json" class="hidden" onchange="handleImportFile(event)">
   </footer>
+
+  <!-- Encrypt Modal -->
+  <div id="encrypt-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-sm w-full p-8 relative border border-gray-200 dark:border-gray-700">
+      <button onclick="closeEncryptModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h3 data-i18n="encryptTitle" class="text-xl font-bold mb-4 dark:text-white">🔐 加密備份</h3>
+      <p data-i18n="encryptDesc" class="text-gray-500 dark:text-gray-400 text-sm mb-6">使用密碼加密你的資料，檔案可安全上傳至雲端儲存。</p>
+      <div class="space-y-4">
+        <input id="encrypt-password" type="password" placeholder="輸入密碼（至少 8 位）" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
+        <button onclick="generateEncryptedBackup()" data-i18n="encryptBtn" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">產生加密備份</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Decrypt Modal -->
+  <div id="decrypt-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl max-w-sm w-full p-8 relative border border-gray-200 dark:border-gray-700">
+      <button onclick="closeDecryptModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:text-gray-500 dark:hover:text-gray-300">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+      <h3 data-i18n="decryptTitle" class="text-xl font-bold mb-4 dark:text-white">🔓 解密匯入</h3>
+      <p data-i18n="decryptDesc" class="text-gray-500 dark:text-gray-400 text-sm mb-6">選擇加密備份檔案並輸入密碼來還原資料。</p>
+      <div class="space-y-4">
+        <input type="file" id="decrypt-file" accept=".txt" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition text-sm" onchange="handleDecryptFile(event)">
+        <input id="decrypt-file-data" type="hidden">
+        <input id="decrypt-password" type="password" placeholder="輸入解密密碼" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none transition">
+        <button onclick="decryptAndImport()" data-i18n="decryptBtn" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-3 rounded-xl transition">解密並匯入</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Offer Deadline Modal -->
   <div id="deadline-modal" class="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 hidden items-center justify-center p-6">
@@ -2322,7 +2362,15 @@
         forumFilterAll: '全部',
         forumFilterOffer: 'Offer 分享',
         forumFilterNegotiation: '談判經驗',
-        forumFilterTips: '技巧分享'
+        forumFilterTips: '技巧分享',
+        encryptBackup: '加密備份',
+        decryptImport: '解密匯入',
+        encryptTitle: '🔐 加密備份',
+        encryptDesc: '使用密碼加密你的資料，檔案可安全上傳至雲端儲存。',
+        encryptBtn: '產生加密備份',
+        decryptTitle: '🔓 解密匯入',
+        decryptDesc: '選擇加密備份檔案並輸入密碼來還原資料。',
+        decryptBtn: '解密並匯入'
       },
       en: {
         exportPdf: 'Export PDF',
@@ -2477,7 +2525,15 @@
         forumFilterAll: 'All',
         forumFilterOffer: 'Offer Sharing',
         forumFilterNegotiation: 'Negotiation',
-        forumFilterTips: 'Tips'
+        forumFilterTips: 'Tips',
+        encryptBackup: 'Encrypt Backup',
+        decryptImport: 'Decrypt Import',
+        encryptTitle: '🔐 Encrypted Backup',
+        encryptDesc: 'Encrypt your data with a password. File can be safely uploaded to cloud storage.',
+        encryptBtn: 'Generate Encrypted Backup',
+        decryptTitle: '🔓 Decrypt and Import',
+        decryptDesc: 'Select an encrypted backup file and enter the password to restore data.',
+        decryptBtn: 'Decrypt and Import'
       },
       ja: {
         exportPdf: 'PDF出力',
@@ -2632,7 +2688,15 @@
         forumFilterAll: 'すべて',
         forumFilterOffer: 'オファー共有',
         forumFilterNegotiation: '交渉経験',
-        forumFilterTips: 'テク共有'
+        forumFilterTips: 'テク共有',
+        encryptBackup: '暗号化バックアップ',
+        decryptImport: '復号してインポート',
+        encryptTitle: '🔐 暗号化バックアップ',
+        encryptDesc: 'パスワードでデータを暗号化。ファイルはクラウドストレージに安全にアップロード可能。',
+        encryptBtn: '暗号化バックアップを生成',
+        decryptTitle: '🔓 復号してインポート',
+        decryptDesc: '暗号化されたバックアップファイルを選択して、パスワードを入力してデータを復元。',
+        decryptBtn: '復号してインポート'
       }
     };
 
@@ -3135,6 +3199,130 @@
         localStorage.removeItem('offerlift_deadline');
         alert('所有資料已清除。');
         location.reload();
+      }
+    }
+
+    // Encrypted Backup Functions
+    function openEncryptModal() {
+      document.getElementById('encrypt-modal').classList.remove('hidden');
+      document.getElementById('encrypt-modal').classList.add('flex');
+    }
+
+    function closeEncryptModal() {
+      document.getElementById('encrypt-modal').classList.add('hidden');
+      document.getElementById('encrypt-modal').classList.remove('flex');
+      document.getElementById('encrypt-password').value = '';
+    }
+
+    async function generateEncryptedBackup() {
+      const password = document.getElementById('encrypt-password').value;
+      if (!password || password.length < 8) {
+        alert('請輸入至少 8 位數的密碼以確保安全。');
+        return;
+      }
+      const data = {
+        offerlift_users: localStorage.getItem('offerlift_users'),
+        offerlift_contribs: localStorage.getItem('offerlift_contribs'),
+        offerlift_history: localStorage.getItem('offerlift_history'),
+        offerlift_darkmode: localStorage.getItem('offerlift_darkmode'),
+        offerlift_lang: localStorage.getItem('offerlift_lang'),
+        offerlift_deadline: localStorage.getItem('offerlift_deadline'),
+        exportedAt: new Date().toISOString(),
+        version: '1.0.0'
+      };
+      try {
+        const encoder = new TextEncoder();
+        const salt = crypto.getRandomValues(new Uint8Array(16));
+        const iv = crypto.getRandomValues(new Uint8Array(12));
+        const keyMaterial = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits', 'deriveKey']);
+        const key = await crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+          keyMaterial,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['encrypt']
+        );
+        const encrypted = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, encoder.encode(JSON.stringify(data)));
+        const combined = new Uint8Array(salt.length + iv.length + encrypted.byteLength);
+        combined.set(salt, 0);
+        combined.set(iv, salt.length);
+        combined.set(new Uint8Array(encrypted), salt.length + iv.length);
+        const base64 = btoa(String.fromCharCode.apply(null, combined));
+        const blob = new Blob([base64], { type: 'text/plain' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `offerlift-encrypted-${new Date().toISOString().split('T')[0]}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        alert('加密備份已下載！請妥善保存檔案與密碼。');
+        closeEncryptModal();
+      } catch (err) {
+        alert('加密備份失敗：' + err.message);
+      }
+    }
+
+    function openDecryptModal() {
+      document.getElementById('decrypt-modal').classList.remove('hidden');
+      document.getElementById('decrypt-modal').classList.add('flex');
+    }
+
+    function closeDecryptModal() {
+      document.getElementById('decrypt-modal').classList.add('hidden');
+      document.getElementById('decrypt-modal').classList.remove('flex');
+      document.getElementById('decrypt-file').value = '';
+      document.getElementById('decrypt-password').value = '';
+    }
+
+    function handleDecryptFile(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        document.getElementById('decrypt-file-data').value = e.target.result;
+      };
+      reader.readAsText(file);
+      event.target.value = '';
+    }
+
+    async function decryptAndImport() {
+      const encryptedBase64 = document.getElementById('decrypt-file-data').value.trim();
+      const password = document.getElementById('decrypt-password').value;
+      if (!encryptedBase64 || !password) {
+        alert('請選擇檔案並輸入密碼。');
+        return;
+      }
+      try {
+        const combined = new Uint8Array(atob(encryptedBase64).split('').map(c => c.charCodeAt(0)));
+        const salt = combined.slice(0, 16);
+        const iv = combined.slice(16, 28);
+        const encrypted = combined.slice(28);
+        const encoder = new TextEncoder();
+        const keyMaterial = await crypto.subtle.importKey('raw', encoder.encode(password), 'PBKDF2', false, ['deriveBits', 'deriveKey']);
+        const key = await crypto.subtle.deriveKey(
+          { name: 'PBKDF2', salt, iterations: 100000, hash: 'SHA-256' },
+          keyMaterial,
+          { name: 'AES-GCM', length: 256 },
+          false,
+          ['decrypt']
+        );
+        const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, key, encrypted);
+        const data = JSON.parse(new TextDecoder().decode(decrypted));
+        if (data.offerlift_users) localStorage.setItem('offerlift_users', data.offerlift_users);
+        if (data.offerlift_contribs) localStorage.setItem('offerlift_contribs', data.offerlift_contribs);
+        if (data.offerlift_history) localStorage.setItem('offerlift_history', data.offerlift_history);
+        if (data.offerlift_darkmode) localStorage.setItem('offerlift_darkmode', data.offerlift_darkmode);
+        if (data.offerlift_lang) {
+          localStorage.setItem('offerlift_lang', data.offerlift_lang);
+          setLanguage(data.offerlift_lang);
+        }
+        if (data.offerlift_deadline) localStorage.setItem('offerlift_deadline', data.offerlift_deadline);
+        alert('加密備份已解密並匯入成功！頁面將重新整理。');
+        location.reload();
+      } catch (err) {
+        alert('解密失敗：密碼可能錯誤或檔案已損壞。');
       }
     }
 
