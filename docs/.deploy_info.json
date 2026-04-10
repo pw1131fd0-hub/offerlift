@@ -1,9 +1,9 @@
 {
-  "deployed_at": "2026-04-10T14:37:31+00:00",
-  "method": "python3 -m http.server",
+  "deployed_at": "2026-04-10T15:10:00+00:00",
+  "method": "docker-compose",
   "ports": [3000],
   "urls": ["http://localhost:3000"],
-  "pid_or_container": "2151812",
+  "pid_or_container": "offerlift",
   "status": "running",
   "error": null
 }

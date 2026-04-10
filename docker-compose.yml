@@ -1,0 +1,49 @@
+services:
+  offerlift:
+    build: .
+    container_name: offerlift
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    environment:
+      DATABASE_URL: postgres://offerlift:offerlift_pass@postgres:5432/offerlift_db
+      REDIS_URL: redis://redis:6379
+
+  postgres:
+    image: postgres:15-alpine
+    container_name: offerlift-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: offerlift
+      POSTGRES_PASSWORD: offerlift_pass
+      POSTGRES_DB: offerlift_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U offerlift -d offerlift_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: offerlift-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+
+volumes:
+  postgres_data:
+  redis_data:

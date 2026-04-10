@@ -1,0 +1,6 @@
+{
+  "healthEndpoint": "/",
+  "authTest": false,
+  "smokeTest": true,
+  "testPorts": [3000]
+}
