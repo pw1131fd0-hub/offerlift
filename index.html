@@ -776,6 +776,152 @@
     </div>
   </div>
 
+  <!-- Offer Tracker -->
+  <section id="tracker" class="py-20 px-6 bg-white dark:bg-gray-800">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="trackerTitle" class="text-3xl font-bold mb-3 dark:text-white">📋 Offer 追蹤器</h2>
+        <p data-i18n="trackerDesc" class="text-gray-500 dark:text-gray-400">追蹤你的多個 Offer，掌握談判進度與截止日期</p>
+      </div>
+
+      <!-- Tracker Header -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="filterTracker('all')" id="tracker-filter-all" data-i18n="trackerFilterAll" class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition">全部</button>
+          <button onclick="filterTracker('pending')" id="tracker-filter-pending" data-i18n="trackerFilterPending" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">待回覆</button>
+          <button onclick="filterTracker('negotiating')" id="tracker-filter-negotiating" data-i18n="trackerFilterNegotiating" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">談判中</button>
+          <button onclick="filterTracker('accepted')" id="tracker-filter-accepted" data-i18n="trackerFilterAccepted" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">已接受</button>
+          <button onclick="filterTracker('rejected')" id="tracker-filter-rejected" data-i18n="trackerFilterRejected" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">已拒絕</button>
+        </div>
+        <button onclick="openNewOfferModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span data-i18n="trackerNewOffer">新增 Offer</span>
+        </button>
+      </div>
+
+      <!-- Tracker Cards Container -->
+      <div id="tracker-offers" class="space-y-4">
+        <!-- Offers will be rendered here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="tracker-empty" class="hidden text-center py-12">
+        <div class="text-6xl mb-4">📭</div>
+        <p class="text-gray-500 dark:text-gray-400" data-i18n="trackerEmpty">還沒有追蹤中的 Offer，點擊上方按鈕新增</p>
+      </div>
+
+      <!-- Deadline Reminders Notice -->
+      <div id="tracker-notice" class="mt-6 p-4 bg-brand-50 dark:bg-brand-900/20 rounded-xl border border-brand-200 dark:border-brand-800">
+        <div class="flex items-start gap-3">
+          <svg class="w-5 h-5 text-brand-600 dark:text-brand-400 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          <div>
+            <p class="text-sm font-medium text-brand-800 dark:text-brand-300" data-i18n="trackerNoticeTitle">截止日期提醒</p>
+            <p class="text-xs text-brand-600 dark:text-brand-400 mt-1" data-i18n="trackerNoticeDesc">開啟瀏覽器通知，即可在 Offer 截止前收到提醒</p>
+            <button onclick="requestNotificationPermission()" id="notification-btn" class="mt-2 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium rounded-lg transition" data-i18n="trackerEnableNotif">啟用通知</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- New Offer Modal -->
+  <div id="tracker-offer-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 data-i18n="trackerNewOfferTitle" class="text-xl font-bold dark:text-white">新增 Offer 追蹤</h3>
+          <button onclick="closeOfferModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="trackerCompany">公司名稱</label>
+          <input id="offer-company" type="text" data-i18n-placeholder="trackerCompanyPlaceholder" placeholder="例如：Google" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="trackerJobTitle">職位</label>
+          <input id="offer-title" type="text" data-i18n-placeholder="trackerJobTitlePlaceholder" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="trackerSalary">年薪（含獎金）</label>
+          <input id="offer-salary" type="number" placeholder="1500000" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="trackerDeadline">回覆截止日期</label>
+          <input id="offer-deadline" type="date" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="trackerStatus">狀態</label>
+          <select id="offer-status" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="pending" data-i18n="trackerStatusPending">待回覆</option>
+            <option value="negotiating" data-i18n="trackerStatusNegotiating">談判中</option>
+            <option value="accepted" data-i18n="trackerStatusAccepted">已接受</option>
+            <option value="rejected" data-i18n="trackerStatusRejected">已拒絕</option>
+            <option value="expired" data-i18n="trackerStatusExpired">已過期</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="trackerNotes">備註</label>
+          <textarea id="offer-notes" rows="3" data-i18n-placeholder="trackerNotesPlaceholder" placeholder="其他補充資訊..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        </div>
+      </div>
+      <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <button onclick="closeOfferModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition" data-i18n="trackerCancel">取消</button>
+        <button onclick="submitNewOffer()" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition" data-i18n="trackerSubmit">新增</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Offer Detail Modal -->
+  <div id="tracker-detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 id="detail-offer-company" class="text-xl font-bold dark:text-white"></h3>
+          <button onclick="closeDetailModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="trackerJobTitle">職位</p>
+            <p id="detail-offer-title" class="font-medium dark:text-white"></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="trackerSalary">年薪</p>
+            <p id="detail-offer-salary" class="font-medium text-brand-600 dark:text-brand-400"></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="trackerDeadline">截止日期</p>
+            <p id="detail-offer-deadline" class="font-medium dark:text-white"></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="trackerStatus">狀態</p>
+            <p id="detail-offer-status" class="font-medium"></p>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="trackerNotes">備註</p>
+          <p id="detail-offer-notes" class="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"></p>
+        </div>
+        <div id="detail-offer-countdown" class="p-3 bg-brand-50 dark:bg-brand-900/20 rounded-lg">
+          <p class="text-sm font-medium text-brand-800 dark:text-brand-300"></p>
+        </div>
+      </div>
+      <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between">
+        <button onclick="deleteOffer()" class="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+          <span data-i18n="trackerDelete">刪除</span>
+        </button>
+        <button onclick="closeDetailModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition" data-i18n="trackerClose">關閉</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Language Selector -->
   <div id="lang-selector" class="fixed bottom-6 right-6 z-40">
     <div class="relative">
@@ -2226,6 +2372,330 @@
       }).join('');
     }
 
+    // === Offer Tracker Functions ===
+    let currentTrackerFilter = 'all';
+    let currentOfferId = null;
+
+    function getTrackerOffers() {
+      return JSON.parse(localStorage.getItem('offerlift_tracker') || '[]');
+    }
+
+    function saveTrackerOffers(offers) {
+      localStorage.setItem('offerlift_tracker', JSON.stringify(offers));
+    }
+
+    function generateOfferId() {
+      return 'offer_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    function openNewOfferModal() {
+      document.getElementById('tracker-offer-modal').classList.remove('hidden');
+      // Set default deadline to 7 days from now
+      const defaultDeadline = new Date();
+      defaultDeadline.setDate(defaultDeadline.getDate() + 7);
+      document.getElementById('offer-deadline').value = defaultDeadline.toISOString().split('T')[0];
+    }
+
+    function closeOfferModal() {
+      document.getElementById('tracker-offer-modal').classList.add('hidden');
+      // Clear form
+      document.getElementById('offer-company').value = '';
+      document.getElementById('offer-title').value = '';
+      document.getElementById('offer-salary').value = '';
+      document.getElementById('offer-deadline').value = '';
+      document.getElementById('offer-status').value = 'pending';
+      document.getElementById('offer-notes').value = '';
+    }
+
+    function submitNewOffer() {
+      const company = document.getElementById('offer-company').value.trim();
+      const title = document.getElementById('offer-title').value.trim();
+      const salary = parseInt(document.getElementById('offer-salary').value) || 0;
+      const deadline = document.getElementById('offer-deadline').value;
+      const status = document.getElementById('offer-status').value;
+      const notes = document.getElementById('offer-notes').value.trim();
+
+      if (!company) {
+        alert(currentLang === 'zh' ? '請填寫公司名稱' : currentLang === 'ja' ? '会社명을 입력하세요' : 'Please enter company name');
+        return;
+      }
+
+      const offer = {
+        id: generateOfferId(),
+        company: sanitize(company),
+        title: sanitize(title),
+        salary: salary,
+        deadline: deadline,
+        status: status,
+        notes: sanitize(notes),
+        createdAt: new Date().toISOString()
+      };
+
+      const offers = getTrackerOffers();
+      offers.unshift(offer);
+      saveTrackerOffers(offers);
+
+      closeOfferModal();
+      renderTrackerOffers();
+      checkOfferDeadlines();
+    }
+
+    function renderTrackerOffers() {
+      const offers = getTrackerOffers();
+      const container = document.getElementById('tracker-offers');
+      const emptyState = document.getElementById('tracker-empty');
+
+      let filteredOffers = offers;
+      if (currentTrackerFilter !== 'all') {
+        filteredOffers = offers.filter(o => o.status === currentTrackerFilter);
+      }
+
+      if (filteredOffers.length === 0) {
+        container.innerHTML = '';
+        emptyState.classList.remove('hidden');
+        return;
+      }
+
+      emptyState.classList.add('hidden');
+
+      const statusLabels = {
+        pending: { zh: '待回覆', en: 'Pending', ja: '保留中' },
+        negotiating: { zh: '談判中', en: 'Negotiating', ja: '交渉中' },
+        accepted: { zh: '已接受', en: 'Accepted', ja: '受入済' },
+        rejected: { zh: '已拒絕', en: 'Rejected', ja: '辞退済' },
+        expired: { zh: '已過期', en: 'Expired', ja: '期限切れ' }
+      };
+
+      const statusColors = {
+        pending: 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300',
+        negotiating: 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300',
+        accepted: 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300',
+        rejected: 'bg-red-100 dark:bg-red-900 text-red-700 dark:text-red-300',
+        expired: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+      };
+
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+
+      container.innerHTML = filteredOffers.map(offer => {
+        const deadline = offer.deadline ? new Date(offer.deadline) : null;
+        let countdownText = '';
+        let countdownClass = 'bg-brand-50 dark:bg-brand-900/20';
+
+        if (deadline && offer.status !== 'accepted' && offer.status !== 'rejected') {
+          const now = new Date();
+          const diff = deadline - now;
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+          if (diff < 0) {
+            countdownText = currentLang === 'zh' ? '已過期' : currentLang === 'ja' ? '期限切れ' : 'Expired';
+            countdownClass = 'bg-red-50 dark:bg-red-900/20';
+          } else if (days === 0) {
+            countdownText = currentLang === 'zh' ? '今天截止！' : currentLang === 'ja' ? '本日期限！' : 'Expires today!';
+            countdownClass = 'bg-red-50 dark:bg-red-900/20';
+          } else if (days === 1) {
+            countdownText = currentLang === 'zh' ? '明天截止' : currentLang === 'ja' ? '明日期限' : 'Expires tomorrow';
+            countdownClass = 'bg-orange-50 dark:bg-orange-900/20';
+          } else if (days <= 3) {
+            countdownText = currentLang === 'zh' ? `${days} 天內截止` : currentLang === 'ja' ? `${days}日以内期限` : `${days} days left`;
+            countdownClass = 'bg-orange-50 dark:bg-orange-900/20';
+          } else if (days <= 7) {
+            countdownText = currentLang === 'zh' ? `${days} 天內截止` : currentLang === 'ja' ? `${days}日以内期限` : `${days} days left`;
+            countdownClass = 'bg-yellow-50 dark:bg-yellow-900/20';
+          } else {
+            countdownText = currentLang === 'zh' ? `${days} 天內截止` : currentLang === 'ja' ? `${days}日以内期限` : `${days} days left`;
+          }
+        }
+
+        const dateStr = deadline ? deadline.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+          year: 'numeric',
+          month: 'short',
+          day: 'numeric'
+        }) : '-';
+
+        const salaryStr = offer.salary > 0 ? offer.salary.toLocaleString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW') + ' TWD' : '-';
+
+        return `
+          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="openOfferDetail('${offer.id}')">
+            <div class="flex justify-between items-start mb-3">
+              <div class="flex items-center gap-2">
+                <span class="px-2 py-1 rounded text-xs font-medium ${statusColors[offer.status]}">
+                  ${statusLabels[offer.status][langKey]}
+                </span>
+                <span class="px-2 py-1 rounded text-xs font-medium ${countdownClass} text-gray-700 dark:text-gray-300">
+                  ${countdownText || '-'}
+                </span>
+              </div>
+              <span class="text-xs text-gray-500 dark:text-gray-400">${dateStr}</span>
+            </div>
+            <h3 class="font-bold text-lg mb-1 dark:text-white">${offer.company}</h3>
+            <p class="text-gray-600 dark:text-gray-400 text-sm mb-2">${offer.title || '-'}</p>
+            <div class="flex justify-between items-center">
+              <span class="text-brand-600 dark:text-brand-400 font-semibold">${salaryStr}</span>
+              <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                <span>${countdownText || '-'}</span>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openOfferDetail(offerId) {
+      const offers = getTrackerOffers();
+      const offer = offers.find(o => o.id === offerId);
+      if (!offer) return;
+
+      currentOfferId = offerId;
+
+      document.getElementById('detail-offer-company').textContent = offer.company;
+      document.getElementById('detail-offer-title').textContent = offer.title || '-';
+
+      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+      const salaryStr = offer.salary > 0 ? parseInt(offer.salary).toLocaleString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW') + ' TWD' : '-';
+      document.getElementById('detail-offer-salary').textContent = salaryStr;
+
+      const deadline = offer.deadline ? new Date(offer.deadline) : null;
+      const dateStr = deadline ? deadline.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      }) : '-';
+      document.getElementById('detail-offer-deadline').textContent = dateStr;
+
+      const statusLabels = {
+        pending: { zh: '待回覆', en: 'Pending', ja: '保留中' },
+        negotiating: { zh: '談判中', en: 'Negotiating', ja: '交渉中' },
+        accepted: { zh: '已接受', en: 'Accepted', ja: '受入済' },
+        rejected: { zh: '已拒絕', en: 'Rejected', ja: '辞退済' },
+        expired: { zh: '已過期', en: 'Expired', ja: '期限切れ' }
+      };
+      const statusEl = document.getElementById('detail-offer-status');
+      statusEl.textContent = statusLabels[offer.status][langKey];
+      statusEl.className = 'font-medium text-sm';
+
+      document.getElementById('detail-offer-notes').textContent = offer.notes || '-';
+
+      // Countdown
+      const countdownEl = document.getElementById('detail-offer-countdown');
+      if (deadline && offer.status !== 'accepted' && offer.status !== 'rejected') {
+        const now = new Date();
+        const diff = deadline - now;
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+        if (diff < 0) {
+          countdownEl.querySelector('p').textContent = currentLang === 'zh' ? '⚠️ 此 Offer 已過期' : currentLang === 'ja' ? '⚠️ このオファーは期限切れです' : '⚠️ This offer has expired';
+          countdownEl.className = 'p-3 bg-red-50 dark:bg-red-900/20 rounded-lg';
+        } else if (days === 0) {
+          countdownEl.querySelector('p').textContent = currentLang === 'zh' ? '⏰ 今天是最後回覆日！' : currentLang === 'ja' ? '⏰ 本日が最終回答日です！' : '⏰ Today is the last day to respond!';
+          countdownEl.className = 'p-3 bg-red-50 dark:bg-red-900/20 rounded-lg';
+        } else if (days === 1) {
+          countdownEl.querySelector('p').textContent = currentLang === 'zh' ? `⏰ 明天是最後回覆日（剩 1 天）` : currentLang === 'ja' ? `⏰ 明日が最終回答日（残り1日）` : `⏰ Tomorrow is the last day (1 day left)`;
+          countdownEl.className = 'p-3 bg-orange-50 dark:bg-orange-900/20 rounded-lg';
+        } else {
+          countdownEl.querySelector('p').textContent = currentLang === 'zh' ? `📅 距離截止還有 ${days} 天` : currentLang === 'ja' ? `📅 期限まであと${days}日` : `📅 ${days} days until deadline`;
+          countdownEl.className = 'p-3 bg-brand-50 dark:bg-brand-900/20 rounded-lg';
+        }
+        countdownEl.classList.remove('hidden');
+      } else {
+        countdownEl.classList.add('hidden');
+      }
+
+      document.getElementById('tracker-detail-modal').classList.remove('hidden');
+    }
+
+    function closeDetailModal() {
+      document.getElementById('tracker-detail-modal').classList.add('hidden');
+      currentOfferId = null;
+    }
+
+    function deleteOffer() {
+      if (!currentOfferId) return;
+
+      const offers = getTrackerOffers();
+      const filtered = offers.filter(o => o.id !== currentOfferId);
+      saveTrackerOffers(filtered);
+
+      closeDetailModal();
+      renderTrackerOffers();
+    }
+
+    function filterTracker(filter) {
+      currentTrackerFilter = filter;
+
+      // Update filter button styles
+      ['all', 'pending', 'negotiating', 'accepted', 'rejected'].forEach(f => {
+        const btn = document.getElementById(`tracker-filter-${f}`);
+        if (f === filter) {
+          btn.className = 'px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition';
+        } else {
+          btn.className = 'px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition';
+        }
+      });
+
+      renderTrackerOffers();
+    }
+
+    function checkOfferDeadlines() {
+      const offers = getTrackerOffers();
+      const now = new Date();
+
+      offers.forEach(offer => {
+        if (offer.deadline && offer.status !== 'accepted' && offer.status !== 'rejected') {
+          const deadline = new Date(offer.deadline);
+          const diff = deadline - now;
+          const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+
+          // Send notification if within 3 days
+          if (days >= 0 && days <= 3 && Notification.permission === 'granted') {
+            const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
+            const titles = {
+              zh: `Offer 截止提醒：${offer.company}`,
+              en: `Offer Deadline Reminder: ${offer.company}`,
+              ja: `オファー期限通知：${offer.company}`
+            };
+            const bodies = {
+              zh: days === 0 ? '今天是最後回覆日！' : `距離截止還有 ${days} 天`,
+              en: days === 0 ? 'Today is the last day to respond!' : `${days} days left to respond`,
+              ja: days === 0 ? '本日が最終回答日です！' : `回答期限まであと${days}日`
+            };
+
+            try {
+              new Notification(titles[langKey], {
+                body: bodies[langKey],
+                icon: 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%2322c55e" width="100" height="100" rx="20"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="50" font-weight="bold" fill="white">OL</text></svg>'
+              });
+            } catch (e) {
+              console.warn('Notification failed:', e);
+            }
+          }
+        }
+      });
+    }
+
+    function requestNotificationPermission() {
+      if (!('Notification' in window)) {
+        alert(currentLang === 'zh' ? '您的瀏覽器不支援通知功能' : currentLang === 'ja' ? 'お使いのブラウザは通知機能に対応していません' : 'Your browser does not support notifications');
+        return;
+      }
+
+      Notification.requestPermission().then(permission => {
+        if (permission === 'granted') {
+          const btn = document.getElementById('notification-btn');
+          btn.textContent = currentLang === 'zh' ? '已啟用 ✓' : currentLang === 'ja' ? '有効 ✓' : 'Enabled ✓';
+          btn.className = 'mt-2 px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition';
+          checkOfferDeadlines();
+        }
+      });
+    }
+
+    // Check deadlines on page load
+    setTimeout(() => {
+      if (Notification.permission === 'granted') {
+        checkOfferDeadlines();
+      }
+    }, 3000);
+
     // i18n - Translations
     const translations = {
       zh: {
@@ -2389,7 +2859,38 @@
         encryptBtn: '產生加密備份',
         decryptTitle: '🔓 解密匯入',
         decryptDesc: '選擇加密備份檔案並輸入密碼來還原資料。',
-        decryptBtn: '解密並匯入'
+        decryptBtn: '解密並匯入',
+        trackerTitle: '📋 Offer 追蹤器',
+        trackerDesc: '追蹤你的多個 Offer，掌握談判進度與截止日期',
+        trackerFilterAll: '全部',
+        trackerFilterPending: '待回覆',
+        trackerFilterNegotiating: '談判中',
+        trackerFilterAccepted: '已接受',
+        trackerFilterRejected: '已拒絕',
+        trackerNewOffer: '新增 Offer',
+        trackerEmpty: '還沒有追蹤中的 Offer，點擊上方按鈕新增',
+        trackerNewOfferTitle: '新增 Offer 追蹤',
+        trackerCompany: '公司名稱',
+        trackerCompanyPlaceholder: '例如：Google',
+        trackerJobTitle: '職位',
+        trackerJobTitlePlaceholder: '例如：Senior Frontend Engineer',
+        trackerSalary: '年薪（含獎金）',
+        trackerDeadline: '回覆截止日期',
+        trackerStatus: '狀態',
+        trackerStatusPending: '待回覆',
+        trackerStatusNegotiating: '談判中',
+        trackerStatusAccepted: '已接受',
+        trackerStatusRejected: '已拒絕',
+        trackerStatusExpired: '已過期',
+        trackerNotes: '備註',
+        trackerNotesPlaceholder: '其他補充資訊...',
+        trackerCancel: '取消',
+        trackerSubmit: '新增',
+        trackerDelete: '刪除',
+        trackerClose: '關閉',
+        trackerNoticeTitle: '截止日期提醒',
+        trackerNoticeDesc: '開啟瀏覽器通知，即可在 Offer 截止前收到提醒',
+        trackerEnableNotif: '啟用通知'
       },
       en: {
         exportPdf: 'Export PDF',
@@ -2552,7 +3053,38 @@
         encryptBtn: 'Generate Encrypted Backup',
         decryptTitle: '🔓 Decrypt and Import',
         decryptDesc: 'Select an encrypted backup file and enter the password to restore data.',
-        decryptBtn: 'Decrypt and Import'
+        decryptBtn: 'Decrypt and Import',
+        trackerTitle: '📋 Offer Tracker',
+        trackerDesc: 'Track multiple offers, manage negotiation progress and deadlines',
+        trackerFilterAll: 'All',
+        trackerFilterPending: 'Pending',
+        trackerFilterNegotiating: 'Negotiating',
+        trackerFilterAccepted: 'Accepted',
+        trackerFilterRejected: 'Rejected',
+        trackerNewOffer: 'Add Offer',
+        trackerEmpty: 'No tracked offers yet. Click above to add one.',
+        trackerNewOfferTitle: 'Add New Offer',
+        trackerCompany: 'Company',
+        trackerCompanyPlaceholder: 'e.g.: Google',
+        trackerJobTitle: 'Job Title',
+        trackerJobTitlePlaceholder: 'e.g.: Senior Frontend Engineer',
+        trackerSalary: 'Annual Salary',
+        trackerDeadline: 'Response Deadline',
+        trackerStatus: 'Status',
+        trackerStatusPending: 'Pending',
+        trackerStatusNegotiating: 'Negotiating',
+        trackerStatusAccepted: 'Accepted',
+        trackerStatusRejected: 'Rejected',
+        trackerStatusExpired: 'Expired',
+        trackerNotes: 'Notes',
+        trackerNotesPlaceholder: 'Additional notes...',
+        trackerCancel: 'Cancel',
+        trackerSubmit: 'Add',
+        trackerDelete: 'Delete',
+        trackerClose: 'Close',
+        trackerNoticeTitle: 'Deadline Reminders',
+        trackerNoticeDesc: 'Enable browser notifications to get reminded before offers expire',
+        trackerEnableNotif: 'Enable Notifications'
       },
       ja: {
         exportPdf: 'PDF出力',
@@ -2715,7 +3247,38 @@
         encryptBtn: '暗号化バックアップを生成',
         decryptTitle: '🔓 復号してインポート',
         decryptDesc: '暗号化されたバックアップファイルを選択して、パスワードを入力してデータを復元。',
-        decryptBtn: '復号してインポート'
+        decryptBtn: '復号してインポート',
+        trackerTitle: '📋 オファートラッカー',
+        trackerDesc: '複数のオファーを追跡し、交渉の進捗と期限を管理',
+        trackerFilterAll: 'すべて',
+        trackerFilterPending: '保留中',
+        trackerFilterNegotiating: '交渉中',
+        trackerFilterAccepted: '受入済',
+        trackerFilterRejected: '辞退済',
+        trackerNewOffer: 'オファーを追加',
+        trackerEmpty: '追跡中のオファーがありません。上のボタンをクリックして追加',
+        trackerNewOfferTitle: '新規オファーを追加',
+        trackerCompany: '会社名',
+        trackerCompanyPlaceholder: '例：Google',
+        trackerJobTitle: '職種',
+        trackerJobTitlePlaceholder: '例：Senior Frontend Engineer',
+        trackerSalary: '年収（ボーナス含む）',
+        trackerDeadline: '回答期限',
+        trackerStatus: 'ステータス',
+        trackerStatusPending: '保留中',
+        trackerStatusNegotiating: '交渉中',
+        trackerStatusAccepted: '受入済',
+        trackerStatusRejected: '辞退済',
+        trackerStatusExpired: '期限切れ',
+        trackerNotes: 'メモ',
+        trackerNotesPlaceholder: 'その他のメモ...',
+        trackerCancel: 'キャンセル',
+        trackerSubmit: '追加',
+        trackerDelete: '削除',
+        trackerClose: '閉じる',
+        trackerNoticeTitle: '期限通知',
+        trackerNoticeDesc: 'ブラウザ通知を有効にすると、オファーの期限前にリマインダーを受け取れます',
+        trackerEnableNotif: '通知を有効にする'
       }
     };
 
@@ -3095,6 +3658,7 @@
     renderScripts();
     renderSalaryGrid();
     renderForumPosts();
+    renderTrackerOffers();
     checkDeadline();
     setupPWAInstallPrompt();
     applyTranslations();
