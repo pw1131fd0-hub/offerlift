@@ -55,6 +55,8 @@
         <a href="#evaluator" data-i18n="navEvaluator" class="hover:text-brand-600 dark:hover:text-brand-400 transition">評估工具</a>
         <a href="#scripts" data-i18n="navScripts" class="hover:text-brand-600 dark:hover:text-brand-400 transition">談判腳本</a>
         <a href="#market" data-i18n="navMarket" class="hover:text-brand-600 dark:hover:text-brand-400 transition">薪資參考</a>
+        <a href="#tracker" data-i18n="navTracker" class="hover:text-brand-600 dark:hover:text-brand-400 transition">Offer追蹤</a>
+        <a href="#interview-tracker" data-i18n="navInterview" class="hover:text-brand-600 dark:hover:text-brand-400 transition">面試進度</a>
       </div>
       <button id="dark-toggle" class="ml-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="切換深色模式">
         <svg id="icon-moon" class="w-5 h-5 text-gray-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
@@ -818,6 +820,232 @@
             <p class="text-sm font-medium text-brand-800 dark:text-brand-300" data-i18n="trackerNoticeTitle">截止日期提醒</p>
             <p class="text-xs text-brand-600 dark:text-brand-400 mt-1" data-i18n="trackerNoticeDesc">開啟瀏覽器通知，即可在 Offer 截止前收到提醒</p>
             <button onclick="requestNotificationPermission()" id="notification-btn" class="mt-2 px-3 py-1.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-medium rounded-lg transition" data-i18n="trackerEnableNotif">啟用通知</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Interview Progress Tracker -->
+  <section id="interview-tracker" class="py-20 px-6 bg-gray-50 dark:bg-gray-900">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="interviewTitle" class="text-3xl font-bold mb-3 dark:text-white">📝 面試進度追蹤</h2>
+        <p data-i18n="interviewDesc" class="text-gray-500 dark:text-gray-400">追蹤你在各公司的面試進度，從投遞履歷到拿到 Offer</p>
+      </div>
+
+      <!-- Interview Tracker Header -->
+      <div class="flex justify-between items-center mb-6">
+        <div class="flex gap-2 flex-wrap">
+          <button onclick="filterInterview('all')" id="interview-filter-all" data-i18n="interviewFilterAll" class="px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition">全部</button>
+          <button onclick="filterInterview('active')" id="interview-filter-active" data-i18n="interviewFilterActive" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">面試中</button>
+          <button onclick="filterInterview('offer')" id="interview-filter-offer" data-i18n="interviewFilterOffer" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">已拿到 Offer</button>
+          <button onclick="filterInterview('rejected')" id="interview-filter-rejected" data-i18n="interviewFilterRejected" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition">已拒絕</button>
+        </div>
+        <button onclick="openNewInterviewModal()" class="bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-lg transition text-sm flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+          <span data-i18n="interviewNew">新增面試</span>
+        </button>
+      </div>
+
+      <!-- Interview Cards Container -->
+      <div id="interview-list" class="space-y-4">
+        <!-- Interviews will be rendered here -->
+      </div>
+
+      <!-- Empty State -->
+      <div id="interview-empty" class="hidden text-center py-12">
+        <div class="text-6xl mb-4">📋</div>
+        <p class="text-gray-500 dark:text-gray-400" data-i18n="interviewEmpty">還沒有追蹤中的面試，點擊上方按鈕新增</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- New Interview Modal -->
+  <div id="interview-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 data-i18n="interviewNewTitle" class="text-xl font-bold dark:text-white">新增面試追蹤</h3>
+          <button onclick="closeInterviewModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewCompany">公司名稱</label>
+          <input id="interview-company" type="text" data-i18n-placeholder="interviewCompanyPlaceholder" placeholder="例如：Google" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewJobTitle">應徵職位</label>
+          <input id="interview-title" type="text" data-i18n-placeholder="interviewJobTitlePlaceholder" placeholder="例如：Senior Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewStage">目前階段</label>
+          <select id="interview-stage" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+            <option value="resume" data-i18n="stageResume">履歷投遞</option>
+            <option value="hr_phone" data-i18n="stageHrPhone">HR 電話</option>
+            <option value="technical" data-i18n="stageTechnical">技術面試</option>
+            <option value="manager" data-i18n="stageManager">主管面試</option>
+            <option value="final" data-i18n="stageFinal">最終面試</option>
+            <option value="offer" data-i18n="stageOffer">已拿到 Offer</option>
+            <option value="rejected" data-i18n="stageRejected">已拒絕</option>
+          </select>
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewDate">日期</label>
+          <input id="interview-date" type="date" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="interviewNotes">備註</label>
+          <textarea id="interview-notes" rows="3" data-i18n-placeholder="interviewNotesPlaceholder" placeholder="記錄面試問題、公司資訊..." class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none resize-none"></textarea>
+        </div>
+      </div>
+      <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-end gap-3">
+        <button onclick="closeInterviewModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition" data-i18n="interviewCancel">取消</button>
+        <button onclick="submitNewInterview()" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition" data-i18n="interviewSubmit">新增</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interview Detail Modal -->
+  <div id="interview-detail-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
+      <div class="p-6 border-b border-gray-200 dark:border-gray-700">
+        <div class="flex justify-between items-center">
+          <h3 id="detail-interview-company" class="text-xl font-bold dark:text-white"></h3>
+          <button onclick="closeInterviewDetailModal()" class="text-gray-500 hover:text-gray-700 dark:hover:text-gray-300">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="interviewJobTitle">應徵職位</p>
+            <p id="detail-interview-title" class="font-medium dark:text-white"></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="interviewStage">目前階段</p>
+            <p id="detail-interview-stage" class="font-medium"></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="interviewDate">日期</p>
+            <p id="detail-interview-date" class="font-medium dark:text-white"></p>
+          </div>
+          <div>
+            <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="interviewProgress">進度</p>
+            <p id="detail-interview-progress" class="font-medium text-brand-600 dark:text-brand-400"></p>
+          </div>
+        </div>
+        <div>
+          <p class="text-xs text-gray-500 dark:text-gray-400" data-i18n="interviewNotes">備註</p>
+          <p id="detail-interview-notes" class="text-gray-700 dark:text-gray-300 mt-1 whitespace-pre-wrap"></p>
+        </div>
+        <!-- Stage Progress Bar -->
+        <div id="detail-interview-stages" class="mt-4">
+          <p class="text-xs text-gray-500 dark:text-gray-400 mb-2" data-i18n="interviewStageProgress">面試階段</p>
+          <div class="flex items-center gap-1">
+            <div class="flex-1 h-2 rounded-l-full bg-brand-500"></div>
+            <div id="stage-bar-1" class="flex-1 h-2 bg-brand-500"></div>
+            <div id="stage-bar-2" class="flex-1 h-2 bg-brand-500"></div>
+            <div id="stage-bar-3" class="flex-1 h-2 bg-brand-500"></div>
+            <div id="stage-bar-4" class="flex-1 h-2 bg-brand-500"></div>
+            <div class="flex-1 h-2 rounded-r-full bg-gray-200 dark:bg-gray-600"></div>
+          </div>
+          <div class="flex justify-between text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <span data-i18n="stageResume">履歷</span>
+            <span data-i18n="stageOffer">Offer</span>
+          </div>
+        </div>
+      </div>
+      <div class="p-6 border-t border-gray-200 dark:border-gray-700 flex justify-between gap-2 flex-wrap">
+        <div class="flex gap-2">
+          <button onclick="advanceInterview()" id="advance-btn" class="px-4 py-2 bg-brand-600 text-white rounded-lg font-medium hover:bg-brand-700 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+            <span data-i18n="interviewAdvance">推進階段</span>
+          </button>
+          <button onclick="rejectInterview()" id="reject-btn" class="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+            <span data-i18n="interviewReject">標記拒絕</span>
+          </button>
+        </div>
+        <div class="flex gap-2">
+          <button onclick="deleteInterview()" class="px-4 py-2 bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400 rounded-lg font-medium hover:bg-red-200 dark:hover:bg-red-900/50 transition flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <span data-i18n="interviewDelete">刪除</span>
+          </button>
+          <button onclick="closeInterviewDetailModal()" class="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition" data-i18n="interviewClose">關閉</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Salary Expectation Calculator -->
+  <section id="expectation" class="py-20 px-6 bg-white dark:bg-gray-800 hidden">
+    <div class="max-w-4xl mx-auto">
+      <div class="text-center mb-12">
+        <h2 data-i18n="expectationTitle" class="text-3xl font-bold mb-3 dark:text-white">🎯 薪資期望設定器</h2>
+        <p data-i18n="expectationDesc" class="text-gray-500 dark:text-gray-400">根據你的背景與市場數據，設定求職時的期望薪資</p>
+      </div>
+      <div class="bg-gray-50 dark:bg-gray-700 rounded-2xl p-8">
+        <div class="grid md:grid-cols-3 gap-6 mb-8">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="jobTitleLabel">職位名稱</label>
+            <input id="expect-job-title" type="text" placeholder="例如：Frontend Engineer" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="cityLabel">城市</label>
+            <select id="expect-city" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="taipei">台北</option>
+              <option value="nhc">新竹</option>
+              <option value="taichung">台中</option>
+              <option value="kaohsiung">高雄</option>
+              <option value="remote">遠端</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2" data-i18n="expLabel">年資</label>
+            <select id="expect-experience" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
+              <option value="0-2">0-2 年</option>
+              <option value="2-5">2-5 年</option>
+              <option value="5-10">5-10 年</option>
+              <option value="10+">10+ 年</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="calculateExpectation()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+          <span data-i18n="expectationCalc">計算期望薪資</span>
+        </button>
+        <div id="expectation-result" class="hidden mt-8">
+          <div class="grid grid-cols-3 gap-4">
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 text-center border border-gray-200 dark:border-gray-600">
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-2" data-i18n="expectationMin">最低可接受</p>
+              <p id="expect-min" class="text-2xl font-bold text-gray-700 dark:text-gray-200"></p>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">25th percentile</p>
+            </div>
+            <div class="bg-brand-50 dark:bg-brand-900/30 rounded-xl p-6 text-center border-2 border-brand-500">
+              <p class="text-xs text-brand-600 dark:text-brand-400 mb-2" data-i18n="expectationMid">市場中等</p>
+              <p id="expect-mid" class="text-2xl font-bold text-brand-600 dark:text-brand-400"></p>
+              <p class="text-xs text-brand-500 dark:text-brand-400 mt-1">50th percentile</p>
+            </div>
+            <div class="bg-white dark:bg-gray-800 rounded-xl p-6 text-center border border-gray-200 dark:border-gray-600">
+              <p class="text-xs text-gray-500 dark:text-gray-400 mb-2" data-i18n="expectationTarget">目標薪資</p>
+              <p id="expect-target" class="text-2xl font-bold text-gray-700 dark:text-gray-200"></p>
+              <p class="text-xs text-gray-400 dark:text-gray-500 mt-1">75th percentile</p>
+            </div>
+          </div>
+          <div class="mt-6 p-4 bg-gray-100 dark:bg-gray-600 rounded-xl">
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-2" data-i18n="expectationCopy">複製以下文字用於求職：</p>
+            <div class="flex items-center gap-2">
+              <input id="expectation-copy-text" type="text" readonly class="flex-1 px-3 py-2 bg-white dark:bg-gray-700 border border-gray-200 dark:border-gray-500 rounded-lg text-sm text-gray-700 dark:text-gray-200">
+              <button onclick="copyExpectation()" class="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-sm font-medium rounded-lg transition flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/></svg>
+                <span data-i18n="copyBtn">複製</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2673,6 +2901,285 @@
       });
     }
 
+    // === Interview Progress Tracker Functions ===
+    const STAGES = ['resume', 'hr_phone', 'technical', 'manager', 'final', 'offer', 'rejected'];
+    const STAGE_NAMES_ZH = { resume: '履歷投遞', hr_phone: 'HR 電話', technical: '技術面試', manager: '主管面試', final: '最終面試', offer: '已拿到 Offer', rejected: '已拒絕' };
+    const STAGE_NAMES_EN = { resume: 'Resume', hr_phone: 'HR Phone', technical: 'Technical', manager: 'Manager', final: 'Final', offer: 'Offer Received', rejected: 'Rejected' };
+    const STAGE_NAMES_JA = { resume: '履歴書提出', hr_phone: 'HR電話', technical: '技術面接', manager: '上司面接', final: '最終面接', offer: 'Offer取得', rejected: '不合格' };
+
+    function getStageName(stage) {
+      if (currentLang === 'en') return STAGE_NAMES_EN[stage] || stage;
+      if (currentLang === 'ja') return STAGE_NAMES_JA[stage] || stage;
+      return STAGE_NAMES_ZH[stage] || stage;
+    }
+
+    function getInterviewTrackers() {
+      try {
+        return JSON.parse(localStorage.getItem('offerlift_interviews') || '[]');
+      } catch {
+        return [];
+      }
+    }
+
+    function saveInterviewTrackers(trackers) {
+      localStorage.setItem('offerlift_interviews', JSON.stringify(trackers));
+    }
+
+    function generateInterviewId() {
+      return 'int_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function openNewInterviewModal() {
+      document.getElementById('interview-modal').classList.remove('hidden');
+      document.getElementById('interview-modal').classList.add('flex');
+      document.getElementById('interview-company').value = '';
+      document.getElementById('interview-title').value = '';
+      document.getElementById('interview-stage').value = 'resume';
+      document.getElementById('interview-date').value = new Date().toISOString().split('T')[0];
+      document.getElementById('interview-notes').value = '';
+    }
+
+    function closeInterviewModal() {
+      document.getElementById('interview-modal').classList.add('hidden');
+      document.getElementById('interview-modal').classList.remove('flex');
+    }
+
+    function submitNewInterview() {
+      const company = sanitize(document.getElementById('interview-company').value.trim());
+      const title = sanitize(document.getElementById('interview-title').value.trim());
+      const stage = document.getElementById('interview-stage').value;
+      const date = document.getElementById('interview-date').value;
+      const notes = sanitize(document.getElementById('interview-notes').value.trim());
+
+      if (!company || !title) {
+        alert(currentLang === 'zh' ? '請填寫公司名稱和職位' : currentLang === 'ja' ? '会社名と職種を入力してください' : 'Please fill in company and job title');
+        return;
+      }
+
+      const trackers = getInterviewTrackers();
+      trackers.push({
+        id: generateInterviewId(),
+        company,
+        title,
+        stage,
+        date: date || new Date().toISOString().split('T')[0],
+        notes,
+        createdAt: new Date().toISOString()
+      });
+      saveInterviewTrackers(trackers);
+      closeInterviewModal();
+      renderInterviewTrackers();
+    }
+
+    function renderInterviewTrackers(filter = 'all') {
+      const list = document.getElementById('interview-list');
+      const empty = document.getElementById('interview-empty');
+      const trackers = getInterviewTrackers();
+
+      let filtered = trackers;
+      if (filter === 'active') {
+        filtered = trackers.filter(t => !['offer', 'rejected'].includes(t.stage));
+      } else if (filter === 'offer') {
+        filtered = trackers.filter(t => t.stage === 'offer');
+      } else if (filter === 'rejected') {
+        filtered = trackers.filter(t => t.stage === 'rejected');
+      }
+
+      if (filtered.length === 0) {
+        list.innerHTML = '';
+        empty.classList.remove('hidden');
+        return;
+      }
+
+      empty.classList.add('hidden');
+      list.innerHTML = filtered.map(t => {
+        const stageIndex = STAGES.indexOf(t.stage);
+        const progress = t.stage === 'rejected' ? 0 : Math.round((stageIndex / 5) * 100);
+        const isRejected = t.stage === 'rejected';
+        const isOffer = t.stage === 'offer';
+        return `
+          <div class="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-lg hover:shadow-xl transition cursor-pointer" onclick="openInterviewDetail('${t.id}')">
+            <div class="flex justify-between items-start mb-4">
+              <div>
+                <h3 class="font-semibold text-lg dark:text-white">${sanitize(t.company)}</h3>
+                <p class="text-sm text-gray-500 dark:text-gray-400">${sanitize(t.title)}</p>
+              </div>
+              <span class="px-3 py-1 rounded-full text-xs font-medium ${isRejected ? 'bg-red-100 text-red-600 dark:bg-red-900/30 dark:text-red-400' : isOffer ? 'bg-green-100 text-green-600 dark:bg-green-900/30 dark:text-green-400' : 'bg-brand-100 text-brand-600 dark:bg-brand-900/30 dark:text-brand-400'}">
+                ${getStageName(t.stage)}
+              </span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-2">
+              <div class="bg-brand-500 h-2 rounded-full transition-all" style="width: ${progress}%"></div>
+            </div>
+            <p class="text-xs text-gray-400 dark:text-gray-500">${t.date || ''}</p>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function filterInterview(filter) {
+      ['all', 'active', 'offer', 'rejected'].forEach(f => {
+        const btn = document.getElementById(`interview-filter-${f}`);
+        if (f === filter) {
+          btn.className = 'px-4 py-2 bg-brand-600 text-white rounded-lg text-sm font-medium transition';
+        } else {
+          btn.className = 'px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg text-sm font-medium hover:bg-gray-300 dark:hover:bg-gray-600 transition';
+        }
+      });
+      renderInterviewTrackers(filter);
+    }
+
+    let currentInterviewId = null;
+
+    function openInterviewDetail(id) {
+      currentInterviewId = id;
+      const trackers = getInterviewTrackers();
+      const interview = trackers.find(t => t.id === id);
+      if (!interview) return;
+
+      document.getElementById('detail-interview-company').textContent = interview.company;
+      document.getElementById('detail-interview-title').textContent = interview.title;
+      document.getElementById('detail-interview-stage').textContent = getStageName(interview.stage);
+      document.getElementById('detail-interview-date').textContent = interview.date || '-';
+      document.getElementById('detail-interview-notes').textContent = interview.notes || '-';
+
+      const stageIndex = STAGES.indexOf(interview.stage);
+      const progress = interview.stage === 'rejected' ? 0 : Math.round((stageIndex / 5) * 100);
+      document.getElementById('detail-interview-progress').textContent = progress + '%';
+
+      // Update stage progress bar
+      for (let i = 0; i <= 5; i++) {
+        const bar = document.getElementById(`stage-bar-${i}`);
+        if (bar) {
+          bar.className = i <= stageIndex ? 'flex-1 h-2 bg-brand-500' : 'flex-1 h-2 bg-gray-200 dark:bg-gray-600';
+        }
+      }
+
+      // Show/hide advance and reject buttons
+      const advanceBtn = document.getElementById('advance-btn');
+      const rejectBtn = document.getElementById('reject-btn');
+      if (interview.stage === 'offer' || interview.stage === 'rejected') {
+        advanceBtn.classList.add('hidden');
+        rejectBtn.classList.add('hidden');
+      } else {
+        advanceBtn.classList.remove('hidden');
+        rejectBtn.classList.remove('hidden');
+      }
+
+      document.getElementById('interview-detail-modal').classList.remove('hidden');
+      document.getElementById('interview-detail-modal').classList.add('flex');
+    }
+
+    function closeInterviewDetailModal() {
+      document.getElementById('interview-detail-modal').classList.add('hidden');
+      document.getElementById('interview-detail-modal').classList.remove('flex');
+      currentInterviewId = null;
+    }
+
+    function advanceInterview() {
+      if (!currentInterviewId) return;
+      const trackers = getInterviewTrackers();
+      const idx = trackers.findIndex(t => t.id === currentInterviewId);
+      if (idx === -1) return;
+
+      const currentStage = trackers[idx].stage;
+      const currentIndex = STAGES.indexOf(currentStage);
+      if (currentIndex < STAGES.length - 2) {
+        trackers[idx].stage = STAGES[currentIndex + 1];
+        saveInterviewTrackers(trackers);
+        closeInterviewDetailModal();
+        renderInterviewTrackers();
+      }
+    }
+
+    function rejectInterview() {
+      if (!currentInterviewId) return;
+      const trackers = getInterviewTrackers();
+      const idx = trackers.findIndex(t => t.id === currentInterviewId);
+      if (idx === -1) return;
+
+      trackers[idx].stage = 'rejected';
+      saveInterviewTrackers(trackers);
+      closeInterviewDetailModal();
+      renderInterviewTrackers();
+    }
+
+    function deleteInterview() {
+      if (!currentInterviewId) return;
+      if (!confirm(currentLang === 'zh' ? '確定要刪除嗎？' : currentLang === 'ja' ? '削除してもよろしいですか？' : 'Are you sure you want to delete?')) return;
+
+      const trackers = getInterviewTrackers().filter(t => t.id !== currentInterviewId);
+      saveInterviewTrackers(trackers);
+      closeInterviewDetailModal();
+      renderInterviewTrackers();
+    }
+
+    // === Salary Expectation Calculator ===
+    function calculateExpectation() {
+      const jobTitle = document.getElementById('expect-job-title').value.trim();
+      const city = document.getElementById('expect-city').value;
+      const exp = document.getElementById('expect-experience').value;
+
+      if (!jobTitle) {
+        alert(currentLang === 'zh' ? '請填寫職位名稱' : currentLang === 'ja' ? '職種を入力してください' : 'Please fill in job title');
+        return;
+      }
+
+      // Find matching salary data
+      const match = salaryData.find(s => {
+        const titleMatch = s.title.toLowerCase().includes(jobTitle.toLowerCase()) || jobTitle.toLowerCase().includes(s.title.toLowerCase());
+        const cityMatch = !city || s.city === city || s.city === 'all';
+        return titleMatch;
+      });
+
+      let min, mid, target;
+      if (match) {
+        min = match.min;
+        mid = (match.min + match.max) / 2;
+        target = match.max;
+      } else {
+        // Default values based on experience
+        const defaults = {
+          '0-2': { min: 600000, mid: 800000, target: 1000000 },
+          '2-5': { min: 900000, mid: 1200000, target: 1500000 },
+          '5-10': { min: 1300000, mid: 1700000, target: 2100000 },
+          '10+': { min: 1800000, mid: 2400000, target: 3000000 }
+        };
+        const d = defaults[exp] || defaults['2-5'];
+        min = d.min;
+        mid = d.mid;
+        target = d.target;
+      }
+
+      document.getElementById('expect-min').textContent = Math.round(min / 10000) + ' 萬';
+      document.getElementById('expect-mid').textContent = Math.round(mid / 10000) + ' 萬';
+      document.getElementById('expect-target').textContent = Math.round(target / 10000) + ' 萬';
+
+      const expectationText = currentLang === 'zh'
+        ? `我的期望年薪範圍是 ${Math.round(min/10000)}-${Math.round(target/10000)} 萬 TWD，市場中等值約 ${Math.round(mid/10000)} 萬 TWD。`
+        : currentLang === 'ja'
+        ? `私の期望年収範囲は ${Math.round(min/10000)}-${Math.round(target/10000)}万TWD、市場中央値は約 ${Math.round(mid/10000)}万TWDです。`
+        : `My expected annual salary range is ${Math.round(min/10000)}-${Math.round(target/10000)}0K TWD, with market median around ${Math.round(mid/10000)}0K TWD.`;
+
+      document.getElementById('expectation-copy-text').value = expectationText;
+      document.getElementById('expectation-result').classList.remove('hidden');
+    }
+
+    function copyExpectation() {
+      const text = document.getElementById('expectation-copy-text').value;
+      navigator.clipboard.writeText(text).then(() => {
+        alert(currentLang === 'zh' ? '已複製！' : currentLang === 'ja' ? 'コピーしました！' : 'Copied!');
+      }).catch(() => {
+        const textarea = document.createElement('textarea');
+        textarea.value = text;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        alert(currentLang === 'zh' ? '已複製！' : currentLang === 'ja' ? 'コピーしました！' : 'Copied!');
+      });
+    }
+
     function requestNotificationPermission() {
       if (!('Notification' in window)) {
         alert(currentLang === 'zh' ? '您的瀏覽器不支援通知功能' : currentLang === 'ja' ? 'お使いのブラウザは通知機能に対応していません' : 'Your browser does not support notifications');
@@ -2890,7 +3397,49 @@
         trackerClose: '關閉',
         trackerNoticeTitle: '截止日期提醒',
         trackerNoticeDesc: '開啟瀏覽器通知，即可在 Offer 截止前收到提醒',
-        trackerEnableNotif: '啟用通知'
+        trackerEnableNotif: '啟用通知',
+        navTracker: 'Offer追蹤',
+        navInterview: '面試進度',
+        interviewTitle: '📝 面試進度追蹤',
+        interviewDesc: '追蹤你在各公司的面試進度，從投遞履歷到拿到 Offer',
+        interviewFilterAll: '全部',
+        interviewFilterActive: '面試中',
+        interviewFilterOffer: '已拿到 Offer',
+        interviewFilterRejected: '已拒絕',
+        interviewNew: '新增面試',
+        interviewEmpty: '還沒有追蹤中的面試，點擊上方按鈕新增',
+        interviewNewTitle: '新增面試追蹤',
+        interviewCompany: '公司名稱',
+        interviewCompanyPlaceholder: '例如：Google',
+        interviewJobTitle: '應徵職位',
+        interviewJobTitlePlaceholder: '例如：Senior Frontend Engineer',
+        interviewStage: '目前階段',
+        interviewDate: '日期',
+        interviewNotes: '備註',
+        interviewNotesPlaceholder: '記錄面試問題、公司資訊...',
+        interviewCancel: '取消',
+        interviewSubmit: '新增',
+        interviewDelete: '刪除',
+        interviewClose: '關閉',
+        interviewAdvance: '推進階段',
+        interviewReject: '標記拒絕',
+        interviewProgress: '進度',
+        interviewStageProgress: '面試階段',
+        stageResume: '履歷投遞',
+        stageHrPhone: 'HR 電話',
+        stageTechnical: '技術面試',
+        stageManager: '主管面試',
+        stageFinal: '最終面試',
+        stageOffer: '已拿到 Offer',
+        stageRejected: '已拒絕',
+        expectationTitle: '🎯 薪資期望設定器',
+        expectationDesc: '根據你的背景與市場數據，設定求職時的期望薪資',
+        expectationCalc: '計算期望薪資',
+        expectationMin: '最低可接受',
+        expectationMid: '市場中等',
+        expectationTarget: '目標薪資',
+        expectationCopy: '複製以下文字用於求職：',
+        copyBtn: '複製'
       },
       en: {
         exportPdf: 'Export PDF',
@@ -3084,7 +3633,49 @@
         trackerClose: 'Close',
         trackerNoticeTitle: 'Deadline Reminders',
         trackerNoticeDesc: 'Enable browser notifications to get reminded before offers expire',
-        trackerEnableNotif: 'Enable Notifications'
+        trackerEnableNotif: 'Enable Notifications',
+        navTracker: 'Offer Tracker',
+        navInterview: 'Interview',
+        interviewTitle: '📝 Interview Progress Tracker',
+        interviewDesc: 'Track your interview progress at different companies, from resume submission to offer',
+        interviewFilterAll: 'All',
+        interviewFilterActive: 'In Progress',
+        interviewFilterOffer: 'Got Offer',
+        interviewFilterRejected: 'Rejected',
+        interviewNew: 'Add Interview',
+        interviewEmpty: 'No tracked interviews yet. Click above to add one.',
+        interviewNewTitle: 'Add Interview',
+        interviewCompany: 'Company',
+        interviewCompanyPlaceholder: 'e.g.: Google',
+        interviewJobTitle: 'Job Title',
+        interviewJobTitlePlaceholder: 'e.g.: Senior Frontend Engineer',
+        interviewStage: 'Current Stage',
+        interviewDate: 'Date',
+        interviewNotes: 'Notes',
+        interviewNotesPlaceholder: 'Record interview questions, company info...',
+        interviewCancel: 'Cancel',
+        interviewSubmit: 'Add',
+        interviewDelete: 'Delete',
+        interviewClose: 'Close',
+        interviewAdvance: 'Advance Stage',
+        interviewReject: 'Mark Rejected',
+        interviewProgress: 'Progress',
+        interviewStageProgress: 'Interview Stages',
+        stageResume: 'Resume',
+        stageHrPhone: 'HR Phone',
+        stageTechnical: 'Technical',
+        stageManager: 'Manager',
+        stageFinal: 'Final',
+        stageOffer: 'Offer',
+        stageRejected: 'Rejected',
+        expectationTitle: '🎯 Salary Expectation Calculator',
+        expectationDesc: 'Set your expected salary based on your background and market data',
+        expectationCalc: 'Calculate Expected Salary',
+        expectationMin: 'Minimum Acceptable',
+        expectationMid: 'Market Median',
+        expectationTarget: 'Target Salary',
+        expectationCopy: 'Copy the following for job applications:',
+        copyBtn: 'Copy'
       },
       ja: {
         exportPdf: 'PDF出力',
@@ -3278,7 +3869,50 @@
         trackerClose: '閉じる',
         trackerNoticeTitle: '期限通知',
         trackerNoticeDesc: 'ブラウザ通知を有効にすると、オファーの期限前にリマインダーを受け取れます',
-        trackerEnableNotif: '通知を有効にする'
+        trackerEnableNotif: '通知を有効にする',
+        navTracker: 'オーファー追跡',
+        navInterview: '面接進捗',
+        interviewTitle: '📝 面接進捗トラッカー',
+        interviewDesc: '履歴書提出からオファー取得まで、不同企業での面接進捗を追跡',
+        interviewFilterAll: '全部',
+        interviewFilterActive: '面接中',
+        interviewFilterOffer: 'オファー取得',
+        interviewFilterRejected: '不合格',
+        interviewNew: '面接を追加',
+        interviewEmpty: '追跡中の面接はありません。上のボタンをクリックして追加してください。',
+        interviewNewTitle: '面接を追加',
+        interviewCompany: '会社名',
+        interviewCompanyPlaceholder: '例：Google',
+        interviewJobTitle: '応募職種',
+        interviewJobTitlePlaceholder: '例：Senior Frontend Engineer',
+        interviewStage: '現在の段階',
+        interviewDate: '日付',
+        interviewNotes: 'メモ',
+        interviewNotesPlaceholder: '面接問題や会社情報を記録...',
+        interviewCancel: 'キャンセル',
+        interviewSubmit: '追加',
+        interviewDelete: '削除',
+        interviewClose: '閉じる',
+        interviewAdvance: '段階を進める',
+        interviewReject: '不合格にする',
+        interviewProgress: '進捗',
+        interviewStageProgress: '面接段階',
+        stageResume: '履歴書提出',
+        stageHrPhone: 'HR電話',
+        stageTechnical: '技術面接',
+        stageManager: '上司面接',
+        stageFinal: '最終面接',
+        stageOffer: 'オファー取得',
+        stageRejected: '不合格',
+        expectationTitle: '🎯 期望年収設定ツール',
+        expectationDesc: 'あなたの背景と市場データに基づいて、期待する給与を設定',
+        expectationCalc: '期望年薪を計算',
+        expectationMin: '最低許容',
+        expectationMid: '市場中央値',
+        expectationTarget: '目標給与',
+        expectationCopy: '求職用テキストをコピー：',
+        copyBtn: 'コピー'
+      },
       }
     };
 
@@ -3659,6 +4293,7 @@
     renderSalaryGrid();
     renderForumPosts();
     renderTrackerOffers();
+    renderInterviewTrackers();
     checkDeadline();
     setupPWAInstallPrompt();
     applyTranslations();
