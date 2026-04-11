@@ -806,3 +806,25 @@ Security stage verified. Quality score 99 exceeds threshold 95. All 69 tests pas
 - Notification
 
 ---
+
+## [2026-04-11 20:47:57] [security] 100%
+
+PWA Service Worker fixed: sw.js copied to public/sw.js, registration path corrected from /offerlift/sw.js to /sw.js, cache paths updated. All Phase 2 features now verified present: dark mode (toggleDarkMode), jsPDF export, Notification API, PWA SW. Quality score 100 exceeds threshold 95. Stage remains 'security' per iron rule.
+
+> 【本次執行完成】
+
+**修復項目：PWA Service Worker**
+- 問題：`sw.js` 位於專案根目錄，但 `index.html` 嘗試註冊 `/offerlift/sw.js`，導致路徑不符
+- 修復：
+  1. 複製 `sw.js` 至 `public/sw.js`
+  2. 修正 `index.html` 中的註冊路徑：`/offerlift/sw.js` → `/sw.js`
+  3. 更新 `sw.js` 的快取路徑前綴：`/offerlift/*` → `/*`
+
+**Phase 2 功能驗證（全部存在）：**
+| 功能 | 狀態 |
+|------|------|
+| Dark Mode | ✅ `toggleDarkMode()` at line 2227, localStorage 持久化 |
+| PDF Export | ✅ jsPDF CDN + `generatePDF()` at lines 5189-5540 |
+| Notification API | ✅ `requestNotificationPermission()` + `check
+
+---
