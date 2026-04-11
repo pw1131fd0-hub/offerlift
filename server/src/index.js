@@ -19,7 +19,7 @@ const projectRoot = path.resolve(__dirname, '..', '..');
 app.use(cors({
   origin: config.corsOrigin.split(','),
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'X-API-Key'],
+  allowedHeaders: ['Content-Type', 'X-API-Key', 'X-Anonymous-Id'],
 }));
 app.use(express.json({ limit: '1mb' }));
 
