@@ -8,10 +8,10 @@ import ScoreCard from '../components/ScoreCard/ScoreCard'
 import { api } from '../api/client'
 
 const EXPERIENCE_OPTIONS = [
-  { value: 'junior', label: 'Junior (1-2年)' },
-  { value: 'mid', label: 'Mid (3-5年)' },
-  { value: 'senior', label: 'Senior (6-9年)' },
-  { value: 'staff', label: 'Staff (10+年)' },
+  { value: '0-2', label: 'Junior (1-2年)' },
+  { value: '2-5', label: 'Mid (3-5年)' },
+  { value: '5-10', label: 'Senior (6-9年)' },
+  { value: '10+', label: 'Staff (10+年)' },
 ]
 
 const CITY_OPTIONS = [
@@ -26,7 +26,7 @@ export default function Evaluate() {
   const { t } = useTranslation()
   const [form, setForm] = useState({
     jobTitle: '',
-    experienceLevel: 'mid',
+    experience: '2-5',
     baseSalary: '',
     bonus: '',
     equity: '',
@@ -77,8 +77,8 @@ export default function Evaluate() {
 
           <Select
             label={t('evaluate.experienceLevel')}
-            value={form.experienceLevel}
-            onChange={handleChange('experienceLevel')}
+            value={form.experience}
+            onChange={handleChange('experience')}
             options={EXPERIENCE_OPTIONS}
           />
 

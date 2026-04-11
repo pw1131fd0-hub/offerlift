@@ -16,7 +16,7 @@ export default function Forum() {
   const loadPosts = () => {
     setLoading(true)
     api.getForum()
-      .then(setPosts)
+      .then((res) => setPosts(Array.isArray(res) ? res : (res.posts || [])))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }

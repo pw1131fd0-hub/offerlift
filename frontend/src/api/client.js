@@ -1,4 +1,4 @@
-const API_BASE = 'http://localhost:3000'
+const API_BASE = '' // Use relative URL so Nginx proxy handles it
 const API_KEY = 'dev_api_key_12345'
 
 async function apiFetch(path, options = {}) {

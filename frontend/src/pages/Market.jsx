@@ -13,7 +13,7 @@ export default function Market() {
 
   useEffect(() => {
     api.getSalaryData()
-      .then(setData)
+      .then((res) => setData(Array.isArray(res) ? res : (res.data || [])))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [])
@@ -21,7 +21,7 @@ export default function Market() {
   const filtered = data.filter(
     (item) =>
       !filter ||
-      item.position?.toLowerCase().includes(filter.toLowerCase()) ||
+      item.title?.toLowerCase().includes(filter.toLowerCase()) ||
       item.city?.toLowerCase().includes(filter.toLowerCase())
   )
 
@@ -60,12 +60,12 @@ export default function Market() {
             <tbody>
               {filtered.map((item, i) => (
                 <tr key={i} className="border-b border-gray-100 dark:border-gray-800 last:border-0">
-                  <td className="py-3 text-gray-900 dark:text-gray-100">{item.position}</td>
+                  <td className="py-3 text-gray-900 dark:text-gray-100">{item.title}</td>
                   <td className="py-3 text-gray-600 dark:text-gray-400">{item.city}</td>
                   <td className="py-3 text-brand-600 dark:text-brand-400 font-medium">
-                    {item.salary ? `$${Number(item.salary).toLocaleString()}` : '-'}
+                    {item.min && item.max ? `$${Number(item.min).toLocaleString()} ~ $${Number(item.max).toLocaleString()}` : '-'}
                   </td>
-                  <td className="py-3 text-gray-600 dark:text-gray-400">{item.experience}</td>
+                  <td className="py-3 text-gray-600 dark:text-gray-400">{item.level}</td>
                 </tr>
               ))}
             </tbody>

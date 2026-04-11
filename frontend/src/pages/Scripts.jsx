@@ -14,7 +14,7 @@ export default function Scripts() {
 
   useEffect(() => {
     api.getScripts()
-      .then(setScripts)
+      .then((res) => setScripts(Array.isArray(res) ? res : (res.scripts || [])))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
   }, [])
