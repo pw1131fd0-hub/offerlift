@@ -97,6 +97,90 @@ offerlift-frontend (8080)  ← Nginx serving React build
 - [ ] 50 個 WP 站主機方案（各別架 / MultiSite）
 - [ ] GSC 索引進度確認
 
+---
+
+## 6. 功能優先級分級（P0/P1/P2）
+
+### P0（Must Have - MVP 核心）
+1. **Offer 評估器**：輸入 Offer 結構，3 秒內取得 0-100 評估分數與談判建議
+2. **談判腳本庫**：5 種情境的立即可用對話腳本，支援一鍵複製
+3. **薪資行情查詢**：12 個常見科技職稱的年薪區間（104/LinkedIn/CakeResume 來源）
+4. **薪資論壇**：匿名發表/瀏覽討論，杜絕個資暴露
+5. **Docker 部署**：一行指令啟動完整棧（API + DB + Redis + Frontend）
+
+### P1（Should Have - 完善體驗）
+1. **Offer 追蹤 Dashboard**：新增/編輯/刪除我的 Offers
+2. **匿名薪資貢獻**：用戶可貢獻自己的匿名數據擴充資料庫
+3. **稅務計算機**：輸入年薪，自動計算所得稅級距與實領
+4. **福利計算機**：年終獎金、股票價值等化為現金流
+5. **深色模式**：Zustand 持久化，保護眼睛
+
+### P2（Nice to Have - 差異化）
+1. **面試進度追蹤**：記錄各公司面試階段與截止提醒
+2. **PDF 匯出**：將 Offer 評估結果匯出為 PDF 分享
+3. **多語言**：繁體中文、英語、日語三語切換
+4. **PWA Service Worker**：離線可用、加載更快
+5. **RSS 自動更新**：每小時爬取 104/CakeResume 最新薪資數據寫入 DB
+
+---
+
+## 7. 非功能需求
+
+| 維度 | 需求 | 指標 |
+|------|------|------|
+| **效能** | API 回應時間 | P95 < 500ms（evaluate 端點 < 3s） |
+| **可用性** | 系統 uptime | 99.5%（不含 DB/Redis 維護窗口） |
+| **擴展性** | 同時在線用戶 | 支援 100 並發用戶（API + DB 連線池） |
+| **安全性** | API 金鑰驗證 | 所有寫入端點需要 X-API-Key header |
+| **安全性** | 敏感資料 | 論壇禁止姓名/電話/email，自動過濾 |
+| **資料持久性** | 資料庫備份 | PostgreSQL 每日凌晨自動備份 |
+| **響應式設計** | 行動裝置 | 全頁面支援 375px - 1920px 寬度 |
+
+---
+
+## 8. UI/UX 色彩計劃
+
+### 主視覺色系
+| 用途 | 色彩 | Hex |
+|------|------|-----|
+| **主色（Primary）** | 品牌藍 | `#2563EB` |
+| **輔色（Accent）** | 活力綠 | `#10B981` |
+| **警告色（Warning）** | 謹慎橙 | `#F59E0B` |
+| **危險色（Danger）** | 果斷紅 | `#EF4444` |
+| **成功色（Success）** | 談判綠 | `#22C55E` |
+| **深色背景** | 深空灰 | `#0F172A` |
+| **淺色背景** | 極光白 | `#F8FAFC` |
+
+### 字體與佈局
+- **主標題字體**：Inter（Google Fonts），粗體，20px+
+- **內文字體**：Inter，常規，14-16px
+- **等寬字體**：JetBrains Mono（數字、程式碼）
+- **佈局柵格**：12 欄系統，最大內容寬度 1280px
+- **間距系統**：4px 基礎單位（0.25rem），常用 8/16/24/32px
+
+### 深色模式
+- 背景：`#0F172A`（dark mode body）
+- 卡片：`#1E293B`（dark mode card bg）
+- 文字：`#F1F5F9`（dark mode text）
+- 切換方式：Zustand store → localStorage 持久化
+
+---
+
+## 9. 成功指標（KPI）
+
+| 指標 | 目標值 | 衡量方式 |
+|------|--------|----------|
+| **頁面載入時間** | < 2 秒（Lighthouse Performance > 90） | Vite build + Nginx gzip |
+| **用戶留存率** | 30 日留存 > 30% | localStorage 追蹤回訪 |
+| **Offer 評估使用率** | 每次 session 至少 1 次評估 | API call counting |
+| **論壇互動率** | 發文/瀏覽比 > 5% | DB 記數 |
+| **API 可用性** | 99.5% uptime | health check ping |
+| **錯誤率** | API 5xx 錯誤 < 0.5% | error logging |
+
+---
+
+## 10. 待老闆決策
+
 
 【現有系統架構（SA）】
 # OfferLift SA — 系統架構文件（React 版本）
@@ -644,6 +728,28 @@ Pushed to `main`: `45fda1c`
 ⚠️ 注意：PRD 所有功能標示「✅ 已實作」全是假的，請視為全新專案開發。index.html 只有 HTML，無 JS 功能。務必建立完整後端 + 真實前端串接。
 
 ⚠️ 以上回饋優先級最高，必須在本輪內處理。
+
+【上次巡檢狀態】
+{
+  "stage": "prd",
+  "iteration": 1,
+  "quality_score": 85,
+  "quality_details": {
+    "product_vision": 100,
+    "user_stories": 100,
+    "p0_p1_p2_分级": 100,
+    "non_functional_requirements": 100,
+    "tech_stack": 85,
+    "ui_ux_color_plan": 100,
+    "success_kpis": 100
+  },
+  "completeness": 90,
+  "summary": "PRD document audited - all 7 required items present with substantial content (>50 chars each). Added missing sections: P0/P1/P2 features (5 each), Non-functional requirements (7 metrics), UI/UX color plan (primary/accent/warning/danger + dark mode + typography), Success KPIs (6量化 metrics). Tech stack partially meets bar (85/100 - existing choices valid but need rationale expansion). PRD now meets 85-point threshold for SA/SD phase.",
+  "next_action": "Proceed to SA/SD phase - verify documents have architecture diagrams, API specs, DB schema, and deployment details. If any missing, fill before moving to dev phase.",
+  "updated_at": "2026-04-11T23:30:00.000Z"
+}
+
+請根據上次狀態和本次發現，決定是繼續當前階段深化，還是推進到下一階段。
 
 你是這個專案的全權負責工程師。執行「品質驅動」的開發模式：分數達標才往前，可回溯低質量。
 

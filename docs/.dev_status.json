@@ -1,18 +1,13 @@
 {
   "stage": "prd",
   "iteration": 1,
-  "quality_score": 85,
-  "quality_details": {
-    "product_vision": 100,
-    "user_stories": 100,
-    "p0_p1_p2_分级": 100,
-    "non_functional_requirements": 100,
-    "tech_stack": 85,
-    "ui_ux_color_plan": 100,
-    "success_kpis": 100
-  },
-  "completeness": 90,
-  "summary": "PRD document audited - all 7 required items present with substantial content (>50 chars each). Added missing sections: P0/P1/P2 features (5 each), Non-functional requirements (7 metrics), UI/UX color plan (primary/accent/warning/danger + dark mode + typography), Success KPIs (6量化 metrics). Tech stack partially meets bar (85/100 - existing choices valid but need rationale expansion). PRD now meets 85-point threshold for SA/SD phase.",
-  "next_action": "Proceed to SA/SD phase - verify documents have architecture diagrams, API specs, DB schema, and deployment details. If any missing, fill before moving to dev phase.",
-  "updated_at": "2026-04-11T23:30:00.000Z"
+  "quality_score": 0,
+  "quality_details": {},
+  "items_completed": [],
+  "items_missing": ["產品願景", "User Story", "P0/P1/P2", "非功能需求", "技術選型", "UI/UX", "KPI"],
+  "blocking_errors": [],
+  "non_blocking_errors": [],
+  "summary": "",
+  "next_action": "開始 PRD 階段",
+  "updated_at": "2026-04-12T00:00:00.000Z"
 }
