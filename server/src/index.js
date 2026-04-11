@@ -23,13 +23,18 @@ app.use(cors({
 }));
 app.use(express.json({ limit: '1mb' }));
 
-// Serve static files (including index.html)
-app.use(express.static(projectRoot));
-
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
+
+app.get('/test', (req, res) => {
+  res.sendFile(path.join(projectRoot, 'test.html'));
+});
+
+// Serve static files
+app.use(express.static(projectRoot));
+app.use(express.static(path.join(projectRoot, 'public')));
 
 // API Routes
 app.use('/api', routes);
