@@ -45,11 +45,22 @@ export default function Evaluate() {
     setError('')
     setResult(null)
     try {
+      const baseSalary = Number(form.baseSalary)
+      const bonus = Number(form.bonus) || 0
+      const equity = Number(form.equity) || 0
+      // Calculate total annual compensation
+      const bonusValue = (bonus / 12) * baseSalary
+      const equityValue = equity * 1000000 // rough estimate
+      const totalComp = baseSalary + bonusValue + equityValue
+
       const data = await api.evaluate({
-        ...form,
-        baseSalary: Number(form.baseSalary),
-        bonus: Number(form.bonus),
-        equity: Number(form.equity),
+        jobTitle: form.jobTitle,
+        totalComp,
+        baseSalary,
+        bonus,
+        equity,
+        city: form.city,
+        experience: form.experience,
       })
       setResult(data)
     } catch (err) {
