@@ -1642,7 +1642,14 @@
     </div>
   </div>
 
-  <script src="/js/api.v2.js"></script>
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      alert("⚠️ JS Error: " + msg + "\nAt: " + line + ":" + col);
+      return false;
+    };
+    console.log('[DEBUG] Error handler registered');
+  </script>
+  <script src="/js/api.v3.js"></script>
   <script>
     // Salary reference data
     const salaryData = [
@@ -2058,6 +2065,7 @@
 
     // Evaluate offer - calls backend API
     async function evaluateOffer() {
+      console.log('[DEBUG] evaluateOffer clicked');
       const total = parseFloat(document.getElementById('total-comp').value) || 0;
       const base = parseFloat(document.getElementById('base-salary').value) || 0;
       const city = document.getElementById('city').value;
@@ -5499,6 +5507,7 @@
     }
 
     // Init
+    console.log('[DEBUG] App Initializing');
     initDarkMode();
     document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
     fetchScripts();
