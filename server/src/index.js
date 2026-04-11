@@ -85,9 +85,11 @@ app.listen(config.port, () => {
   console.log(`Environment: ${config.nodeEnv}`);
 
   // Start RSS scheduler
+  /* RSS disabled by owner request
   if (config.nodeEnv === 'development' || config.nodeEnv === 'production') {
     startScheduler();
   }
+  */
 });
 
 export default app;
