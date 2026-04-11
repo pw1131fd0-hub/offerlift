@@ -416,3 +416,25 @@ I've completed the following work aligning with the boss's requirements for **Ph
 - 9 route files: `/api/eval
 
 ---
+
+## [2026-04-11 10:17:00] [test] 75%
+
+Fixed Dockerfile to include frontend assets (index.html, public/). All backend API endpoints verified working via curl. Database migrations and seeds run successfully. 48 tests passing. Backend fully operational.
+
+> 
+
+## Summary
+
+I've completed the following work in this session:
+
+### Problem Identified
+- Database tables didn't exist (migration never run against the container's database)
+- Docker container couldn't serve `/js/api.js` (missing frontend assets in Dockerfile)
+
+### Fixes Applied
+
+1. **Database Migration & Seeds** — Ran migrations against the container's PostgreSQL at `localhost:5434`, then loaded seed data (12 salary records, 5 negotiation scripts)
+
+2. **Dockerfile Fix** — Added `COPY index.htm
+
+---

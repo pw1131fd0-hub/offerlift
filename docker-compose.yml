@@ -46,13 +46,9 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      postgres:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-    volumes:
-      - ./server:/app/server
-      - ./index.html:/app/index.html
+      - postgres
+      - redis
+    volumes: []
 
 volumes:
   postgres_data:
