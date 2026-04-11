@@ -7,6 +7,7 @@ import routes from './routes/index.js';
 import { startScheduler } from './services/rss.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import fs from 'fs';
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -44,9 +45,13 @@ app.get('/health', (req, res) => {
 // Serve static files from public directory
 app.use('/js', express.static(path.join(projectRoot, 'public', 'js')));
 
+import fs from 'fs';
+
 // Serve index.html for root route
 app.get('/', (req, res) => {
-  res.sendFile(path.join(projectRoot, 'index.html'));
+  const html = fs.readFileSync(path.join(projectRoot, 'index.html'), 'utf8');
+  res.set('Content-Type', 'text/html');
+  res.send(html);
 });
 
 app.get('/test', (req, res) => {

@@ -11,6 +11,7 @@ RUN npm ci --only=production
 # Copy application code
 COPY server/ ./server/
 COPY index.html .
+COPY test.html .
 COPY public/ ./public/
 
 # Expose port
