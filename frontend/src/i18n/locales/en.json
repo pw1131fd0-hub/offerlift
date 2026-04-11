@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "home": "Home",
+    "evaluate": "Evaluate",
+    "dashboard": "My Offers",
+    "market": "Market",
+    "forum": "Forum",
+    "scripts": "Scripts"
+  },
+  "home": {
+    "hero_title": "Let Your Offer Speak for Itself",
+    "hero_subtitle": "OfferLift is your salary negotiation assistant — evaluate offers, track market data, and prepare scripts.",
+    "cta": "Start Evaluating",
+    "feature_evaluate_title": "Offer Evaluation",
+    "feature_evaluate_desc": "Input your offer and get instant AI analysis with negotiation advice",
+    "feature_scripts_title": "Negotiation Scripts",
+    "feature_scripts_desc": "Proven scripts for salary negotiation",
+    "feature_forum_title": "Anonymous Forum",
+    "feature_forum_desc": "Share and compare offer experiences with other job seekers",
+    "feature_market_title": "Salary Market",
+    "feature_market_desc": "Stay on top of the latest market salary data"
+  },
+  "evaluate": {
+    "title": "Offer Evaluation",
+    "jobTitle": "Job Title",
+    "experienceLevel": "Experience Level",
+    "baseSalary": "Base Salary (Monthly)",
+    "bonus": "Year-end Bonus (Months)",
+    "equity": "Equity (Value)",
+    "city": "City",
+    "submit": "Evaluate",
+    "score": "Score",
+    "interpretation": "Interpretation"
+  },
+  "dashboard": {
+    "title": "My Offers",
+    "addOffer": "Add Offer",
+    "company": "Company",
+    "position": "Position",
+    "score": "Score",
+    "status": "Status",
+    "edit": "Edit",
+    "delete": "Delete",
+    "save": "Save",
+    "cancel": "Cancel"
+  },
+  "market": {
+    "title": "Salary Market",
+    "filter": "Filter",
+    "position": "Position",
+    "salary": "Salary",
+    "experience": "Experience"
+  },
+  "forum": {
+    "title": "Anonymous Forum",
+    "post": "Post",
+    "author": "Anonymous",
+    "content": "Content"
+  },
+  "scripts": {
+    "title": "Negotiation Scripts",
+    "copy": "Copy",
+    "copied": "Copied"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "An error occurred",
+    "noData": "No data available"
+  }
+}

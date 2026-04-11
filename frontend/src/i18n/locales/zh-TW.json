@@ -1,0 +1,70 @@
+{
+  "nav": {
+    "home": "首頁",
+    "evaluate": "評估",
+    "dashboard": "我的 Offers",
+    "market": "薪資行情",
+    "forum": "論壇",
+    "scripts": "腳本庫"
+  },
+  "home": {
+    "hero_title": "讓你的 offer 說話",
+    "hero_subtitle": "OfferLift 是你的薪資談判智囊，幫你評估 offer 價值、掌握市場行情、準備談判腳本。",
+    "cta": "開始評估",
+    "feature_evaluate_title": "Offer 評估",
+    "feature_evaluate_desc": "輸入你的 offer，AI 即時分析分數與談判建議",
+    "feature_scripts_title": "談判腳本",
+    "feature_scripts_desc": " hundreds of proven scripts for salary negotiation",
+    "feature_forum_title": "匿名論壇",
+    "feature_forum_desc": "與其他求職者交流 offer 經驗",
+    "feature_market_title": "薪資行情",
+    "feature_market_desc": "掌握最新市場薪資數據"
+  },
+  "evaluate": {
+    "title": "Offer 評估",
+    "jobTitle": "職稱",
+    "experienceLevel": "工作年資",
+    "baseSalary": "基本薪資（月薪）",
+    "bonus": "年終獎金（月）",
+    "equity": "股票（價值）",
+    "city": "城市",
+    "submit": "評估",
+    "score": "評估分數",
+    "interpretation": "解讀"
+  },
+  "dashboard": {
+    "title": "我的 Offers",
+    "addOffer": "新增 Offer",
+    "company": "公司",
+    "position": "職位",
+    "score": "分數",
+    "status": "狀態",
+    "edit": "編輯",
+    "delete": "刪除",
+    "save": "儲存",
+    "cancel": "取消"
+  },
+  "market": {
+    "title": "薪資行情",
+    "filter": "篩選",
+    "position": "職位",
+    "salary": "薪資",
+    "experience": "年資"
+  },
+  "forum": {
+    "title": "匿名論壇",
+    "post": "發表",
+    "author": "匿名",
+    "content": "內容"
+  },
+  "scripts": {
+    "title": "談判腳本庫",
+    "copy": "複製",
+    "copied": "已複製"
+  },
+  "common": {
+    "loading": "載入中...",
+    "error": "發生錯誤",
+    "noData": "暫無資料"
+  }
+}
