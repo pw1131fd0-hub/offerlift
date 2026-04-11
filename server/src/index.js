@@ -5,8 +5,15 @@ import { config } from './config/env.js';
 import { errorHandler } from './middleware/errorHandler.js';
 import routes from './routes/index.js';
 import { startScheduler } from './services/rss.js';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const app = express();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Resolve project root (parent of server/src)
+const projectRoot = path.resolve(__dirname, '..', '..');
 
 // Middleware
 app.use(helmet());
@@ -20,6 +27,14 @@ app.use(express.json({ limit: '1mb' }));
 // Health check
 app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
+});
+
+// Serve static files from public directory
+app.use('/js', express.static(path.join(projectRoot, 'public', 'js')));
+
+// Serve index.html for root route
+app.get('/', (req, res) => {
+  res.sendFile(path.join(projectRoot, 'index.html'));
 });
 
 // API Routes

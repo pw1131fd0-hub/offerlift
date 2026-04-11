@@ -7,6 +7,7 @@ import forumRouter from './forum.js';
 import calculatorRouter from './calculator.js';
 import rssRouter from './rss.js';
 import scriptsRouter from './scripts.js';
+import contributeRouter from './contribute.js';
 import { authMiddleware } from '../middleware/auth.js';
 
 const router = Router();
@@ -23,5 +24,6 @@ router.use('/forum', forumRouter);
 router.use('/calculator', calculatorRouter);
 router.use('/rss', rssRouter);
 router.use('/scripts', scriptsRouter);
+router.use('/contribute', contributeRouter);
 
 export default router;

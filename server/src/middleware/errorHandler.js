@@ -1,3 +1,5 @@
+import { config } from '../config/env.js';
+
 export function errorHandler(err, req, res, next) {
   console.error('Error:', err);
 
