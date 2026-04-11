@@ -5,6 +5,16 @@ class ApiClient {
   constructor() {
     this.baseUrl = API_BASE;
     this.apiKey = localStorage.getItem('offerlift_api_key') || 'dev_api_key_12345';
+    // Generate anonymous ID if not exists
+    if (!localStorage.getItem('offerlift_anonymous_id')) {
+      localStorage.setItem('offerlift_anonymous_id', this.generateAnonymousId());
+    }
+    this.anonymousId = localStorage.getItem('offerlift_anonymous_id');
+  }
+
+  generateAnonymousId() {
+    // Generate a UUID-like anonymous ID
+    return 'anon_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 9);
   }
 
   async request(endpoint, options = {}) {
@@ -13,6 +23,7 @@ class ApiClient {
       headers: {
         'Content-Type': 'application/json',
         'X-API-Key': this.apiKey,
+        'X-Anonymous-Id': this.anonymousId,
         ...options.headers,
       },
       ...options,

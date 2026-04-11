@@ -3149,17 +3149,31 @@
 
     // === Anonymous Salary Forum Functions ===
     let currentForumFilter = 'all';
+    let forumPosts = [];
+    let forumTotal = 0;
+    let forumPage = 1;
+    const forumPageSize = 10;
+
+    async function fetchForumPosts() {
+      try {
+        const params = { page: forumPage, pageSize: forumPageSize };
+        if (currentForumFilter !== 'all') {
+          // Map frontend filter to city-based filter (backend uses city)
+          // For now, we'll fetch all and filter client-side for category
+        }
+        const result = await api.getForumPosts(params);
+        forumPosts = result.posts || [];
+        forumTotal = result.total || forumPosts.length;
+        renderForumPosts();
+      } catch (err) {
+        console.warn('Failed to fetch forum posts:', err.message);
+        forumPosts = [];
+        renderForumPosts();
+      }
+    }
 
     function getForumPosts() {
-      return JSON.parse(localStorage.getItem('offerlift_forum') || '[]');
-    }
-
-    function saveForumPosts(posts) {
-      localStorage.setItem('offerlift_forum', JSON.stringify(posts));
-    }
-
-    function generatePostId() {
-      return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      return forumPosts;
     }
 
     function openNewPostModal() {
@@ -3175,7 +3189,7 @@
       document.querySelectorAll('#forum-post-modal input[type="checkbox"]').forEach(cb => cb.checked = false);
     }
 
-    function submitNewPost() {
+    async function submitNewPost() {
       const title = document.getElementById('post-title').value.trim();
       const content = document.getElementById('post-content').value.trim();
       const category = document.getElementById('post-category').value;
@@ -3185,27 +3199,30 @@
         return;
       }
 
+      // Map category to city (backend uses city field)
+      // Since backend doesn't have category, we store it in salaryRange as a tag
+      const categoryLabels = { offer: 'Offer', negotiation: '談判', tips: '技巧' };
       const tags = [];
       document.querySelectorAll('#forum-post-modal input[type="checkbox"]:checked').forEach(cb => {
         tags.push(cb.value);
       });
+      const salaryRange = tags.length > 0 ? tags.join(', ') : categoryLabels[category] || category;
 
-      const post = {
-        id: generatePostId(),
-        title: sanitize(title),
-        content: sanitize(content),
-        category: category,
-        tags: tags,
-        date: new Date().toISOString(),
-        likes: 0
-      };
-
-      const posts = getForumPosts();
-      posts.unshift(post); // Add to beginning
-      saveForumPosts(posts);
-
-      closeNewPostModal();
-      renderForumPosts();
+      try {
+        await api.createForumPost({
+          title: sanitize(title),
+          content: sanitize(content),
+          city: 'taipei', // Default city, could be made selectable
+          salaryRange: salaryRange
+        });
+        closeNewPostModal();
+        // Refresh posts
+        forumPage = 1;
+        await fetchForumPosts();
+      } catch (err) {
+        console.error('Failed to create forum post:', err.message);
+        alert(currentLang === 'zh' ? '發表失敗，請稍後再試' : 'Failed to post. Please try again.');
+      }
     }
 
     function renderForumPosts() {
@@ -3215,7 +3232,8 @@
 
       let filteredPosts = posts;
       if (currentForumFilter !== 'all') {
-        filteredPosts = posts.filter(p => p.category === currentForumFilter);
+        // Backend returns salaryRange as category indicator
+        filteredPosts = posts.filter(p => (p.salaryRange || '').toLowerCase().includes(currentForumFilter));
       }
 
       if (filteredPosts.length === 0) {
@@ -3226,46 +3244,32 @@
 
       emptyState.classList.add('hidden');
 
-      const categoryLabels = {
-        offer: { zh: 'Offer 分享', en: 'Offer Sharing', ja: 'オファー共有' },
-        negotiation: { zh: '談判經驗', en: 'Negotiation Tips', ja: '交渉経験' },
-        tips: { zh: '技巧分享', en: 'Tips', ja: 'テク共有' }
-      };
-
       const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
 
       container.innerHTML = filteredPosts.map(post => {
-        const date = new Date(post.date);
+        const date = new Date(post.createdAt);
         const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
           year: 'numeric',
           month: 'short',
           day: 'numeric'
         });
 
-        const tagsHtml = post.tags.map(tag =>
-          `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${tag}</span>`
-        ).join('');
+        const tagsHtml = post.salaryRange ?
+          `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${post.salaryRange}</span>` : '';
 
         return `
           <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="openPostDetail('${post.id}')">
             <div class="flex justify-between items-start mb-3">
               <div class="flex items-center gap-2">
-                <span class="px-2 py-1 rounded text-xs font-medium ${post.category === 'offer' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : post.category === 'negotiation' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'}">
-                  ${categoryLabels[post.category][langKey]}
-                </span>
+                ${post.salaryRange ? `<span class="px-2 py-1 rounded text-xs font-medium bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300">${post.salaryRange}</span>` : ''}
+                ${post.company ? `<span class="px-2 py-1 rounded text-xs font-medium bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300">${post.company}</span>` : ''}
               </div>
               <span class="text-xs text-gray-500 dark:text-gray-400">${dateStr}</span>
             </div>
             <h3 class="font-bold text-lg mb-2 dark:text-white">${post.title}</h3>
-            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
+            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">${(post.content || '').substring(0, 100)}${(post.content || '').length > 100 ? '...' : ''}</p>
             <div class="flex justify-between items-center">
               <div class="flex flex-wrap gap-1">${tagsHtml}</div>
-              <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                <span>${post.likes}</span>
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                <span>${post.comments || 0}</span>
-              </div>
             </div>
           </div>
         `;
@@ -3278,14 +3282,13 @@
       if (!post) return;
 
       document.getElementById('detail-post-title').textContent = post.title;
-      document.getElementById('detail-post-content').textContent = post.content;
+      document.getElementById('detail-post-content').textContent = post.content || '';
 
-      const tagsHtml = post.tags.map(tag =>
-        `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${tag}</span>`
-      ).join('');
+      const tagsHtml = post.salaryRange ?
+        `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${post.salaryRange}</span>` : '';
       document.getElementById('detail-post-tags').innerHTML = tagsHtml;
 
-      const date = new Date(post.date);
+      const date = new Date(post.createdAt);
       const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
       const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
         year: 'numeric',
@@ -3294,7 +3297,7 @@
         hour: '2-digit',
         minute: '2-digit'
       });
-      document.getElementById('detail-post-meta').textContent = `${dateStr}`;
+      document.getElementById('detail-post-meta').textContent = `${dateStr}${post.company ? ' • ' + post.company : ''}`;
 
       document.getElementById('forum-post-detail-modal').classList.remove('hidden');
     }
@@ -3319,80 +3322,19 @@
       renderForumPosts();
     }
 
-    function searchForum(query) {
-      const posts = getForumPosts();
-      const container = document.getElementById('forum-posts');
-      const emptyState = document.getElementById('forum-empty');
-
-      if (!query.trim()) {
+    async function searchForum(query) {
+      try {
+        const params = { page: 1, pageSize: forumPageSize };
+        if (query.trim()) {
+          params.query = query.trim();
+        }
+        const result = await api.getForumPosts(params);
+        forumPosts = result.posts || [];
+        forumTotal = result.total || forumPosts.length;
         renderForumPosts();
-        return;
+      } catch (err) {
+        console.warn('Forum search failed:', err.message);
       }
-
-      const lowerQuery = query.toLowerCase();
-      let filteredPosts = posts.filter(p =>
-        p.title.toLowerCase().includes(lowerQuery) ||
-        p.content.toLowerCase().includes(lowerQuery) ||
-        p.tags.some(t => t.toLowerCase().includes(lowerQuery))
-      );
-
-      if (currentForumFilter !== 'all') {
-        filteredPosts = filteredPosts.filter(p => p.category === currentForumFilter);
-      }
-
-      if (filteredPosts.length === 0) {
-        container.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
-
-      emptyState.classList.add('hidden');
-
-      // Re-use the same rendering logic but filtered
-      const categoryLabels = {
-        offer: { zh: 'Offer 分享', en: 'Offer Sharing', ja: 'オファー共有' },
-        negotiation: { zh: '談判經驗', en: 'Negotiation Tips', ja: '交渉経験' },
-        tips: { zh: '技巧分享', en: 'Tips', ja: 'テク共有' }
-      };
-
-      const langKey = currentLang === 'zh' ? 'zh' : currentLang === 'ja' ? 'ja' : 'en';
-
-      container.innerHTML = filteredPosts.map(post => {
-        const date = new Date(post.date);
-        const dateStr = date.toLocaleDateString(langKey === 'en' ? 'en-US' : langKey === 'ja' ? 'ja-JP' : 'zh-TW', {
-          year: 'numeric',
-          month: 'short',
-          day: 'numeric'
-        });
-
-        const tagsHtml = post.tags.map(tag =>
-          `<span class="px-2 py-1 bg-brand-100 dark:bg-brand-900 text-brand-700 dark:text-brand-300 rounded text-xs">${tag}</span>`
-        ).join('');
-
-        return `
-          <div class="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 hover:shadow-xl transition cursor-pointer" onclick="openPostDetail('${post.id}')">
-            <div class="flex justify-between items-start mb-3">
-              <div class="flex items-center gap-2">
-                <span class="px-2 py-1 rounded text-xs font-medium ${post.category === 'offer' ? 'bg-green-100 dark:bg-green-900 text-green-700 dark:text-green-300' : post.category === 'negotiation' ? 'bg-yellow-100 dark:bg-yellow-900 text-yellow-700 dark:text-yellow-300' : 'bg-blue-100 dark:bg-blue-900 text-blue-700 dark:text-blue-300'}">
-                  ${categoryLabels[post.category][langKey]}
-                </span>
-              </div>
-              <span class="text-xs text-gray-500 dark:text-gray-400">${dateStr}</span>
-            </div>
-            <h3 class="font-bold text-lg mb-2 dark:text-white">${post.title}</h3>
-            <p class="text-gray-600 dark:text-gray-400 text-sm line-clamp-2 mb-3">${post.content.substring(0, 100)}${post.content.length > 100 ? '...' : ''}</p>
-            <div class="flex justify-between items-center">
-              <div class="flex flex-wrap gap-1">${tagsHtml}</div>
-              <div class="flex items-center gap-2 text-gray-500 dark:text-gray-400 text-sm">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
-                <span>${post.likes}</span>
-                <svg class="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
-                <span>${post.comments || 0}</span>
-              </div>
-            </div>
-          </div>
-        `;
-      }).join('');
     }
 
     // === Interview Experience Sharing Functions ===
@@ -3680,17 +3622,22 @@
     // === Offer Tracker Functions ===
     let currentTrackerFilter = 'all';
     let currentOfferId = null;
+    let trackerOffers = [];
+
+    async function fetchTrackerOffers() {
+      try {
+        const result = await api.getOffers();
+        trackerOffers = result.offers || [];
+        renderTrackerOffers();
+      } catch (err) {
+        console.warn('Failed to fetch offers:', err.message);
+        trackerOffers = [];
+        renderTrackerOffers();
+      }
+    }
 
     function getTrackerOffers() {
-      return JSON.parse(localStorage.getItem('offerlift_tracker') || '[]');
-    }
-
-    function saveTrackerOffers(offers) {
-      localStorage.setItem('offerlift_tracker', JSON.stringify(offers));
-    }
-
-    function generateOfferId() {
-      return 'offer_' + Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+      return trackerOffers;
     }
 
     function openNewOfferModal() {
@@ -3712,7 +3659,7 @@
       document.getElementById('offer-notes').value = '';
     }
 
-    function submitNewOffer() {
+    async function submitNewOffer() {
       const company = document.getElementById('offer-company').value.trim();
       const title = document.getElementById('offer-title').value.trim();
       const salary = parseInt(document.getElementById('offer-salary').value) || 0;
@@ -3721,28 +3668,23 @@
       const notes = document.getElementById('offer-notes').value.trim();
 
       if (!company) {
-        alert(currentLang === 'zh' ? '請填寫公司名稱' : currentLang === 'ja' ? '会社명을 입력하세요' : 'Please enter company name');
+        alert(currentLang === 'zh' ? '請填寫公司名稱' : currentLang === 'ja' ? '会社명을入力하세요' : 'Please enter company name');
         return;
       }
 
-      const offer = {
-        id: generateOfferId(),
-        company: sanitize(company),
-        title: sanitize(title),
-        salary: salary,
-        deadline: deadline,
-        status: status,
-        notes: sanitize(notes),
-        createdAt: new Date().toISOString()
-      };
-
-      const offers = getTrackerOffers();
-      offers.unshift(offer);
-      saveTrackerOffers(offers);
-
-      closeOfferModal();
-      renderTrackerOffers();
-      checkOfferDeadlines();
+      try {
+        await api.createOffer({
+          company: sanitize(company),
+          title: sanitize(title),
+          deadline: deadline ? new Date(deadline).toISOString() : null,
+          status: status
+        });
+        closeOfferModal();
+        await fetchTrackerOffers();
+      } catch (err) {
+        console.error('Failed to create offer:', err.message);
+        alert(currentLang === 'zh' ? '創建失敗，請稍後再試' : 'Failed to create offer. Please try again.');
+      }
     }
 
     function renderTrackerOffers() {
@@ -3990,20 +3932,22 @@
       return STAGE_NAMES_ZH[stage] || stage;
     }
 
-    function getInterviewTrackers() {
+    let interviewTrackers = [];
+
+    async function fetchInterviewTrackers() {
       try {
-        return JSON.parse(localStorage.getItem('offerlift_interviews') || '[]');
-      } catch {
-        return [];
+        const result = await api.getInterviews();
+        interviewTrackers = result.interviews || [];
+        renderInterviewTrackers();
+      } catch (err) {
+        console.warn('Failed to fetch interviews:', err.message);
+        interviewTrackers = [];
+        renderInterviewTrackers();
       }
     }
 
-    function saveInterviewTrackers(trackers) {
-      localStorage.setItem('offerlift_interviews', JSON.stringify(trackers));
-    }
-
-    function generateInterviewId() {
-      return 'int_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    function getInterviewTrackers() {
+      return interviewTrackers;
     }
 
     function openNewInterviewModal() {
@@ -4021,7 +3965,7 @@
       document.getElementById('interview-modal').classList.remove('flex');
     }
 
-    function submitNewInterview() {
+    async function submitNewInterview() {
       const company = sanitize(document.getElementById('interview-company').value.trim());
       const title = sanitize(document.getElementById('interview-title').value.trim());
       const stage = document.getElementById('interview-stage').value;
@@ -4033,19 +3977,19 @@
         return;
       }
 
-      const trackers = getInterviewTrackers();
-      trackers.push({
-        id: generateInterviewId(),
-        company,
-        title,
-        stage,
-        date: date || new Date().toISOString().split('T')[0],
-        notes,
-        createdAt: new Date().toISOString()
-      });
-      saveInterviewTrackers(trackers);
-      closeInterviewModal();
-      renderInterviewTrackers();
+      try {
+        await api.createInterview({
+          company,
+          title,
+          stage,
+          notes
+        });
+        closeInterviewModal();
+        await fetchInterviewTrackers();
+      } catch (err) {
+        console.error('Failed to create interview:', err.message);
+        alert(currentLang === 'zh' ? '創建失敗，請稍後再試' : 'Failed to create interview. Please try again.');
+      }
     }
 
     function renderInterviewTrackers(filter = 'all') {
@@ -5561,10 +5505,10 @@
     renderIQAs(interviewQAs);
     renderHrTemplates(hrTemplates);
     fetchSalaryData();
-    renderForumPosts();
+    fetchForumPosts();
     renderInterviewExpPosts();
-    renderTrackerOffers();
-    renderInterviewTrackers();
+    fetchTrackerOffers();
+    fetchInterviewTrackers();
     checkDeadline();
     setupPWAInstallPrompt();
     applyTranslations();
