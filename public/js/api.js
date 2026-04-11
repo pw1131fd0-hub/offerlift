@@ -142,4 +142,3 @@ class ApiClient {
 
 const apiClient = new ApiClient();
 window.api = apiClient;
-export { apiClient as api };

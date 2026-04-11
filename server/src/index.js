@@ -16,6 +16,10 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..', '..');
 
 // Middleware
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
+  next();
+});
 app.use(cors({
   origin: config.corsOrigin.split(','),
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
