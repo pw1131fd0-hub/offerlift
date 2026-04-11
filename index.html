@@ -186,7 +186,7 @@
                   <option value="10+">10+ 年</option>
                 </select>
               </div>
-              <button onclick="evaluateOffer()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+              <button type="button" onclick="evaluateOffer()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
                 <span data-i18n="evaluateBtn">評估我的 Offer</span>
               </button>
@@ -665,7 +665,7 @@
             <input id="email-hr-name" type="text" placeholder="王曉明" class="w-full px-4 py-3 border border-gray-200 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-brand-500 outline-none">
           </div>
         </div>
-        <button onclick="generateEmail()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
+        <button type="button" onclick="generateEmail()" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-semibold py-4 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center justify-center gap-2">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
           <span data-i18n="generateEmailBtn">產生郵件</span>
         </button>
@@ -1643,11 +1643,22 @@
   </div>
 
   <script>
+    // Force unregister service workers
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.getRegistrations().then(function(registrations) {
+        for(let registration of registrations) {
+          registration.unregister();
+          console.log('[DEBUG] ServiceWorker unregistered');
+        }
+      });
+    }
     window.onerror = function(msg, url, line, col, error) {
-      alert("⚠️ JS Error: " + msg + "\nAt: " + line + ":" + col);
+      const errInfo = "⚠️ JS Error: " + msg + "\nAt: " + line + ":" + col + "\nURL: " + url;
+      alert(errInfo);
+      console.error(errInfo);
       return false;
     };
-    console.log('[DEBUG] Error handler registered');
+    console.log('[DEBUG] Error handler and SW cleanup registered');
   </script>
   <script src="/js/api.v3.js"></script>
   <script>

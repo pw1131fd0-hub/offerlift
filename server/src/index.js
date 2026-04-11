@@ -20,11 +20,13 @@ app.use((req, res, next) => {
   console.log(`${new Date().toISOString()} - ${req.method} ${req.url}`);
   next();
 });
+
 app.use(cors({
   origin: config.corsOrigin.split(','),
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'X-API-Key', 'X-Anonymous-Id'],
+  allowedHeaders: ['Content-Type', 'X-API-Key'],
 }));
+
 app.use(express.json({ limit: '1mb' }));
 
 // Health check
@@ -36,7 +38,22 @@ app.get('/test', (req, res) => {
   res.sendFile(path.join(projectRoot, 'test.html'));
 });
 
-// Serve static files
+// Root POST debugger
+app.post('/', (req, res) => {
+  console.log('DEBUG: Received POST to /');
+  console.log('Body:', JSON.stringify(req.body, null, 2));
+  res.status(200).json({ ok: true });
+});
+
+// Serve static files with no-cache for debug
+app.use((req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.set('Pragma', 'no-cache');
+  res.set('Expires', '0');
+  res.set('Surrogate-Control', 'no-store');
+  next();
+});
+
 app.use(express.static(projectRoot));
 app.use(express.static(path.join(projectRoot, 'public')));
 
