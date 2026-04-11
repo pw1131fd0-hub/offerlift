@@ -129,5 +129,6 @@ class ApiClient {
   }
 }
 
-export const api = new ApiClient();
-export default api;
+const apiClient = new ApiClient();
+window.api = apiClient;
+export { apiClient as api };

@@ -1642,6 +1642,7 @@
     </div>
   </div>
 
+  <script src="/js/api.js"></script>
   <script>
     // Salary reference data
     const salaryData = [
@@ -1958,14 +1959,32 @@
       renderHrTemplates(filteredHrTemplates);
     }
 
+    // Remote data storage
+    let remoteScripts = [];
+    let remoteSalaryData = [];
+
+    // Fetch scripts from API
+    async function fetchScripts() {
+      try {
+        const result = await api.getScripts();
+        remoteScripts = result.scripts || result || [];
+        renderScripts();
+      } catch (err) {
+        console.warn('Failed to fetch scripts, using local:', err.message);
+        remoteScripts = negotiationScripts;
+        renderScripts();
+      }
+    }
+
     // Render scripts
     function renderScripts() {
       const container = document.getElementById('script-list');
-      container.innerHTML = negotiationScripts.map((s, i) => `
+      const scripts = remoteScripts.length > 0 ? remoteScripts : negotiationScripts;
+      container.innerHTML = scripts.map((s, i) => `
         <div class="bg-gray-800 rounded-xl overflow-hidden">
           <button onclick="toggleScript(${i})" class="w-full p-6 text-left flex justify-between items-center hover:bg-gray-700/50 transition">
             <div>
-              <span class="text-xs text-brand-400 font-medium mb-1 block">${s.situation}</span>
+              <span class="text-xs text-brand-400 font-medium mb-1 block">${s.situation || s.category || ''}</span>
               <span class="text-lg font-semibold">${s.title}</span>
             </div>
             <svg class="w-5 h-5 text-gray-400 transition-transform script-arrow-${i}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
@@ -1997,16 +2016,33 @@
     }
 
     function copyScript(i) {
-      const script = negotiationScripts[i].script;
-      navigator.clipboard.writeText(script).then(() => {
-        alert('腳本已複製到剪貼簿！');
-      });
+      const scripts = remoteScripts.length > 0 ? remoteScripts : negotiationScripts;
+      const script = scripts[i]?.script || scripts[i];
+      if (typeof script === 'string') {
+        navigator.clipboard.writeText(script).then(() => {
+          alert('腳本已複製到剪貼簿！');
+        });
+      }
+    }
+
+    // Fetch salary data from API
+    async function fetchSalaryData() {
+      try {
+        const result = await api.getSalaryData();
+        remoteSalaryData = result.data || result || [];
+        renderSalaryGrid();
+      } catch (err) {
+        console.warn('Failed to fetch salary data, using local:', err.message);
+        remoteSalaryData = salaryData;
+        renderSalaryGrid();
+      }
     }
 
     // Render salary grid
     function renderSalaryGrid() {
       const grid = document.getElementById('salary-grid');
-      grid.innerHTML = salaryData.map(s => `
+      const data = remoteSalaryData.length > 0 ? remoteSalaryData : salaryData;
+      grid.innerHTML = data.map(s => `
         <div class="bg-white dark:bg-gray-800 rounded-xl p-5 border border-gray-100 dark:border-gray-700 card-hover">
           <h4 class="font-semibold mb-2 dark:text-white">${s.title}</h4>
           <div class="text-2xl font-bold text-brand-600 dark:text-brand-400 mb-1">
@@ -2020,8 +2056,8 @@
       `).join('');
     }
 
-    // Evaluate offer
-    function evaluateOffer() {
+    // Evaluate offer - calls backend API
+    async function evaluateOffer() {
       const total = parseFloat(document.getElementById('total-comp').value) || 0;
       const base = parseFloat(document.getElementById('base-salary').value) || 0;
       const city = document.getElementById('city').value;
@@ -2030,110 +2066,59 @@
       const equityShares = parseFloat(document.getElementById('equity').value) || 0;
       const pricePerShare = parseFloat(document.getElementById('price-per-share').value) || 0;
       const yearsAtCompany = parseFloat(document.getElementById('years-at-company').value) || 0;
+      const bonusVal = parseFloat(document.getElementById('bonus').value) || 0;
 
       if (!total || !base) {
         alert('請至少填寫「年度總薪」和「年薪底薪」');
         return;
       }
 
-      // Find matching reference
-      const ref = salaryData.find(s => jobTitle.toLowerCase().includes(s.title.toLowerCase().split(' ')[0]) || (city === s.city && exp === s.level));
+      let score, breakdown, verdict, label;
 
-      let score = 50;
-      let breakdown = [];
+      // Try to call backend API
+      try {
+        const result = await api.evaluateOffer({
+          jobTitle: jobTitle || 'Unknown',
+          totalComp: total,
+          baseSalary: base,
+          bonus: bonusVal,
+          equity: equityShares,
+          city: city,
+          experience: exp
+        });
+        score = result.score;
+        breakdown = result.breakdown || [];
+        verdict = result.verdict;
+        label = result.label;
+      } catch (err) {
+        console.warn('API call failed, using local calculation:', err.message);
+        // Fallback to local calculation
+        const ref = salaryData.find(s => jobTitle.toLowerCase().includes(s.title.toLowerCase().split(' ')[0]) || (city === s.city && exp === s.level));
+        score = 50;
+        breakdown = [];
 
-      // Base salary vs total comp
-      const bonusRatio = (total - base) / base;
-      if (bonusRatio > 0.2) { score += 15; breakdown.push({ label: '獎金比例佳', value: '+15', good: true }); }
-      else if (bonusRatio < 0.05) { score += 5; breakdown.push({ label: '固定薪資導向', value: '+5', good: true }); }
+        const bonusRatio = (total - base) / base;
+        if (bonusRatio > 0.2) { score += 15; breakdown.push({ label: '獎金比例佳', value: '+15', good: true }); }
+        else if (bonusRatio < 0.05) { score += 5; breakdown.push({ label: '固定薪資導向', value: '+5', good: true }); }
 
-      // vs market
-      if (ref) {
-        const mid = (ref.min + ref.max) / 2;
-        const ratio = total / mid;
-        if (ratio >= 1.2) { score += 25; breakdown.push({ label: '高於市場', value: '+25', good: true }); }
-        else if (ratio >= 1.0) { score += 10; breakdown.push({ label: '符合市場', value: '+10', good: true }); }
-        else if (ratio >= 0.8) { score -= 10; breakdown.push({ label: '低於市場', value: '-10', good: false }); }
-        else { score -= 25; breakdown.push({ label: '明顯低於市場', value: '-25', good: false }); }
-      } else {
-        score += 10; breakdown.push({ label: '無直接參考', value: '+10', good: null });
-      }
-
-      // City adjustment
-      if (city === 'nhc') { score += 10; breakdown.push({ label: '新竹科技聚落', value: '+10', good: true }); }
-      else if (city === 'remote') { score += 5; breakdown.push({ label: '遠端彈性', value: '+5', good: true }); }
-
-      // Equity/Vesting calculation (standard 4-year vesting with 1-year cliff)
-      if (equityShares > 0 && pricePerShare > 0) {
-        const CLIFF_MONTHS = 12;
-        const TOTAL_MONTHS = 48;
-        const totalValue = equityShares * pricePerShare;
-
-        // Calculate vested shares based on cliff + linear vesting after cliff
-        let vestedShares = 0;
-        const monthsEmployed = yearsAtCompany * 12;
-
-        if (monthsEmployed >= CLIFF_MONTHS) {
-          const monthsAfterCliff = monthsEmployed - CLIFF_MONTHS;
-          const monthlyVest = equityShares / TOTAL_MONTHS;
-          vestedShares = (equityShares * CLIFF_MONTHS / TOTAL_MONTHS) + (monthlyVest * monthsAfterCliff);
-        }
-        vestedShares = Math.min(vestedShares, equityShares);
-        const unvestedShares = equityShares - vestedShares;
-        const vestedValue = vestedShares * pricePerShare;
-        const unvestedValue = unvestedShares * pricePerShare;
-        const vestedPercentage = equityShares > 0 ? (vestedShares / equityShares) * 100 : 0;
-
-        // Equity value relative to base salary
-        const equityToSalaryRatio = totalValue / base;
-
-        // Score adjustment based on equity value
-        let equityScore = 0;
-        if (equityToSalaryRatio >= 1.0) {
-          equityScore = 20;
-          breakdown.push({ label: '優渥股票/選擇權', value: '+20', good: true });
-        } else if (equityToSalaryRatio >= 0.5) {
-          equityScore = 15;
-          breakdown.push({ label: '豐厚股票/選擇權', value: '+15', good: true });
-        } else if (equityToSalaryRatio >= 0.2) {
-          equityScore = 10;
-          breakdown.push({ label: '合理股票/選擇權', value: '+10', good: true });
-        } else if (equityToSalaryRatio > 0) {
-          equityScore = 5;
-          breakdown.push({ label: '少量股票/選擇權', value: '+5', good: true });
-        }
-        score += equityScore;
-
-        // Vesting status breakdown
-        if (vestedPercentage >= 75) {
-          breakdown.push({ label: '已大量 Vesting', value: `已落袋 ${vestedPercentage.toFixed(0)}%`, good: true });
-        } else if (vestedPercentage >= 50) {
-          breakdown.push({ label: '部分已 Vesting', value: `已落袋 ${vestedPercentage.toFixed(0)}%`, good: true });
-        } else if (vestedPercentage > 0) {
-          breakdown.push({ label: '早期 Vesting 階段', value: `已落袋 ${vestedPercentage.toFixed(0)}%`, good: null });
+        if (ref) {
+          const mid = (ref.min + ref.max) / 2;
+          const ratio = total / mid;
+          if (ratio >= 1.2) { score += 25; breakdown.push({ label: '高於市場', value: '+25', good: true }); }
+          else if (ratio >= 1.0) { score += 10; breakdown.push({ label: '符合市場', value: '+10', good: true }); }
+          else if (ratio >= 0.8) { score -= 10; breakdown.push({ label: '低於市場', value: '-10', good: false }); }
+          else { score -= 25; breakdown.push({ label: '明顯低於市場', value: '-25', good: false }); }
         } else {
-          breakdown.push({ label: '等待 Cliff', value: '尚未開始 Vesting', good: false });
+          score += 10; breakdown.push({ label: '無直接參考', value: '+10', good: null });
         }
 
-        // Add vesting info to breakdown
-        breakdown.push({
-          label: '股票總價值',
-          value: `${(totalValue / 10000).toFixed(0)}萬 TWD`,
-          good: null
-        });
-        breakdown.push({
-          label: '已 Vesting 價值',
-          value: `${(vestedValue / 10000).toFixed(0)}萬 TWD`,
-          good: true
-        });
-        breakdown.push({
-          label: '未 Vesting 價值',
-          value: `${(unvestedValue / 10000).toFixed(0)}萬 TWD`,
-          good: null
-        });
-      }
+        if (city === 'nhc') { score += 10; breakdown.push({ label: '新竹科技聚落', value: '+10', good: true }); }
+        else if (city === 'remote') { score += 5; breakdown.push({ label: '遠端彈性', value: '+5', good: true }); }
 
-      score = Math.max(0, Math.min(100, Math.round(score)));
+        score = Math.max(0, Math.min(100, Math.round(score)));
+        verdict = score >= 70 ? '果斷接受！這個 Offer 非常有競爭力。' : score >= 50 ? '可以談判。這個 Offer 接近市場價值，但還有改進空間。' : '必須談判。這個 Offer 明顯低於市場價值，建議積極爭取或考慮其他機會。';
+        label = score >= 80 ? 'excellent' : score >= 60 ? 'good' : score >= 40 ? 'fair' : 'poor';
+      }
 
       // Show result
       document.getElementById('result-placeholder').classList.add('hidden');
@@ -2149,12 +2134,12 @@
 
       document.getElementById('score-number').textContent = score;
 
-      const label = document.getElementById('score-label').querySelector('span');
+      const labelEl = document.getElementById('score-label').querySelector('span');
       const isDark = document.documentElement.classList.contains('dark');
-      if (score >= 80) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'); label.innerHTML = '🌟 優異 Offer，強烈建議接受'; }
-      else if (score >= 60) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700'); label.innerHTML = '👍 不錯的 Offer，可以談判'; }
-      else if (score >= 40) { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-orange-900 text-orange-300' : 'bg-orange-100 text-orange-700'); label.innerHTML = '⚠️ 低於行情，建議談判'; }
-      else { label.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700'); label.innerHTML = '🚨 明顯低於行情，必須談判'; }
+      if (score >= 80) { labelEl.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-green-900 text-green-300' : 'bg-green-100 text-green-700'); labelEl.innerHTML = '🌟 優異 Offer，強烈建議接受'; }
+      else if (score >= 60) { labelEl.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-yellow-900 text-yellow-300' : 'bg-yellow-100 text-yellow-700'); labelEl.innerHTML = '👍 不錯的 Offer，可以談判'; }
+      else if (score >= 40) { labelEl.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-orange-900 text-orange-300' : 'bg-orange-100 text-orange-700'); labelEl.innerHTML = '⚠️ 低於行情，建議談判'; }
+      else { labelEl.className = 'inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ' + (isDark ? 'bg-red-900 text-red-300' : 'bg-red-100 text-red-700'); labelEl.innerHTML = '🚨 明顯低於行情，必須談判'; }
 
       // Breakdown
       document.getElementById('breakdown').innerHTML = breakdown.map(b => `
@@ -2163,12 +2148,6 @@
           <span class="text-sm font-semibold ${b.good === true ? 'text-green-600 dark:text-green-400' : b.good === false ? 'text-red-500 dark:text-red-400' : 'text-gray-400 dark:text-gray-500'}">${b.value}</span>
         </div>
       `).join('');
-
-      // Verdict
-      let verdict = '';
-      if (score >= 70) verdict = '這個 Offer 已經優於市場水平，果斷接受吧！如果有一點小的不滿意，可以用「第三步：非薪資福利談判」爭取更多假期或進修補助。';
-      else if (score >= 50) verdict = '基本合理，但還有談判空間。先用「第一步：市場數據開場」，準備好參考數據再跟 HR 聯繫。記住：談判是正常的，HR 預期你會談。';
-      else verdict = '明顯低於行情，建議立刻談判。先用「第二步：提出具體數字」，給出一個你有數據支撐的具體範圍。如果公司真的沒辦法，可能要考慮其他選項。';
 
       document.getElementById('verdict-text').textContent = verdict;
 
@@ -2180,7 +2159,6 @@
       document.getElementById('stat-users').textContent = users;
 
       // Show total compensation summary
-      const bonusVal = parseFloat(document.getElementById('bonus').value) || 0;
       showTotalCompSummary(total, base, bonusVal, equityShares, pricePerShare, yearsAtCompany);
     }
 
@@ -5579,10 +5557,10 @@
     // Init
     initDarkMode();
     document.getElementById('stat-users').textContent = localStorage.getItem('offerlift_users') || '127';
-    renderScripts();
+    fetchScripts();
     renderIQAs(interviewQAs);
     renderHrTemplates(hrTemplates);
-    renderSalaryGrid();
+    fetchSalaryData();
     renderForumPosts();
     renderInterviewExpPosts();
     renderTrackerOffers();
