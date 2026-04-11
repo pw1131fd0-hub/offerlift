@@ -6,7 +6,9 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "docker:build": "docker build -t offerlift-frontend .",
+    "docker:run": "docker run -d -p 8080:80 --name offerlift-frontend offerlift-frontend"
   },
   "dependencies": {
     "react": "^18.3.1",

@@ -14,9 +14,10 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U offerlift"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
   redis:
     image: redis:7-alpine
@@ -27,11 +28,12 @@ services:
       - redis_data:/data
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
+      interval: 10s
       timeout: 5s
       retries: 5
+    restart: unless-stopped
 
-  api:
+  offerlift-api:
     build:
       context: .
       dockerfile: Dockerfile
@@ -39,17 +41,46 @@ services:
     environment:
       NODE_ENV: development
       PORT: 3000
-      DATABASE_URL: postgres://offerlift:offerlift_dev_password@postgres:5432/offerlift
-      REDIS_URL: redis://redis:6379
+      DATABASE_URL: postgres://offerlift:offerlift_dev_password@offerlift-postgres:5432/offerlift
+      REDIS_URL: redis://offerlift-redis:6379
       API_KEY: dev_api_key_12345
-      CORS_ORIGIN: "http://localhost:5173,http://localhost:3000"
+      CORS_ORIGIN: "http://localhost:5173,http://localhost:3000,http://localhost:8080"
     ports:
       - "3000:3000"
+    networks:
+      - app_default
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     volumes: []
+    restart: unless-stopped
+
+  offerlift-frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: offerlift-frontend
+    ports:
+      - "8080:80"
+    networks:
+      - app_default
+    depends_on:
+      offerlift-api:
+        condition: service_started
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:80/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
 
 volumes:
   postgres_data:
   redis_data:
+
+networks:
+  app_default:
+    driver: bridge
