@@ -586,3 +586,24 @@ Security stage: Fixed CORS configuration to allow X-Anonymous-Id header (line 22
 - ⚠️ Phase 3 (Data P
 
 ---
+
+## [2026-04-11 16:09:14] [security] 96%
+
+Security stage: Fixed missing ES module export in public/js/api.js. The line 'export { apiClient as api };' was accidentally removed in snapshot b558bf4, causing 21 API tests to fail. Restored the export and all 69 tests now pass. Quality score 99 exceeds threshold 95. System fully operational for Phase 1+2. Phase 3 (Data Pipeline) remains optional with placeholder RSS URLs.
+
+> ## Summary
+
+**Issue Found:** 21 tests were failing in `api.test.js` with:
+```
+TypeError: Cannot read properties of undefined (reading 'getSalaryData')
+```
+
+**Root Cause:** The `export { apiClient as api }` line was accidentally removed from `public/js/api.js` in commit `b558bf4`, breaking the ES module named export that the tests depend on.
+
+**Fix Applied:** Restored the missing export line in `public/js/api.js:144`.
+
+**Verification:** All 69 tests now pass.
+
+**Stage:** Remains `security` (per 鐵
+
+---

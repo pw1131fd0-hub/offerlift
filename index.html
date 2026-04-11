@@ -2189,7 +2189,8 @@
     }
 
     function sanitize(str) {
-      return str
+      if (!str) return '';
+      return str.toString()
         .replace(/</g, '&lt;')
         .replace(/>/g, '&gt;')
         .replace(/"/g, '&quot;')
