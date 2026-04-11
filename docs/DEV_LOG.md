@@ -501,3 +501,18 @@ Frontend-backend integration complete. Fixed API client to generate and send ano
 - `searchForum()` - Searches via AP
 
 ---
+
+## [2026-04-11 14:20:34] [security] 100%
+
+Verified frontend JavaScript functionality. The index.html contains comprehensive inline JavaScript (lines 1647-5920) that connects all UI features to the backend API. Functions like evaluateOffer(), fetchScripts(), fetchSalaryData(), fetchForumPosts(), fetchTrackerOffers(), fetchInterviewTrackers() are all implemented and wired to the API. app.js was removed as redundant - inline JS already handles everything. All 69 tests passing. System fully operational.
+
+> I've completed my investigation and verification of the OfferLift project. Here's the summary:
+
+## Key Finding
+
+The boss's note claimed "index.html 只有 HTML，無 JS 功能" but this was **incorrect**. The index.html actually contains a comprehensive inline JavaScript block (lines 1647-5920) with ~4,500 lines of JavaScript that implements all frontend functionality:
+
+- `evaluateOffer()` - Offer evaluation with API connection + local fallback
+- `fetchScripts()`, `fetchSalaryData()`, `fetchForumPosts()` - 
+
+---

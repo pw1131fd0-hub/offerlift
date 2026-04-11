@@ -44,14 +44,14 @@
 
   <!-- Nav -->
   <nav class="bg-white/80 dark:bg-gray-900/80 backdrop-blur-md sticky top-0 z-50 border-b border-gray-100 dark:border-gray-800">
-    <div class="max-w-6xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="max-w-6xl mx-auto px-6 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
       <div class="flex items-center gap-2">
         <div class="w-8 h-8 rounded-lg bg-brand-600 flex items-center justify-center">
           <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/></svg>
         </div>
         <span class="text-xl font-bold text-gray-900 dark:text-white">OfferLift</span>
       </div>
-      <div class="flex gap-6 text-sm font-medium text-gray-600 dark:text-gray-300">
+      <div class="flex flex-wrap justify-center gap-x-6 gap-y-2 text-xs md:text-sm font-medium text-gray-600 dark:text-gray-300">
         <a href="#evaluator" data-i18n="navEvaluator" class="hover:text-brand-600 dark:hover:text-brand-400 transition">評估工具</a>
         <a href="#scripts" data-i18n="navScripts" class="hover:text-brand-600 dark:hover:text-brand-400 transition">談判腳本</a>
         <a href="#market" data-i18n="navMarket" class="hover:text-brand-600 dark:hover:text-brand-400 transition">薪資參考</a>
@@ -62,7 +62,7 @@
         <a href="#interview-qa" data-i18n="navIQA" class="hover:text-brand-600 dark:hover:text-brand-400 transition">問答庫</a>
         <a href="#hr-templates" data-i18n="navHRTemplates" class="hover:text-brand-600 dark:hover:text-brand-400 transition">HR回覆</a>
       </div>
-      <button id="dark-toggle" class="ml-4 p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="切換深色模式">
+      <button id="dark-toggle" class="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition" aria-label="切換深色模式">
         <svg id="icon-moon" class="w-5 h-5 text-gray-600 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/></svg>
         <svg id="icon-sun" class="w-5 h-5 text-yellow-400 hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
       </button>
@@ -76,7 +76,7 @@
         <span class="w-2 h-2 bg-brand-500 rounded-full animate-pulse"></span>
         <span data-i18n="heroTagline">還在用資訊劣勢談薪資？</span>
       </div>
-      <h1 class="text-5xl md:text-6xl font-extrabold mb-6 leading-tight">
+      <h1 class="text-3xl md:text-6xl font-extrabold mb-6 leading-tight">
         <span data-i18n="heroTitle">讓你的 Offer</span><br><span class="text-brand-400" data-i18n="heroTitleAccent">不再被低估</span>
       </h1>
       <p data-i18n="heroDesc" class="text-xl text-gray-300 mb-10 max-w-2xl mx-auto">
@@ -91,7 +91,7 @@
 
   <!-- Stats -->
   <section class="py-16 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700">
-    <div class="max-w-5xl mx-auto px-6 grid grid-cols-3 gap-8 text-center">
+    <div class="max-w-5xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
       <div>
         <div class="text-4xl font-bold text-brand-600 dark:text-brand-400" id="stat-users">--</div>
         <div data-i18n="statUsers" class="text-gray-500 dark:text-gray-400 mt-1">已評估的 Offer</div>
