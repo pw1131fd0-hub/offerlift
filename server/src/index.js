@@ -16,18 +16,19 @@ const __dirname = path.dirname(__filename);
 const projectRoot = path.resolve(__dirname, '..', '..');
 
 // Middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
-      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
-      fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
-      imgSrc: ["'self'", "data:", "https:"],
-      connectSrc: ["'self'"]
-    }
-  }
-}));
+// app.use(helmet({
+//   contentSecurityPolicy: {
+//     directives: {
+//       defaultSrc: ["'self'"],
+//       scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.tailwindcss.com", "https://cdn.jsdelivr.net"],
+//       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+//       fontSrc: ["'self'", "https://fonts.gstatic.com", "data:"],
+//       imgSrc: ["'self'", "data:", "https:"],
+//       connectSrc: ["'self'"],
+//       upgradeInsecureRequests: null
+//     }
+//   }
+// }));
 app.use(cors({
   origin: config.corsOrigin.split(','),
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
@@ -46,6 +47,10 @@ app.use('/js', express.static(path.join(projectRoot, 'public', 'js')));
 // Serve index.html for root route
 app.get('/', (req, res) => {
   res.sendFile(path.join(projectRoot, 'index.html'));
+});
+
+app.get('/test', (req, res) => {
+  res.sendFile(path.join(projectRoot, 'test.html'));
 });
 
 // API Routes
