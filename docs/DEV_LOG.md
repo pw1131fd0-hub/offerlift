@@ -940,3 +940,57 @@ The project is complete for all implemented phases. Stage remains `security` per
 
 
 ---
+
+## [2026-04-11 23:02:27] [security] 100%
+
+Iteration 18 verification: 69 tests passed, 0 npm audit vulnerabilities. Quality score 100 >> 95 threshold. Stage remains 'security' per iron rule.
+
+> **OfferLift — Iteration 18 Status**
+
+| Item | Value |
+|------|-------|
+| Stage | `security` (iron rule) |
+| Quality Score | **100** (>> threshold 95) |
+| Tests | **69 passed** ✅ |
+| npm audit | **0 vulnerabilities** ✅ |
+| Phase 1+2 | Complete ✅ |
+| Phase 3 | Optional (not executed) |
+
+Pushed to `main`: `45fda1c`
+
+**Summary**: Quality score (100) exceeds security threshold (95). Stage remains `security` per iron rule. Phase 1 (backend) + Phase 2 (frontend) fully implemented and verified. Phase 3 
+
+---
+
+## 2026-04-11 — React 重構開發（第二版）
+
+### 觸發原因
+- 老闆抱怨單頁 HTML (5941 行) 難以維護，要求多頁式架構
+- 老闆選擇方案 B（React + Vite）
+- 老闆要求 Docker 化部署
+
+### 規格變更
+- [x] 更新 `docs/PRD.md`（新技術棧：Vite + React 18）
+- [x] 更新 `docs/SA.md`（新架構圖、Docker 容器矩陣）
+- [x] 更新 `docs/SD.md`（建構腳本、Nginx 設定）
+- [x] 新增 `docs/SPEC.md`（詳細實作規格）
+- [x] 重置 `.dev_status.json`（規格變更觸發）
+
+### Docker 強化
+- [x] 所有 service 加入 `restart: unless-stopped`
+- [x] PostgreSQL/Redis 加入 healthcheck
+- [x] API 依賴 `condition: service_healthy`（db + redis）
+- [x] Frontend 加入 healthcheck（wget）
+- [x] Nginx 強化：security headers、gzip、proxy timeout
+- [x] 新增 `frontend/Dockerfile`
+- [x] 新增 `frontend/nginx.conf`
+- [x] 新增 `frontend/.dockerignore`
+- [x] 更新 `docker-compose.yml`（frontend service + 網路配置）
+
+### 進行中
+- [ ] 子代理建構 React 前端程式碼
+- [ ] npm run build 驗證
+- [ ] docker compose up --build 驗證
+
+### 交付目標
+2026-04-12，老闆可以透過 `docker compose up -d` 啟動完整棧
