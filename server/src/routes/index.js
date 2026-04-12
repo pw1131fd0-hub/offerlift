@@ -20,7 +20,7 @@ router.use('/scripts', scriptsRouter); // Public negotiation scripts
 router.use('/evaluate', authMiddleware, evaluateRouter);
 router.use('/offers', authMiddleware, offersRouter);
 router.use('/interviews', authMiddleware, interviewsRouter);
-router.use('/forum', authMiddleware, forumRouter);
+router.use('/forum', forumRouter); // GET public, POST/DELETE require auth internally
 router.use('/calculator', authMiddleware, calculatorRouter);
 router.use('/rss', authMiddleware, rssRouter);
 router.use('/contribute', authMiddleware, contributeRouter);

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { z } from 'zod';
 import { validate } from '../middleware/validator.js';
+import { authMiddleware } from '../middleware/auth.js';
 import { query } from '../config/database.js';
 import { sanitizeAll } from '../utils/sanitize.js';
 
@@ -70,8 +71,8 @@ router.get('/', async (req, res, next) => {
   }
 });
 
-// POST /api/forum
-router.post('/', validate(CreatePostSchema), async (req, res, next) => {
+// POST /api/forum (requires auth)
+router.post('/', authMiddleware, validate(CreatePostSchema), async (req, res, next) => {
   try {
     const input = sanitizeAll(req.body);
 
