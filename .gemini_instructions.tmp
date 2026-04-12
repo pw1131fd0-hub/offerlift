@@ -1,0 +1,940 @@
+專案名稱：security階段確認：論壇 API 方法名 mismatch 已修復。Frontend Forum.jsx 調用 api.getForum()/api.postForum() 但 api.js 實際方法名為 getForumPosts()/createForumPost()。已修正並推送。Stage stays at security per iron rule.。
+
+【現有 PRD（作為核心參考）】
+# OfferLift PRD — 求職者薪資談判智囊（React 版本）
+
+## 1. 產品願景
+
+OfferLift 是一款專為台灣科技業求職者設計的薪資談判輔助工具。透過輸入 Offer 詳情，使用者可獲得客觀的市場評估分數、具體的談判腳本、以及參考薪資區間，從而掌握談判主動權，爭取應得報酬。不同於一般薪資情報站，OfferLift 強調數據真實性與即時性，透過後端資料庫整合 104、LinkedIn、CakeResume 等薪資情報，並支援用戶匿名貢獻數據，打造最貼近市場行情的薪資談判平台。
+
+---
+
+## 2. 技術架構（2026-04-11 更新）
+
+### 前端重構：單頁 HTML → React 多頁應用
+- **建構工具**：Vite 6
+- **框架**：React 18
+- **路由**：React Router v6（6個頁面）
+- **狀態管理**：Zustand（含 localStorage 持久化）
+- **樣式**：Tailwind CSS
+- **部署**：Docker + Nginx（前端容器 port 8080）
+
+### 後端（不變）
+- Node.js + Express + PostgreSQL + Redis
+- Port 3000，前端透過 Nginx reverse proxy 訪問
+
+### Docker 部署架構
+```
+offerlift-postgres  (5432)
+offerlift-redis     (6379)
+offerlift-api       (3000)  ← Node.js API
+offerlift-frontend (8080)  ← Nginx serving React build
+                          ↗ API proxy → offerlift-api:3000
+```
+
+---
+
+## 3. User Story
+
+### US-01：求職者評估 Offer 價值
+**身份**：正在面試科技公司最後一關的求職者
+**我希望**：輸入我的 Offer 詳細結構（底薪、獎金、股票、城市、年資）
+**以便**：獲得一個客觀的評估分數（0-100）和針對該分數的談判建議
+
+**接受標準**：
+- [x] 輸入必要欄位後點擊評估，3 秒內顯示結果
+- [x] 評估分數以視覺化環圈呈現，並附上各項加分/減分原因
+- [x] 根據分數給出「果斷接受」「可以談判」「必須談判」三種行動建議
+
+### US-02：求職者取得談判腳本
+**身份**：對談判話術沒有把握的初次轉職者
+**我希望**：瀏覽並複製針對不同情境的談判對話腳本
+**以便**：在與 HR 電話中能從容應對，不失專業形象
+
+**接受標準**：
+- [ ] 頁面載明 5 種常見情境（開場、報價低於預期、談判空間、非薪資福利、暫緩決策）
+- [ ] 每個腳本皆為可直接使用的對話範文，並附上談判要點提示
+- [ ] 支援一鍵複製到剪貼簿
+
+### US-03：求職者查詢市場薪資區間
+**身份**：需要市場數據支撐談判立場的轉職者
+**我希望**：查詢特定職稱與地區的市場薪資區間
+**以便**：在談判時能引用具體數據而非主觀感受
+
+**接受標準**：
+- [ ] 顯示至少 12 個常見科技職位的年薪區間（min-max，單位：TWD）
+- [ ] 資料來源註明（104、LinkedIn、CakeResume）
+- [ ] 用戶可貢獻自己的匿名薪資數據擴充資料庫
+
+### US-04：求職者參與薪資論壇討論
+**身份**：希望深入了解薪資行情與談判策略的轉職者
+**我希望**：在匿名的薪資論壇中瀏覽、搜尋、發表討論
+**以便**：從他人的經驗中學習，不暴露個人身份
+
+**接受標準**：
+- [ ] 用戶可發表匿名討論（職位、城市、薪資範圍、談判經歷）
+- [ ] 討論串可依公司、職位、城市篩選
+- [ ] 所有資料存於 PostgreSQL 資料庫
+- [ ] 禁止任何可識別個人身份的資訊（姓名、電話、email）
+
+---
+
+## 4. 頁面規格
+
+| 頁面 | 路徑 | 功能 |
+|------|------|------|
+| 首頁 | `/` | Hero + Feature cards + CTA |
+| 評估 | `/evaluate` | Offer 輸入表單 + ScoreCard 結果 |
+| 追蹤 | `/dashboard` | 我的 Offers（新增/編輯/刪除） |
+| 行情 | `/market` | 薪資參考數據表格 |
+| 論壇 | `/forum` | 匿名討論區 |
+| 腳本 | `/scripts` | 談判腳本庫 |
+
+---
+
+## 5. 待老闆決策
+
+- [ ] 50 個 WP 站主機方案（各別架 / MultiSite）
+- [ ] GSC 索引進度確認
+
+---
+
+## 6. 功能優先級分級（P0/P1/P2）
+
+### P0（Must Have - MVP 核心）
+1. **Offer 評估器**：輸入 Offer 結構，3 秒內取得 0-100 評估分數與談判建議
+2. **談判腳本庫**：5 種情境的立即可用對話腳本，支援一鍵複製
+3. **薪資行情查詢**：12 個常見科技職稱的年薪區間（104/LinkedIn/CakeResume 來源）
+4. **薪資論壇**：匿名發表/瀏覽討論，杜絕個資暴露
+5. **Docker 部署**：一行指令啟動完整棧（API + DB + Redis + Frontend）
+
+### P1（Should Have - 完善體驗）
+1. **Offer 追蹤 Dashboard**：新增/編輯/刪除我的 Offers
+2. **匿名薪資貢獻**：用戶可貢獻自己的匿名數據擴充資料庫
+3. **稅務計算機**：輸入年薪，自動計算所得稅級距與實領
+4. **福利計算機**：年終獎金、股票價值等化為現金流
+5. **深色模式**：Zustand 持久化，保護眼睛
+
+### P2（Nice to Have - 差異化）
+1. **面試進度追蹤**：記錄各公司面試階段與截止提醒
+2. **PDF 匯出**：將 Offer 評估結果匯出為 PDF 分享
+3. **多語言**：繁體中文、英語、日語三語切換
+4. **PWA Service Worker**：離線可用、加載更快
+5. **RSS 自動更新**：每小時爬取 104/CakeResume 最新薪資數據寫入 DB
+
+---
+
+## 7. 非功能需求
+
+| 維度 | 需求 | 指標 |
+|------|------|------|
+| **效能** | API 回應時間 | P95 < 500ms（evaluate 端點 < 3s） |
+| **可用性** | 系統 uptime | 99.5%（不含 DB/Redis 維護窗口） |
+| **擴展性** | 同時在線用戶 | 支援 100 並發用戶（API + DB 連線池） |
+| **安全性** | API 金鑰驗證 | 所有寫入端點需要 X-API-Key header |
+| **安全性** | 敏感資料 | 論壇禁止姓名/電話/email，自動過濾 |
+| **資料持久性** | 資料庫備份 | PostgreSQL 每日凌晨自動備份 |
+| **響應式設計** | 行動裝置 | 全頁面支援 375px - 1920px 寬度 |
+
+---
+
+## 8. UI/UX 色彩計劃
+
+### 主視覺色系
+| 用途 | 色彩 | Hex |
+|------|------|-----|
+| **主色（Primary）** | 品牌藍 | `#2563EB` |
+| **輔色（Accent）** | 活力綠 | `#10B981` |
+| **警告色（Warning）** | 謹慎橙 | `#F59E0B` |
+| **危險色（Danger）** | 果斷紅 | `#EF4444` |
+| **成功色（Success）** | 談判綠 | `#22C55E` |
+| **深色背景** | 深空灰 | `#0F172A` |
+| **淺色背景** | 極光白 | `#F8FAFC` |
+
+### 字體與佈局
+- **主標題字體**：Inter（Google Fonts），粗體，20px+
+- **內文字體**：Inter，常規，14-16px
+- **等寬字體**：JetBrains Mono（數字、程式碼）
+- **佈局柵格**：12 欄系統，最大內容寬度 1280px
+- **間距系統**：4px 基礎單位（0.25rem），常用 8/16/24/32px
+
+### 深色模式
+- 背景：`#0F172A`（dark mode body）
+- 卡片：`#1E293B`（dark mode card bg）
+- 文字：`#F1F5F9`（dark mode text）
+- 切換方式：Zustand store → localStorage 持久化
+
+---
+
+## 9. 成功指標（KPI）
+
+| 指標 | 目標值 | 衡量方式 |
+|------|--------|----------|
+| **頁面載入時間** | < 2 秒（Lighthouse Performance > 90） | Vite build + Nginx gzip |
+| **用戶留存率** | 30 日留存 > 30% | localStorage 追蹤回訪 |
+| **Offer 評估使用率** | 每次 session 至少 1 次評估 | API call counting |
+| **論壇互動率** | 發文/瀏覽比 > 5% | DB 記數 |
+| **API 可用性** | 99.5% uptime | health check ping |
+| **錯誤率** | API 5xx 錯誤 < 0.5% | error logging |
+
+---
+
+## 10. 待老闆決策
+
+
+【現有系統架構（SA）】
+# OfferLift SA — 系統架構文件（React 版本）
+
+## 1. 系統概述
+
+OfferLift 是一款全端多頁應用，前端為 React 18 + Vite，後端為 Node.js + Express，資料庫為 PostgreSQL，快取層為 Redis。系統核心功能包括：Offer 評估、談判腳本庫、薪資參考數據展示、用戶匿名貢獻、以及薪資論壇討論。
+
+---
+
+## 2. 架構圖
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                        用戶瀏覽器 (Browser)                       │
+├─────────────────────────────────────────────────────────────────┤
+│  ┌──────────────────────────────────────────────────────────┐    │
+│  │                   React 18 SPA                          │    │
+│  │  ┌──────────────┐  ┌──────────────┐  ┌────────────┐    │    │
+│  │  │ React Router │  │   Zustand    │  │  Tailwind  │    │    │
+│  │  │  (6 pages)   │  │  (store +    │  │   CSS CDN  │    │    │
+│  │  │              │  │  persisted)  │  │            │    │    │
+│  │  └──────────────┘  └──────────────┘  └────────────┘    │    │
+│  └──────────────────────────────────────────────────────────┘    │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ HTTP (REST API via Nginx)
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                   Nginx (offerlift-frontend:80)                │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │  Static: React build (dist/)                             │   │
+│  │  Proxy: /api/* → offerlift-api:3000                      │   │
+│  │  SPA fallback: / → index.html                             │   │
+│  └──────────────────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────────────────┘
+                              │
+                              │ HTTP REST API
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                  offerlift-api (Container, Port 3000)           │
+│  ┌──────────────────────────────────────────────────────────┐   │
+│  │              Node.js + Express.js                        │   │
+│  │  - Rate Limiting (Redis)                                 │   │
+│  │  - CORS Middleware                                       │   │
+│  │  - API Key Validation                                    │   │
+│  │  - Request Logging                                       │   │
+│  └──────────────────────────────────────────────────────────┘   │
+│         │                    │                    │              │
+│         ▼                    ▼                    ▼              │
+│  ┌─────────────┐     ┌─────────────┐     ┌─────────────┐       │
+│  │ offerlift-  │     │ offerlift- │     │  RSS        │       │
+│  │ postgres    │     │ redis      │     │  Fetcher    │       │
+│  │ (5432)      │     │ (6379)     │     │  (Scheduler)│       │
+│  └─────────────┘     └─────────────┘     └─────────────┘       │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 3. Docker 容器矩陣
+
+| 容器名稱 | 映像檔 | 埠 | 職責 | 重啟策略 |
+|----------|--------|-----|------|----------|
+| offerlift-postgres | postgres:16-alpine | 5434:5432 | Primary DB | unless-stopped |
+| offerlift-redis | redis:7-alpine | 6380:6379 | Cache + Rate Limit | unless-stopped |
+| offerlift-api | app_api (build) | 3000:3000 | Node.js API | unless-stopped |
+| offerlift-frontend | offerlift-frontend (build) | 8080:80 | Nginx + React build | unless-stopped |
+
+---
+
+## 4. 元件職責
+
+### 4.1 Frontend Layer（React 18 + Vite）
+
+| 元件名稱 | 職責 | 技術實作 |
+|----------|------|----------|
+| NavBar | 全站導航、品牌識別 | React Router Link + Tailwind |
+| Home | 價值主張傳達、CTA 導流 | gradient bg + Feature cards |
+| OfferForm | Offer 輸入表單 + API call | React state + fetch |
+| ScoreCard | 評估結果環圈動畫 | Recharts + CSS animation |
+| ScriptList | 談判腳本列表（可展開） | Accordion pattern |
+| SalaryTable | 薪資參考表格 | Static data + filter |
+| ForumPost | 論壇討論串 | List + Post form |
+| LanguageSelector | 繁體/English/日本語 | react-i18next |
+| DarkModeToggle | 深色/淺色模式切換 | Zustand + Tailwind dark: |
+
+### 4.2 Backend Layer（Node.js + Express）
+
+| 路由/中介軟體 | 職責 | API 端點 |
+|--------------|------|----------|
+| evaluateRouter | Offer 評估計算 | `POST /api/evaluate` |
+| salaryDataRouter | 薪資參考數據 CRUD | `GET /api/salary-data`, `POST /api/contribute` |
+| offersRouter | Offer 追蹤 CRUD | `GET/POST/PUT/DELETE /api/offers` |
+| interviewsRouter | 面試進度 CRUD | `GET/POST/PUT/DELETE /api/interviews` |
+| forumRouter | 論壇文章 CRUD | `GET/POST/DELETE /api/forum` |
+| calculatorRouter | 稅務/福利計算 | `GET /api/calculator/tax`, `GET /api/calculator/benefits` |
+| rssRouter | RSS 資料獲取 | `GET /api/rss/104`, `GET /api/rss/cakeresume` |
+| scriptsRouter | 談判腳本讀取 | `GET /api/scripts` |
+
+---
+
+## 5. 部署流程
+
+```bash
+# 開發模式
+cd frontend && npm install && npm run dev
+
+# 生產模式
+cd frontend && npm run build
+
+# Docker 部署（整組）
+cd /home/crawd_user/project/offerlift
+docker compose up -d --build
+```
+
+---
+
+## 6. 健康檢查策略
+
+- **PostgreSQL**：`pg_isready` every 10s
+- **Redis**：`redis-cli ping` every 10s
+- **Frontend**：`wget http://localhost:80/` every 30s
+- **API**：`condition: service_healthy` (waits for postgres + redis)
+
+---
+
+## 7. 安全策略
+
+- Nginx headers：`X-Content-Type-Options`, `X-XSS-Protection`, `X-Frame-Options`, `Referrer-Policy`
+- API Key 驗證（`X-API-Key` header）
+- Rate limiting via Redis
+- CORS 限制允許的 origin
+- CSP previously removed (blocking Tailwind CDN)
+
+---
+
+## 8. 多語系
+
+- **框架**：react-i18next
+- **支援語言**：繁體中文（zh-TW）、英語（en）、日語（ja）
+- **切換方式**：Zustand store → localStorage persistence
+
+
+【現有詳細設計（SD）】
+# OfferLift SD — 建構文件（React + Docker 版本）
+
+## 1. 建構環境
+
+- **Node.js**：22.x
+- **前端**：Vite 6 + React 18 + React Router v6 + Zustand
+- **後端**：Node.js 18+ + Express
+- **資料庫**：PostgreSQL 16
+- **快取**：Redis 7
+- **容器化**：Docker + Docker Compose
+- **反向代理**：Nginx（前端容器內）
+
+---
+
+## 2. 建構腳本
+
+### 2.1 前端建構（frontend/）
+
+```bash
+# 初始化
+npm create vite@latest . -- --template react
+npm install
+npm install react-router-dom zustand recharts react-i18next i18next
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+
+# 開發
+npm run dev          # port 5173
+
+# 生產建構
+npm run build        # → dist/
+```
+
+### 2.2 Docker 建構（整組）
+
+```bash
+# 從專案根目錄
+cd /home/crawd_user/project/offerlift
+
+# 完整建構 + 啟動
+docker compose up -d --build
+
+# 查看狀態
+docker ps
+
+# 停止
+docker compose down
+```
+
+---
+
+## 3. Docker 網路
+
+- **網路名稱**：`offerlift_app_default`（driver: bridge）
+- **Internal DNS**：
+  - `offerlift-postgres:5432`
+  - `offerlift-redis:6379`
+  - `offerlift-api:3000`
+  - `offerlift-frontend:80`
+
+---
+
+## 4. 環境變數（API Container）
+
+| 變數 | 值 | 說明 |
+|------|-----|------|
+| `NODE_ENV` | `development` | 環境模式 |
+| `PORT` | `3000` | API 監聽埠 |
+| `DATABASE_URL` | `postgres://offerlift:offerlift_dev_password@offerlift-postgres:5432/offerlift` | Postgres 連線字串 |
+| `REDIS_URL` | `redis://offerlift-redis:6379` | Redis 連線字串 |
+| `API_KEY` | `dev_api_key_12345` | API 驗證金鑰 |
+| `CORS_ORIGIN` | `http://localhost:5173,http://localhost:3000,http://localhost:8080` | 允許的 CORS 源 |
+
+---
+
+## 5. 端點規格（不變）
+
+### 5.1 Evaluate
+```
+POST /api/evaluate
+Headers: X-API-Key: dev_api_key_12345
+Body: {
+  jobTitle: string,
+  totalComp: number,
+  baseSalary: number,
+  bonus: number (months),
+  equity: number,
+  city: string,
+  experience: string
+}
+Response: { score: number, breakdown: object, script: string, recommendation: string }
+```
+
+### 5.2 Salary Data
+```
+GET /api/salary-data
+Response: [{ title, min, max, source }]
+```
+
+### 5.3 Scripts
+```
+GET /api/scripts
+Response: [{ id, category, situation, script, tips }]
+```
+
+### 5.4 Forum
+```
+GET /api/forum?page=1&pageSize=10
+POST /api/forum
+Headers: X-API-Key: dev_api_key_12345
+Body: { title, content, company, city, salaryRange, stage }
+```
+
+### 5.5 Offers
+```
+GET /api/offers
+POST /api/offers
+PUT /api/offers/:id
+DELETE /api/offers/:id
+```
+
+### 5.6 Calculator
+```
+GET /api/calculator/tax?annualIncome=1500000
+GET /api/calculator/benefits?totalComp=1000000&city=taipei
+```
+
+---
+
+## 6. 資料模型（不變）
+
+| Table | 說明 |
+|-------|------|
+| `salary_data` | 薪資行情參考數據 |
+| `evaluations` | 評估歷史記錄 |
+| `offers` | 用戶追蹤的 Offers |
+| `interviews` | 面試進度 |
+| `forum_posts` | 論壇匿名討論 |
+| `scripts` | 談判腳本模板 |
+
+---
+
+## 7. Nginx 設定（Frontend Container）
+
+```nginx
+server {
+    listen 80;
+    root /usr/share/nginx/html;   # React build output
+    index index.html;
+
+    # SPA fallback
+    location / {
+        try_files $uri $uri/ /index.html;
+    }
+
+    # API reverse proxy
+    location /api/ {
+        proxy_pass http://offerlift-api:3000;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_connect_timeout 10s;
+        proxy_send_timeout 30s;
+        proxy_read_timeout 30s;
+    }
+
+    # Security headers
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header X-XSS-Protection "1; mode=block" always;
+    add_header X-Frame-Options "SAMEORIGIN" always;
+    add_header Referrer-Policy "no-referrer-when-downgrade" always;
+    add_header Cache-Control "no-store, no-cache" always;
+
+    # No cache static assets
+    location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2)$ {
+        expires -1;
+        add_header Cache-Control "no-store, no-cache";
+    }
+
+    # Gzip
+    gzip on;
+    gzip_types text/plain text/css application/json application/javascript text/xml application/xml;
+    gzip_min_length 1000;
+}
+```
+
+---
+
+## 8. 部署矩陣
+
+| 服務 | 內部 URL | 對外 URL |
+|------|----------|----------|
+| Frontend | `http://offerlift-frontend:80` | `http://100.114.72.104:8080/` |
+| API | `http://offerlift-api:3000` | `http://100.114.72.104:3000/` |
+| Postgres | `offerlift-postgres:5432` | `127.0.0.1:5434` |
+| Redis | `offerlift-redis:6379` | `127.0.0.1:6380` |
+
+---
+
+## 9. 建構產物
+
+- **frontend/dist/**：Vite 生產建構輸出（Nginx serving）
+- **Image names**：`offerlift-frontend:latest`（tag from docker-compose）
+- **Volumes**：`postgres_data`, `redis_data`（persistent across restarts）
+
+
+【開發日誌（近期執行記錄 + 遇到的問題）】
+| Quality Score | **100** (門檻 95) ✅ |
+
+**已推送 commit**: `7e5aa393`
+
+**Stage 狀態**: `security` (iron rule — 不可寫 `done`)
+
+Phase 1 (後端 API + DB) 和 Phase 2 (前端 React) 已實質完成。Phase 3 (Data Pipeline) 為可選，不影響品質分數。Stage 維持在 `security`。
+
+
+---
+
+## [2026-04-12 07:04:37] [security] undefined%
+
+security階段確認：程式碼審查驗證 Phase 1+2 實質完成。US-02(談判腳本5篇)、US-03(薪資行情12職稱)、US-04(匿名論壇)皆已實作。PRD checkbox未勾選為狀態遺留問題，不影響品質分數。QUALITY_SCORE=100>>95門檻。Stage stays at security per iron rule.
+
+> 
+
+根據檢查結果，系統狀態確認：
+
+| 檢查項 | 結果 |
+|--------|------|
+| Tests | 69/69 passed ✅ |
+| Vite Build | 1.54s ✅ |
+| npm audit | 0 vulnerabilities ✅ |
+| Quality Score | **100** (門檻 95) ✅ |
+
+Phase 1 (後端 API + DB) 和 Phase 2 (前端 React) 已實質完成。Stage 維持在 `security`。
+
+`.dev_status.json` 已是最新狀態，無需更新。Phase 3 (Data Pipeline) 為可選項目。
+
+
+---
+
+## [2026-04-12 07:31:57] [security] undefined%
+
+security階段確認：程式碼審查驗證 Phase 1+2 實質完成。US-02(談判腳本5篇)、US-03(薪資行情12職稱)、US-04(匿名論壇)皆已實作。PRD checkbox未勾選為狀態遺留問題，不影響品質分數。QUALITY_SCORE=100>>95門檻。Stage stays at security per iron rule.
+
+> **Verification Complete**
+
+| Component | Status | Evidence |
+|-----------|--------|----------|
+| Frontend (6 pages) | ✅ Real | React components with `api.getScripts()` / `api.evaluate()` calls |
+| Backend (10 routes) | ✅ Real | Express routes with Zod validation, DB queries |
+| Evaluator service | ✅ Real | Market reference data, scoring algorithm |
+| Tests | ✅ 69/69 | All pass, console.error is expected test behavior |
+| Vite Build | ✅ 1.88s | Clean production build |
+| npm audit | ✅ 0 | No vuln
+
+---
+
+## [2026-04-12 10:02:29] [security] undefined%
+
+security階段確認：程式碼審查驗證 Phase 1+2 實質完成。US-02(談判腳本5篇)、US-03(薪資行情12職稱)、US-04(匿名論壇)皆已實作。PRD checkbox未勾選為狀態遺留問題，不影響品質分數。QUALITY_SCORE=100>>95門檻。Stage stays at security per iron rule.
+
+> 
+
+**Bug 已修復並推送。**
+
+**根因**：`server/src/middleware/validator.js` 中 `validate` 中間件调用 `schema.parse(req.body)` 但沒有把解析後的物件指派回 `req.body`，導致 `req.body` 在驗證通過後仍維持空的 `{}`。論壇 POST 依賴 `req.body.title`、`req.body.city`、`req.body.content`，這些都拿到 `undefined`。
+
+**修復**：將 `req.body = schema.parse(req.body)` 賦值回寫。
+
+**變更**：
+```
+server/src/middleware/validator.js:6
+- schema.parse(req.body)
++ req.body = schema.parse(req.body)
+```
+
+測試 69/69 通過，已推送 commit `4df47898`。Stage 維持在 `security`（鐵則：不可寫 done）。
+
+
+---
+
+## [2026-04-12 12:34:40] [security] undefined%
+
+security階段確認：論壇 API 方法名 mismatch 已修復。Frontend Forum.jsx 調用 api.getForum()/api.postForum() 但 api.js 實際方法名為 getForumPosts()/createForumPost()。已修正並推送。Stage stays at security per iron rule.
+
+> 
+
+**修復完成**
+
+找到根本原因：`Forum.jsx` 呼叫了不存在的 API 方法：
+- `api.getForum()` → 正確應為 `api.getForumPosts()`
+- `api.postForum()` → 正確應為 `api.createForumPost()`
+
+已修正並優化論壇貼文顯示（加入標題、城市、薪資範圍）。推送至 main。
+
+| 檢查項 | 結果 |
+|--------|------|
+| Tests | 69/69 ✅ |
+| Vite Build | 1.67s ✅ |
+| npm audit | 0 vulnerabilities ✅ |
+| Quality Score | **100** (門檻 95) ✅ |
+
+Stage 維持 `security`（鐵則）。
+
+
+---
+
+
+【專案配置】
+- Name: offerlift
+- Version: 1.0.0
+- Main: server/src/index.js
+- Dependencies: axios, cors, dotenv, express, express-rate-limit, helmet, ioredis, isomorphic-dompurify, js-yaml, node-cron, pg, uuid, xml2js, zod
+- DevDependencies: @babel/core, @babel/preset-env, babel-jest, jest, jest-environment-jsdom, jsdom, nodemon, supertest
+
+{
+  "name": "offerlift",
+  "version": "1.0.0",
+  "description": "OfferLift - 求職者薪資談判智囊 (Full-Stack)",
+  "main": "server/src/index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node server/src/index.js",
+    "dev": "nodemon server/src/index.js",
+    "test": "jest",
+    "test:coverage": "jest --coverage",
+    "migrate": "node server/migrations/run.js",
+    "seed": "node server/seeds/run.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.8",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "
+
+【現有文件結構（主要）】
+/home/crawd_user/project/offerlift/coverage/lcov-report/sorter.js
+/home/crawd_user/project/offerlift/coverage/lcov-report/prettify.js
+/home/crawd_user/project/offerlift/coverage/lcov-report/block-navigation.js
+/home/crawd_user/project/offerlift/tests/evaluator.test.js
+/home/crawd_user/project/offerlift/tests/api.test.js
+/home/crawd_user/project/offerlift/server/seeds/run.js
+/home/crawd_user/project/offerlift/server/migrations/run.js
+/home/crawd_user/project/offerlift/server/src/services/rss.js
+/home/crawd_user/project/offerlift/server/src/services/evaluator.js
+/home/crawd_user/project/offerlift/server/src/middleware/errorHandler.js
+/home/crawd_user/project/offerlift/server/src/middleware/validator.js
+/home/crawd_user/project/offerlift/server/src/middleware/auth.js
+/home/crawd_user/project/offerlift/server/src/middleware/rateLimit.js
+/home/crawd_user/project/offerlift/server/src/utils/sanitize.js
+/home/crawd_user/project/offerlift/server/src/utils/anonymous.js
+/home/crawd_user/project/offerlift/server/src/config/env.js
+/home/crawd_user/project/offerlift/server/src/config/database.js
+/home/crawd_user/project/offerlift/server/src/config/redis.js
+/home/crawd_user/project/offerlift/server/src/index.js
+/home/crawd_user/project/offerlift/server/src/routes/scripts.js
+
+【老闆的產品願景與需求】
+【OfferLift 開發任務 — 真正的缺失】
+
+## Phase 1: 後端 API + DB（必要）
+1. Node.js/Express 後端，連接 PostgreSQL + Redis
+2. DB Schema: offers, interviews, forum_posts, salary_contributions, negotiation_scripts
+3. API Endpoints:
+   - POST /api/evaluate（Offer 評估計算）
+   - GET /api/salary-data（12 職稱薪資區間）
+   - GET/POST /api/offers（Offer 追蹤 CRUD）
+   - GET/POST /api/interviews（面試進度 CRUD）
+   - GET/POST /api/forum（匿名論壇）
+   - POST /api/contribute（匿名薪資貢獻）
+   - GET /api/calculator/tax（所得稅計算）
+   - GET /api/calculator/benefits（福利計算）
+   - GET /api/rss/104（RSS 薪資情報）
+   - GET /api/rss/cakeresume（RSS 文章）
+4. RSS Fetching（每小時更新薪資數據到 DB）
+5. Docker compose 完整部署（app + postgres + redis）
+
+## Phase 2: 前端 JS 功能（目前全是假的）
+1. Offer 評估器 UI + API 串接
+2. 談判腳本庫 UI + 一鍵複製
+3. 薪資論壇 UI
+4. 面試進度追蹤 UI
+5. 截止提醒 UI + Notification API
+6. 稅務計算機 UI
+7. 深色模式
+8. PWA Service Worker（已存在 sw.js 但需綁定）
+9. PDF 匯出（jsPDF）
+10. 多語言切換（ZH/EN/JA）
+
+## Phase 3: Data Pipeline（差異化競爭力）
+1. RSS Auto-fetch（104/CakeResume/Crawler）每小時寫入 DB
+2. 薪資數據匿名貢獻系統
+3. market_niche 每小時獵人爬蟲寫入 DB
+4. 數據驅動的 Offer 評估模型（根據真實數據調整）
+
+請務必對齊此期望。
+
+【老闆回饋 — 最高優先級】
+匿名論壇 api發表馬上錯
+
+⚠️ 以上回饋優先級最高，必須在本輪內處理。
+
+【上次巡檢狀態】
+{
+  "stage": "security",
+  "iteration": 2,
+  "quality_score": 100,
+  "quality_details": {
+    "prd_completeness": "100 - 7/7 items, each >50 chars",
+    "sa_sd_completeness": "100 - SA + SD complete",
+    "code_implementation": "95 - frontend 6 pages, backend 10 routes, forum API methods fixed",
+    "tests_passed": "100 - 69/69 tests pass",
+    "npm_audit": "100 - 0 vulnerabilities",
+    "OWASP_check": "100 - No XSS/SQLi/IDOR found in code paths"
+  },
+  "items_completed": [
+    "PRD 7/7 項目完整且實質",
+    "SA+SD 完整",
+    "前端 React SPA 6頁面完整",
+    "後端 API routes 10個完整",
+    "Vite build 成功 (1.67s)",
+    "69 tests passed",
+    "npm audit 0 vulnerabilities",
+    "OWASP Top 10 checked (no critical issues in code)",
+    "US-02 談判腳本庫: 5腳本實作(開場/談判/福利/結尾), 一鍵複製✅",
+    "US-03 薪資行情: 12職稱seed數據, 過濾功能✅",
+    "US-04 薪資論壇: 匿名發文/過濾✅",
+    "論壇 API 方法名修正: api.getForum()→api.getForumPosts(), api.postForum()→api.createForumPost()",
+    "論壇貼文顯示最佳化: 加入標題、城市、薪資範圍顯示"
+  ],
+  "items_missing": [],
+  "blocking_errors": [
+    "POST /api/forum - validate middleware wasn't assigning parsed body back to req.body (fixed in validator.js)",
+    "Forum.jsx - api.getForum() and api.postForum() didn't match api.js method names (fixed)"
+  ],
+  "non_blocking_errors": [],
+  "summary": "security階段確認：論壇 API 方法名 mismatch 已修復。Frontend Forum.jsx 調用 api.getForum()/api.postForum() 但 api.js 實際方法名為 getForumPosts()/createForumPost()。已修正並推送。Stage stays at security per iron rule.",
+  "next_action": "No further action required. Phase 3 (Data Pipeline) is optional and not prioritized. Stage remains 'security' per iron rule - cannot write 'done'.",
+  "verified_at": "2026-04-12T04:35:00.000Z",
+  "verification_summary": "69/69 tests passed, Vite build 1.67s, npm audit 0 vulnerabilities. Phase 1+2 complete."
+}
+
+請根據上次狀態和本次發現，決定是繼續當前階段深化，還是推進到下一階段。
+
+你是這個專案的全權負責工程師。執行「品質驅動」的開發模式：分數達標才往前，可回溯低質量。
+
+【環境上下文】
+- TASK_PRODUCT_DESC: 【OfferLift 開發任務 — 真正的缺失】
+
+## Phase 1: 後端 API + DB（必要）
+1. Node.js/Express 後端，連接 PostgreSQL + Redis
+2. DB Schema: offers, interviews, forum_posts, salary_contributions, negotiation_scripts
+3. API Endpoints:
+   - POST /api/evaluate（Offer 評估計算）
+   - GET /api/salary-data（12 職稱薪資區間）
+   - GET/POST /api/offers（Offer 追蹤 CRUD）
+   - GET/POST /api/interviews（面試進度 CRUD）
+   - GET/POST /api/forum（匿名論壇）
+   - POST /api/contribute（匿名薪資貢獻）
+   - GET /api/calculator/tax（所得稅計算）
+   - GET /api/calculator/benefits（福利計算）
+   - GET /api/rss/104（RSS 薪資情報）
+   - GET /api/rss/cakeresume（RSS 文章）
+4. RSS Fetching（每小時更新薪資數據到 DB）
+5. Docker compose 完整部署（app + postgres + redis）
+
+## Phase 2: 前端 JS 功能（目前全是假的）
+1. Offer 評估器 UI + API 串接
+2. 談判腳本庫 UI + 一鍵複製
+3. 薪資論壇 UI
+4. 面試進度追蹤 UI
+5. 截止提醒 UI + Notification API
+6. 稅務計算機 UI
+7. 深色模式
+8. PWA Service Worker（已存在 sw.js 但需綁定）
+9. PDF 匯出（jsPDF）
+10. 多語言切換（ZH/EN/JA）
+
+## Phase 3: Data Pipeline（差異化競爭力）
+1. RSS Auto-fetch（104/CakeResume/Crawler）每小時寫入 DB
+2. 薪資數據匿名貢獻系統
+3. market_niche 每小時獵人爬蟲寫入 DB
+4. 數據驅動的 Offer 評估模型（根據真實數據調整）
+- TASK_BOSS_NOTE: 匿名論壇 api發表馬上錯
+- TASK_PATH: offerlift
+- QUALITY_GATES: {"prd":85,"sa_sd":85,"dev":90,"test":95,"security":95,"done":100}
+
+【品質門檻】
+- prd: 85 分 → 進 sa_sd | < 85 → 繼續迭代 prd
+- sa_sd: 85 分 → 進 dev | < 85 → 繼續迭代 sa_sd
+- dev: 90 分 → 進 test | < 90 → 繼續迭代 dev
+- test: 95 分 → 進 security | < 95 → 繼續迭代 test
+- security: 95 分 → 進 done | < 95 → 繼續迭代 security
+
+【開發流程】
+
+【第 1 步】讀取 Dispatcher 決策
+1. 檢查環境變數 STATE_DECISION（由 dispatcher 計算）：
+   - action: "continue_same_stage" → 留在該 stage，iteration++
+   - action: "advance" → 升級到下一個 stage
+   - action: "complete" → 項目已完成
+   - next_stage: 若 action="advance"，這是下一個 stage
+
+【第 2 步】根據決策執行
+- 若 continue_same_stage：
+  - 讀取當前 stage 的工作清單
+  - 補完缺失部分
+  - 重新評分，aim for threshold
+- 若 advance：
+  - 升級 stage 字段
+  - iteration 重置為 1
+  - 開始新 stage 的工作
+- 若 complete：
+  - 驗證所有工作完成
+  - 標記為 done
+
+【第 3 步】執行工作
+根據 stage 執行對應工作：
+
+**prd 階段**（須 85 分，**每一項都必須滿足，否則卡住**）：
+- 若不存在 docs/PRD.md → 產出完整 PRD
+- 若存在 → 必須逐一核對以下 7 項，**每項都必須存在且有實質內容**，否則先補完再繼續：
+  1. **產品願景**：一段話清楚說明產品是什麼、給誰用、解決什麼問題（不是廢話）
+  2. **User Story**：至少 3 個，每個格式為「作為...我希望...以便...」
+  3. **P0/P1/P2 功能分級**：每個等级至少 2 個具體功能，**不能只有大標題**
+  4. **非功能需求**：效能/可用性/擴展性/安全性 各起碼一項具體指標
+  5. **技術選型**：前端+後端+資料庫+部署工具各一個，附選擇理由
+  6. **UI/UX 色彩計劃**：主色/副色/字體/佈局原則，具體色碼或方向
+  7. **成功指標**：至少 2 個可量化的 KPI（例：頁面載入 < 2s、留存率 > 30%）
+- **硬性審計**：必須實際讀取 PRD.md，確認每項內容 >= 50 個字（不是空白或「待補」）
+- 評分標準：7 項全部達標 = 85 分，缺任何 1 項 = 不及格，繼續補完
+
+**sa_sd 階段**（須 85 分）：
+- 產出 docs/SA.md 和 docs/SD.md
+- SA：架構圖、元件職責、資料流、部署方式
+- SD：API 規格、DB Schema、錯誤處理、模組介面
+- 若 PRD 有變更，SA/SD 可能需要回溯並重新設計
+- 評分標準：完整度 50% + 可執行性 50%
+
+**dev 階段**（須 90 分）：
+- 若 PRD/SA/SD 中定義了里程碑（M1-M6） → 執行里程碑開發
+- 若無里程碑 → 直接開發所有功能
+- 評分標準：
+  - API 實現 40% (對照 SD.md 的所有端點)
+  - 代碼質量 30% (無 TODO、代碼覆蓋、一致性)
+  - 可運行 20% (能啟動、基本測試通過)
+  - Git commit 10% (有新 commit，消息清晰)
+
+**test 階段**（須 95 分）：
+- 單元測試覆蓋率 >= 80%
+- 整合測試覆蓋所有 API
+- 所有測試通過
+- 評分標準：覆蓋率 50% + 測試通過率 50%
+
+**security 階段**（須 95 分）：
+- OWASP Top 10 檢查
+- 依賴漏洞掃描 (npm audit / pip audit)
+- 敏感資料處理審查
+- 評分標準：漏洞修復 60% + 安全檢查項 40%
+
+【第 4 步】自動評分與更新
+完成工作後，自己評估質量分數 (0-100)，更新 docs/.dev_status.json：
+
+```json
+{
+  "stage": "當前階段",
+  "iteration": 迭代次數,
+  "quality_score": 評分 (0-100),
+  "quality_details": {
+    "指標1": 分數,
+    "指標2": 分數,
+    ...
+  },
+  "completeness": 完成度 (0-100),
+  "summary": "本次做了什麼，質量評估",
+  "next_action": "下次應該做什麼",
+  "updated_at": "ISO 時間"
+}
+```
+
+【回溯規則】
+若在當前階段發現下一個階段的工作有問題，可回溯：
+- dev → sa_sd (若發現架構缺陷)
+- test → dev (若發現功能實現有誤)
+- security → dev (若發現代碼安全漏洞)
+
+回溯時，修改 stage 為上一個階段，並清除 quality_score（重新評估）。
+
+【執行原則】
+- 不要問問題，直接做；遇到錯誤自己修復
+- 完成工作後必須推送到遠端：
+  1. 檢查是否有 git remote origin
+  2. 若無 remote，用 gh 自動建立（推送到 https://github.com/pw1131fd0-hub/{project-name}）
+  3. git add 所有變更的檔案（含 docs/.dev_status.json）
+  4. git commit -m "..." （遵守 Conventional Commits: feat/fix/chore 前綴）
+  5. git push origin master
+- docs/.dev_status.json 必須寫入，這是品質控制的依據
+
+【鐵則：絕對禁止寫 stage: "done"】
+- 專案完成時，stage 只能寫「security」或「pre-prod」，絕對不能寫「done」
+- 只有老闆手動在 Notion 改為 Done，worker 絕對不能自行標記 Done
+- 若 quality_score 已達 security 門檻（95），直接寫 stage: "security"，不要繼續往前
+- 品質分數要誠實，不要虛報
+- 若 GitHub API 失敗，記錄錯誤但不阻斷開發
+
+【安全護欄】
+可以做：寫程式碼、跑測試、修 bug、建立檔案、讀取任何檔案
+不可以做：刪除資料庫、修改環境變數、安裝系統級套件、force push
+
+【提案制度】
+遇到框架變更、大規模重構、新增服務依賴、刪除功能 → 寫提案到 docs/PROPOSALS.md
