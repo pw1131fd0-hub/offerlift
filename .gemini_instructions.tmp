@@ -811,7 +811,7 @@ security階段第4次確認：老闆回饋「論壇 api發表馬上錯」已修�
 4. 數據驅動的 Offer 評估模型（根據真實數據調整）
 - TASK_BOSS_NOTE: 匿名論壇 api發表馬上錯
 - TASK_PATH: offerlift
-- QUALITY_GATES: {"prd":85,"sa_sd":85,"dev":90,"test":95,"security":95,"done":100}
+- QUALITY_GATES: {"prd":85,"dev":90,"test":95,"security":95,"done":100}
 
 【品質門檻】
 - prd: 85 分 → 進 sa_sd | < 85 → 繼續迭代 prd
