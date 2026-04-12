@@ -17,7 +17,7 @@ export default function Forum() {
 
   const loadPosts = () => {
     setLoading(true)
-    api.getForum()
+    api.getForumPosts()
       .then((res) => setPosts(Array.isArray(res) ? res : (res.posts || [])))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -32,7 +32,7 @@ export default function Forum() {
     if (!newTitle.trim() || !newCity.trim() || !newContent.trim()) return
     setPosting(true)
     try {
-      await api.postForum({ title: newTitle, city: newCity, content: newContent })
+      await api.createForumPost({ title: newTitle, city: newCity, content: newContent })
       setNewTitle('')
       setNewCity('')
       setNewContent('')
@@ -98,13 +98,11 @@ export default function Forum() {
         <div className="space-y-4">
           {posts.map((post) => (
             <Card key={post.id}>
-              <div className="flex items-center gap-2 mb-2">
-                <span className="font-medium text-brand-600 dark:text-brand-400">
-                  {t('forum.author')}
-                </span>
-                <span className="text-xs text-gray-400">
-                  {new Date(post.createdAt).toLocaleDateString()}
-                </span>
+              <h3 className="font-semibold text-gray-900 dark:text-gray-100 mb-1">{post.title}</h3>
+              <div className="flex items-center gap-2 mb-2 text-sm text-gray-500">
+                <span>{post.city}</span>
+                {post.salaryRange && <span>• {post.salaryRange}</span>}
+                <span>• {new Date(post.createdAt).toLocaleDateString()}</span>
               </div>
               <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">{post.content}</p>
             </Card>
