@@ -13,8 +13,8 @@ const EvaluateSchema = z.object({
   totalComp: z.number().positive(),
   baseSalary: z.number().positive(),
   bonus: z.number().min(0).max(12),
-  equity: z.number().min(0).max(5),
-  city: z.enum(['taipei', 'nhc', 'taichung', 'kaohsiung', 'remote']),
+  equity: z.number().min(0).max(100), // 0-100 units (RSUs/options)
+  city: z.enum(['taipei', 'new_taipei', 'taichung', 'kaohsiung', 'other']),
   experience: z.enum(['0-2', '2-5', '5-10', '10+']),
 });
 

@@ -8,22 +8,21 @@ import calculatorRouter from './calculator.js';
 import rssRouter from './rss.js';
 import scriptsRouter from './scripts.js';
 import contributeRouter from './contribute.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { authMiddleware, optionalAuthMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
-// Apply auth to all API routes
-router.use(authMiddleware);
+// Public endpoints - no auth required
+router.use('/salary-data', salaryDataRouter); // Public salary data
+router.use('/scripts', scriptsRouter); // Public negotiation scripts
 
-// Route handlers
-router.use('/evaluate', evaluateRouter);
-router.use('/salary-data', salaryDataRouter);
-router.use('/offers', offersRouter);
-router.use('/interviews', interviewsRouter);
-router.use('/forum', forumRouter);
-router.use('/calculator', calculatorRouter);
-router.use('/rss', rssRouter);
-router.use('/scripts', scriptsRouter);
-router.use('/contribute', contributeRouter);
+// Protected endpoints - require API key
+router.use('/evaluate', authMiddleware, evaluateRouter);
+router.use('/offers', authMiddleware, offersRouter);
+router.use('/interviews', authMiddleware, interviewsRouter);
+router.use('/forum', authMiddleware, forumRouter);
+router.use('/calculator', authMiddleware, calculatorRouter);
+router.use('/rss', authMiddleware, rssRouter);
+router.use('/contribute', authMiddleware, contributeRouter);
 
 export default router;

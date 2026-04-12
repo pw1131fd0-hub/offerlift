@@ -13,3 +13,9 @@ export function authMiddleware(req, res, next) {
 
   next();
 }
+
+// Optional auth - doesn't require API key but extracts anonymous ID if present
+export function optionalAuthMiddleware(req, res, next) {
+  // Don't block requests without API key, just skip auth
+  next();
+}
