@@ -8,6 +8,8 @@ import { api } from '../api/client'
 export default function Forum() {
   const { t } = useTranslation()
   const [posts, setPosts] = useState([])
+  const [newTitle, setNewTitle] = useState('')
+  const [newCity, setNewCity] = useState('')
   const [newContent, setNewContent] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
@@ -27,10 +29,12 @@ export default function Forum() {
 
   const handlePost = async (e) => {
     e.preventDefault()
-    if (!newContent.trim()) return
+    if (!newTitle.trim() || !newCity.trim() || !newContent.trim()) return
     setPosting(true)
     try {
-      await api.postForum({ content: newContent })
+      await api.postForum({ title: newTitle, city: newCity, content: newContent })
+      setNewTitle('')
+      setNewCity('')
       setNewContent('')
       loadPosts()
     } catch (err) {
@@ -49,6 +53,28 @@ export default function Forum() {
       {/* Post form */}
       <Card className="mb-8">
         <form onSubmit={handlePost} className="space-y-3">
+          <input
+            type="text"
+            value={newTitle}
+            onChange={(e) => setNewTitle(e.target.value)}
+            placeholder={t('forum.title') || '討論標題'}
+            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          />
+          <select
+            value={newCity}
+            onChange={(e) => setNewCity(e.target.value)}
+            className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+          >
+            <option value="">{t('forum.selectCity') || '選擇城市'}</option>
+            <option value="台北">台北</option>
+            <option value="新北">新北</option>
+            <option value="桃園">桃園</option>
+            <option value="台中">台中</option>
+            <option value="台南">台南</option>
+            <option value="高雄">高雄</option>
+            <option value="新竹">新竹</option>
+            <option value="其他">其他</option>
+          </select>
           <textarea
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
