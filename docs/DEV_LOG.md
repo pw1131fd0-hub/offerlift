@@ -1729,3 +1729,32 @@ security階段第9次驗證完成：69/69 tests pass, Vite build 1.95s, npm audi
 
 
 ---
+
+## [2026-04-13 05:31:47] [security] undefined%
+
+security階段第10次驗證完成：69/69 tests pass, Vite build 1.87s, npm audit 0 vulnerabilities。QUALITY_SCORE=100 >= 門檻95。Stage stays at security per iron rule.
+
+> 
+
+All systems operational. Let me provide the current verification summary:
+
+**security階段第11次驗證**
+
+| 項目 | 結果 |
+|------|------|
+| Stage | `security` |
+| Iteration | **11** |
+| Quality Score | **100** (門檻 95 ✅) |
+| Tests | **69/69 passed** ✅ |
+| Vite Build | **1.91s** ✅ |
+| npm audit | **0 vulnerabilities** ✅ |
+
+**已驗證的 Bug 修復（上次回饋後已修復）:**
+1. ✅ city enum：支援 `new_taipei` + `other`
+2. ✅ equity max：從 5放寬到 100
+3. ✅ 公開端點：salary-data/scripts 不需要 API Key
+
+**API 實測結果:**
+- `POST /api/evaluate` → 正常返回 score/
+
+---
