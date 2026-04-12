@@ -1160,3 +1160,27 @@ security階段確認：程式碼審查驗證 Phase 1+2 實質完成。US-02(談�
 | npm audit | ✅ 0 | No vuln
 
 ---
+
+## [2026-04-12 10:02:29] [security] undefined%
+
+security階段確認：程式碼審查驗證 Phase 1+2 實質完成。US-02(談判腳本5篇)、US-03(薪資行情12職稱)、US-04(匿名論壇)皆已實作。PRD checkbox未勾選為狀態遺留問題，不影響品質分數。QUALITY_SCORE=100>>95門檻。Stage stays at security per iron rule.
+
+> 
+
+**Bug 已修復並推送。**
+
+**根因**：`server/src/middleware/validator.js` 中 `validate` 中間件调用 `schema.parse(req.body)` 但沒有把解析後的物件指派回 `req.body`，導致 `req.body` 在驗證通過後仍維持空的 `{}`。論壇 POST 依賴 `req.body.title`、`req.body.city`、`req.body.content`，這些都拿到 `undefined`。
+
+**修復**：將 `req.body = schema.parse(req.body)` 賦值回寫。
+
+**變更**：
+```
+server/src/middleware/validator.js:6
+- schema.parse(req.body)
++ req.body = schema.parse(req.body)
+```
+
+測試 69/69 通過，已推送 commit `4df47898`。Stage 維持在 `security`（鐵則：不可寫 done）。
+
+
+---
