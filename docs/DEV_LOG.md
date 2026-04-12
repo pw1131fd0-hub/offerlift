@@ -1184,3 +1184,29 @@ server/src/middleware/validator.js:6
 
 
 ---
+
+## [2026-04-12 12:34:40] [security] undefined%
+
+security階段確認：論壇 API 方法名 mismatch 已修復。Frontend Forum.jsx 調用 api.getForum()/api.postForum() 但 api.js 實際方法名為 getForumPosts()/createForumPost()。已修正並推送。Stage stays at security per iron rule.
+
+> 
+
+**修復完成**
+
+找到根本原因：`Forum.jsx` 呼叫了不存在的 API 方法：
+- `api.getForum()` → 正確應為 `api.getForumPosts()`
+- `api.postForum()` → 正確應為 `api.createForumPost()`
+
+已修正並優化論壇貼文顯示（加入標題、城市、薪資範圍）。推送至 main。
+
+| 檢查項 | 結果 |
+|--------|------|
+| Tests | 69/69 ✅ |
+| Vite Build | 1.67s ✅ |
+| npm audit | 0 vulnerabilities ✅ |
+| Quality Score | **100** (門檻 95) ✅ |
+
+Stage 維持 `security`（鐵則）。
+
+
+---
