@@ -1210,3 +1210,30 @@ Stage 維持 `security`（鐵則）。
 
 
 ---
+
+## [2026-04-12 14:31:11] [security] undefined%
+
+security階段確認：老闆回饋「論壇 api發表馬上錯」，根因為 client.js 方法名未同步（getForum/postForum vs Forum.jsx 呼叫的 getForumPosts/createForumPost）。已修正 client.js 並推送。Stage stays at security per iron rule.
+
+> 
+
+【Security Stage — 最終確認】
+
+**現場驗證結果：**
+
+| 檢查項 | 狀態 |
+|--------|------|
+| `client.js` 方法 | ✅ `getForumPosts()` / `createForumPost()` |
+| `Forum.jsx` 呼叫 | ✅ `api.getForumPosts()` / `api.createForumPost()` |
+| `validator.js` | ✅ `req.body = schema.parse(req.body)` |
+| `forum.js` 路由 | ✅ `POST /` 使用 `req.body.title` / `city` / `content` |
+| Tests | ✅ 69/69 passed |
+| Vite Build | ✅ 1.81s |
+| npm audit | ✅ 0 vulnerabilities |
+| Quality Score | **100** (門檻 95) ✅ |
+
+**結論：**
+
+老闆回饋「匿名論壇 api發表馬上錯」已在本次迭代中修復
+
+---
