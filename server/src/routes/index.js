@@ -21,7 +21,7 @@ router.use('/evaluate', authMiddleware, evaluateRouter);
 router.use('/offers', authMiddleware, offersRouter);
 router.use('/interviews', authMiddleware, interviewsRouter);
 router.use('/forum', forumRouter); // GET public, POST/DELETE require auth internally
-router.use('/calculator', authMiddleware, calculatorRouter);
+router.use('/calculator', calculatorRouter); // Public tax/benefits calculator
 router.use('/rss', authMiddleware, rssRouter);
 router.use('/contribute', authMiddleware, contributeRouter);
 
