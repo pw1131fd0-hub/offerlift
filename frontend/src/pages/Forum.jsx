@@ -9,15 +9,21 @@ export default function Forum() {
   const { t } = useTranslation()
   const [posts, setPosts] = useState([])
   const [newTitle, setNewTitle] = useState('')
+  const [newCompany, setNewCompany] = useState('')
   const [newCity, setNewCity] = useState('')
+  const [newSalaryRange, setNewSalaryRange] = useState('')
   const [newContent, setNewContent] = useState('')
+  const [filterCompany, setFilterCompany] = useState('')
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
   const [posting, setPosting] = useState(false)
 
   const loadPosts = () => {
     setLoading(true)
-    api.getForumPosts()
+    const params = {}
+    if (filterCompany) params.company = filterCompany
+    if (newCity) params.city = newCity
+    api.getForumPosts(params)
       .then((res) => setPosts(Array.isArray(res) ? res : (res.posts || [])))
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false))
@@ -25,16 +31,24 @@ export default function Forum() {
 
   useEffect(() => {
     loadPosts()
-  }, [])
+  }, [filterCompany])
 
   const handlePost = async (e) => {
     e.preventDefault()
     if (!newTitle.trim() || !newCity.trim() || !newContent.trim()) return
     setPosting(true)
     try {
-      await api.createForumPost({ title: newTitle, city: newCity, content: newContent })
+      await api.createForumPost({
+        title: newTitle,
+        company: newCompany || undefined,
+        city: newCity,
+        salaryRange: newSalaryRange || undefined,
+        content: newContent
+      })
       setNewTitle('')
+      setNewCompany('')
       setNewCity('')
+      setNewSalaryRange('')
       setNewContent('')
       loadPosts()
     } catch (err) {
@@ -60,12 +74,28 @@ export default function Forum() {
             placeholder={t('forum.title') || '討論標題'}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
           />
+          <div className="grid grid-cols-2 gap-3">
+            <input
+              type="text"
+              value={newCompany}
+              onChange={(e) => setNewCompany(e.target.value)}
+              placeholder="公司（選填）"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+            <input
+              type="text"
+              value={newSalaryRange}
+              onChange={(e) => setNewSalaryRange(e.target.value)}
+              placeholder="薪資範圍（選填）"
+              className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+            />
+          </div>
           <select
             value={newCity}
             onChange={(e) => setNewCity(e.target.value)}
             className="w-full px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
-            <option value="">{t('forum.selectCity') || '選擇城市'}</option>
+            <option value="">選擇城市</option>
             <option value="台北">台北</option>
             <option value="新北">新北</option>
             <option value="桃園">桃園</option>
@@ -88,6 +118,20 @@ export default function Forum() {
           </Button>
         </form>
       </Card>
+
+      {/* Filters */}
+      <div className="mb-6 flex gap-3">
+        <input
+          type="text"
+          value={filterCompany}
+          onChange={(e) => setFilterCompany(e.target.value)}
+          placeholder="搜尋公司..."
+          className="px-3 py-2 rounded-lg border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-brand-500"
+        />
+        <Button variant="secondary" size="sm" onClick={() => { setFilterCompany(''); loadPosts(); }}>
+          清除篩選
+        </Button>
+      </div>
 
       {/* Posts */}
       {loading ? (

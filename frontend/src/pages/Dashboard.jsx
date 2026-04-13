@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useTranslation } from 'react-i18next'
 import { useOfferStore } from '../store/offerStore'
 import { Button } from '../components/ui/Button'
@@ -6,6 +6,7 @@ import { Card } from '../components/ui/Card'
 import { Input } from '../components/ui/Input'
 import { Select } from '../components/ui/Select'
 import { Modal } from '../components/ui/Modal'
+import { api } from '../api/client'
 
 const EXPERIENCE_OPTIONS = [
   { value: '0-2', label: 'Junior (0-2年)' },
@@ -35,10 +36,31 @@ const emptyForm = {
 
 export default function Dashboard() {
   const { t } = useTranslation()
-  const { offers, addOffer, removeOffer, updateOffer } = useOfferStore()
+  const { offers, addOffer, removeOffer, updateOffer, setOffers } = useOfferStore()
   const [modalOpen, setModalOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [form, setForm] = useState(emptyForm)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    loadOffers()
+  }, [])
+
+  const loadOffers = async () => {
+    setLoading(true)
+    setError('')
+    try {
+      const data = await api.getOffers()
+      const backendOffers = Array.isArray(data) ? data : (data.offers || [])
+      // Sync with local store
+      setOffers(backendOffers)
+    } catch (err) {
+      setError(err.message)
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const handleChange = (field) => (e) =>
     setForm((f) => ({ ...f, [field]: e.target.value }))
@@ -55,13 +77,28 @@ export default function Dashboard() {
     setModalOpen(true)
   }
 
-  const handleSave = () => {
-    if (editingId) {
-      updateOffer(editingId, form)
-    } else {
-      addOffer(form)
+  const handleSave = async () => {
+    try {
+      if (editingId) {
+        await api.putOffer(editingId, form)
+        updateOffer(editingId, form)
+      } else {
+        const result = await api.postOffer(form)
+        addOffer(result)
+      }
+      setModalOpen(false)
+    } catch (err) {
+      setError(err.message)
     }
-    setModalOpen(false)
+  }
+
+  const handleDelete = async (id) => {
+    try {
+      await api.deleteOffer(id)
+      removeOffer(id)
+    } catch (err) {
+      setError(err.message)
+    }
   }
 
   return (
@@ -96,7 +133,7 @@ export default function Dashboard() {
                 <Button variant="ghost" size="sm" onClick={() => openEdit(offer)}>
                   {t('dashboard.edit')}
                 </Button>
-                <Button variant="danger" size="sm" onClick={() => removeOffer(offer.id)}>
+                <Button variant="danger" size="sm" onClick={() => handleDelete(offer.id)}>
                   {t('dashboard.delete')}
                 </Button>
               </div>

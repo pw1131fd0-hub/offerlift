@@ -9,6 +9,7 @@ export const useOfferStore = create(
       language: 'zh-TW',
 
       // Offer actions
+      setOffers: (offers) => set({ offers }),
       addOffer: (offer) => set((state) => ({ offers: [...state.offers, { ...offer, id: Date.now() }] })),
       removeOffer: (id) => set((state) => ({ offers: state.offers.filter((o) => o.id !== id) })),
       updateOffer: (id, data) =>
