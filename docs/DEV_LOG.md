@@ -1814,3 +1814,24 @@ security階段第11次驗證完成：69/69 tests pass, Vite build 1.77s, npm aud
 | `GET /api
 
 ---
+
+## [2026-04-13 08:44:27] [security] undefined%
+
+security階段第12次驗證完成：發現並修復 Docker 容器運行過時代碼導致公開端點返回 401 的問題。重新 build 並重啟容器後，所有 API 端點正常運作。XSS 防護已驗證。69 tests pass, Vite build 1.94s, npm audit 0 vulnerabilities。QUALITY_SCORE=100 >= 門檻95。Stage stays at security per iron rule.
+
+> ## 發現並修復的錯誤
+
+**問題**: Docker 容器 `offerlift-api` 運行過時代碼，導致公開端點返回 401 Unauthorized。
+
+**根本原因**: routes/index.js 雖然在本地代碼中已更新（salary-data、scripts、forum GET、calculator 為公開端點），但 Docker 容器在 7 小時前構建後未重新構建，導致容器仍在運行舊代碼（所有端點都要求 API Key）。
+
+**驗證結果（修復後）**:
+| 端點 | 類型 | API Key | 結果 |
+|------|------|---------|------|
+| `/api/salary-data` | 公開 | 不需要 | ✅ 12筆資料 |
+| `/api/scripts` | 公開 | 不需要 | ✅ 5個腳本 |
+| `/api/forum` (GET) | 公開 | 不需要 | ✅ 論壇文章 |
+| `/api/calculator/tax` | 公開 | 不需要 | ✅ 68800稅 |
+| `/api/calculator/benefi
+
+---
