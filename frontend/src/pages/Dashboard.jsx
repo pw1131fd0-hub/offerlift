@@ -8,10 +8,10 @@ import { Select } from '../components/ui/Select'
 import { Modal } from '../components/ui/Modal'
 
 const EXPERIENCE_OPTIONS = [
-  { value: 'junior', label: 'Junior' },
-  { value: 'mid', label: 'Mid' },
-  { value: 'senior', label: 'Senior' },
-  { value: 'staff', label: 'Staff' },
+  { value: '0-2', label: 'Junior (0-2年)' },
+  { value: '2-5', label: 'Mid (2-5年)' },
+  { value: '5-10', label: 'Senior (5-10年)' },
+  { value: '10+', label: 'Staff (10+年)' },
 ]
 
 const CITY_OPTIONS = [
