@@ -98,14 +98,15 @@ router.post('/', authMiddleware, validate(CreatePostSchema), async (req, res, ne
   }
 });
 
-// DELETE /api/forum/:id
-router.delete('/:id', async (req, res, next) => {
+// DELETE /api/forum/:id (requires auth)
+router.delete('/:id', authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
+    const anonymousId = getAnonymousIdFromRequest(req);
 
     const result = await query(
-      `DELETE FROM forum_posts WHERE id = $1 RETURNING id`,
-      [id]
+      `DELETE FROM forum_posts WHERE id = $1 AND anonymous_id = $2 RETURNING id`,
+      [id, anonymousId]
     );
 
     if (result.rows.length === 0) {

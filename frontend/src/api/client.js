@@ -27,4 +27,11 @@ export const api = {
   postOffer: (data) => apiFetch('/api/offers', { method: 'POST', body: JSON.stringify(data) }),
   putOffer: (id, data) => apiFetch(`/api/offers/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
   deleteOffer: (id) => apiFetch(`/api/offers/${id}`, { method: 'DELETE' }),
+  getInterviews: () => apiFetch('/api/interviews'),
+  postInterview: (data) => apiFetch('/api/interviews', { method: 'POST', body: JSON.stringify(data) }),
+  putInterview: (id, data) => apiFetch(`/api/interviews/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
+  deleteInterview: (id) => apiFetch(`/api/interviews/${id}`, { method: 'DELETE' }),
+  getCalculatorTax: (params) => apiFetch(`/api/calculator/tax?${new URLSearchParams(params)}`),
+  getCalculatorBenefits: (params) => apiFetch(`/api/calculator/benefits?${new URLSearchParams(params)}`),
+  contributeSalary: (data) => apiFetch('/api/contribute', { method: 'POST', body: JSON.stringify(data) }),
 }

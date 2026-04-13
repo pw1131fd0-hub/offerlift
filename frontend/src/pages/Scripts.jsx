@@ -61,7 +61,7 @@ export default function Scripts() {
                   className="text-left flex-1"
                 >
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">
-                    {script.title || script.name || `Script ${i + 1}`}
+                    {script.title || `Script ${i + 1}`}
                   </h3>
                 </button>
                 <Button
@@ -74,7 +74,7 @@ export default function Scripts() {
               </div>
               {expanded === i && (
                 <p className="mt-3 text-gray-600 dark:text-gray-400 whitespace-pre-wrap text-sm">
-                  {script.content || script.text}
+                  {script.script}
                 </p>
               )}
             </Card>

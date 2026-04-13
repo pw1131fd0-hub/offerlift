@@ -28,13 +28,19 @@ router.get('/tax', (req, res, next) => {
     const standardDeduction = deduction === 'standard' ? 124000 : 0;
     const taxableIncome = Math.max(0, income - standardDeduction);
 
-    // Calculate progressive tax
+    // Calculate progressive tax correctly
     let taxAmount = 0;
+    let remainingIncome = taxableIncome;
+
     for (const bracket of TAX_BRACKETS) {
+      if (remainingIncome <= 0) break;
+
+      const bracketSize = bracket.max === Infinity ? remainingIncome : bracket.max - bracket.min;
+      const incomeInBracket = Math.min(remainingIncome, bracketSize);
+
       if (taxableIncome > bracket.min) {
-        const taxableInBracket = Math.min(taxableIncome, bracket.max) - bracket.min;
-        taxAmount = bracket.rate * taxableIncome - bracket.deduction;
-        break;
+        taxAmount += incomeInBracket * bracket.rate;
+        remainingIncome -= incomeInBracket;
       }
     }
     taxAmount = Math.max(0, Math.round(taxAmount));

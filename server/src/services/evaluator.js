@@ -1,10 +1,10 @@
 // City adjustment factors
 const CITY_FACTORS = {
   taipei: 1.0,
-  nhc: 1.1,    // Hsinchu Science Park - higher due to tech industry
+  new_taipei: 0.95,  // New Taipei - slightly below Taipei
   taichung: 0.9,
   kaohsiung: 0.85,
-  remote: 0.95,
+  other: 0.92,
 };
 
 // Experience adjustment factors
