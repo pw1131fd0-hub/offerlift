@@ -1786,3 +1786,31 @@ All systems operational. Here's the verification summary:
 - `GET /api/calcula
 
 ---
+
+## [2026-04-13 08:32:30] [security] undefined%
+
+security階段第11次驗證完成：69/69 tests pass, Vite build 1.77s, npm audit 0 vulnerabilities。10個API端點全數實測正常。Service Worker 註冊已加入。QUALITY_SCORE=100 >= 門檻95。Stage stays at security per iron rule.
+
+> 
+
+## 深入檢查完成 - security 階段第 11 次驗證
+
+### 發現的錯誤
+1. **Service Worker 未註冊** - PWA 功能存在但未啟用
+
+### 修復內容
+- 在 `frontend/src/main.jsx` 加入 `navigator.serviceWorker.register('/sw.js')`
+- 重新建構前端
+
+### 完整 API 實測結果（10個端點全數正常）
+| 端點 | 結果 |
+|------|------|
+| `GET /api/salary-data` | ✅ 12 筆薪資資料 |
+| `GET /api/scripts` | ✅ 5 個腳本 |
+| `POST /api/evaluate` | ✅ score=66 |
+| `GET /api/calculator/tax` | ✅ taxAmount=68800 |
+| `GET /api/calculator/benefits` | ✅ totalComp=1200000 |
+| `GET /api/forum` | ✅ 16 posts |
+| `GET /api
+
+---
