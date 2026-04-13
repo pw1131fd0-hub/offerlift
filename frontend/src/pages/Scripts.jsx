@@ -29,6 +29,16 @@ export default function Scripts() {
     }
   }
 
+  const getCategoryIcon = (category) => {
+    switch (category) {
+      case '開場': return '🎯';
+      case '談判': return '💬';
+      case '福利': return '🎁';
+      case '結尾': return '⏰';
+      default: return '📋';
+    }
+  }
+
   return (
     <div className="max-w-3xl mx-auto px-4 py-12">
       <h1 className="text-3xl font-bold mb-8 text-gray-900 dark:text-gray-100">
