@@ -69,13 +69,21 @@ export default function Scripts() {
                   size="sm"
                   onClick={() => handleCopy(script.content || script.text || '', i)}
                 >
-                  {copied === i ? t('scripts.copied') : t('scripts.copy')}
+                  {copied === i ? '✓' : t('scripts.copy')}
                 </Button>
               </div>
               {expanded === i && (
-                <p className="mt-3 text-gray-600 dark:text-gray-400 whitespace-pre-wrap text-sm">
-                  {script.script}
-                </p>
+                <div className="mt-3 space-y-3">
+                  <p className="text-gray-600 dark:text-gray-400 whitespace-pre-wrap text-sm">
+                    {script.script}
+                  </p>
+                  {script.tip && (
+                    <div className="flex items-start gap-2 p-3 rounded-lg bg-brand-50 dark:bg-brand-900/20 border border-brand-200 dark:border-brand-800">
+                      <span className="text-brand-600 dark:text-brand-400 mt-0.5">💡</span>
+                      <p className="text-sm text-brand-700 dark:text-brand-300">{script.tip}</p>
+                    </div>
+                  )}
+                </div>
               )}
             </Card>
           ))}
